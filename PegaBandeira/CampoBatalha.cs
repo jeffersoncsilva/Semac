@@ -104,17 +104,17 @@ namespace PegaBandeira
         }
 
 
-        //public CampoBatalha(MenuInicial m)
-        //{
-        //    InitializeComponent();
-        //    // this.hud = new Interface(LARGURA, ALTURA);
-        //    this.frm_Inicio = m;
-        //    ConfigPicBox();
-        //    ConfigForm();
-        //    ConfGraphics();
-        //    desenha = new Thread(() => Draw());
-        //    desenha.Start();
-        //}
+        public CampoBatalha(MenuInicial m)
+        {
+            InitializeComponent();
+            // this.hud = new Interface(LARGURA, ALTURA);
+            this.frm_Inicio = m;
+            ConfigPicBox();
+            ConfigForm();
+            ConfGraphics();
+            desenha = new Thread(() => Draw());
+            desenha.Start();
+        }
 
 
         #region Configuracao do grafico.
