@@ -86,7 +86,7 @@ namespace PegaBandeira
                 int aux = nome.Length + 5;
                 string msg = string.Format("01{0}{1}", aux.ToString("000"), nome);
                 SendMsgUdp(msg, brod);
-                Thread.Sleep(10000);
+                Thread.Sleep(1000);
             }
         }
 
@@ -250,13 +250,18 @@ namespace PegaBandeira
         {
             //Console.WriteLine("Recebendo MSG.");
             string msgRecebida = System.Text.Encoding.ASCII.GetString(dados);
+           
             string tipo = msgRecebida.Substring(0, 2);
             int tam = int.Parse(msgRecebida.Substring(2, 3));
             string str = msgRecebida.Remove(0, 5);
             string[] nomeApelido = str.Split('|');
-
+            
             if (nomeApelido[0] == this.apelidoPlayerLocal)
                 return;
+
+
+            Console.WriteLine(msgRecebida);
+
 
             switch (tipo)
             {

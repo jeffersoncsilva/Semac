@@ -16,7 +16,7 @@ namespace PegaBandeira
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new CampoBatalha());
+            Application.Run(new MenuInicial());
         }
     }
 }

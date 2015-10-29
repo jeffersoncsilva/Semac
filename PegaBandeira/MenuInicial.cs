@@ -39,6 +39,7 @@ namespace PegaBandeira
             this.foiConvidado = false;
         }
 
+
         private void btn_VeriJog_Click(object sender, EventArgs e)
         {
             //Dispara o boradcast na rede para encontrar os jogadores que estiverem online
@@ -47,6 +48,7 @@ namespace PegaBandeira
             serverUdp.EnviaBroadcastRede();
             HabilitaBotoes();
         }
+
 
         private void btn_IniPartida_Click(object sender, EventArgs e)
         {
@@ -81,6 +83,7 @@ namespace PegaBandeira
             lbl_Espera.Visible = true;
         }
 
+
         private void btn_Convida_Click(object sender, EventArgs e)
         {
             if (ltb_JogOn.Items.Count > 0)
@@ -91,6 +94,7 @@ namespace PegaBandeira
                 //começo a contar o tempo de resposta
             }
         }
+
 
         private void btn_AceitoConv_Click(object sender, EventArgs e)
         {
@@ -104,6 +108,7 @@ namespace PegaBandeira
                 tm_verJogOn.Stop();
             }
         }
+
 
         private void btn_RecusConv_Click(object sender, EventArgs e)
         {
@@ -128,6 +133,7 @@ namespace PegaBandeira
         }
 
 
+
         //habilita o botao de verificar jogadores online (broadcast)
         private void HabilitaBotoes()
         {
@@ -136,6 +142,7 @@ namespace PegaBandeira
                 btn_VeriJog.Enabled = true;
             }
         }
+
 
         //----------------------DELEGATES METHODS------------------
 
@@ -147,6 +154,8 @@ namespace PegaBandeira
             gb_Convite.Visible = true;
             gb_Convite.Enabled = true;
         }
+
+
 
         /// <summary>
         /// Adiciona um jogador a lista de jogadores online.
@@ -201,6 +210,7 @@ namespace PegaBandeira
             }
         }
 
+
         //quando o jogador recusa o convite para jogo.
         public void ConexaoNegada()
         {
@@ -208,6 +218,7 @@ namespace PegaBandeira
             btn_Convida.Enabled = true;
             btn_IniPartida.Visible = false;
         }
+
 
         //quando o jogador aceita o convite para jogo, e ja esta conectado com o adversario.
         public void ConexoAceita()
@@ -218,12 +229,14 @@ namespace PegaBandeira
             tm_verJogOn.Stop();
         }
 
+
         public void CarregaCampoBatalha()
         {
-            //cBat = new CampoBatalha(this);
+            cBat = new CampoBatalha(this);
             cBat.Show();
             this.Hide();
         }
+
 
         //quando o jogador desiste de jogar. Quando ele desiste, envio uma msg de desistencia e fecha a conexao.
         public void Desisto()
@@ -254,6 +267,7 @@ namespace PegaBandeira
             Padrao();
         }
 
+
         //quando o outro jogador encerra a conexão
         public void ConexaoEncerrada()
         {
@@ -282,6 +296,7 @@ namespace PegaBandeira
             Padrao();
         }        
 
+
         //restaura os dados importantes para os valores iniciais para poder iniciar outra partida.
         public void Padrao()
         {
@@ -299,6 +314,7 @@ namespace PegaBandeira
 
         }
         #endregion
+
 
         //a cada 5 segundos, ele verifica quem ta online.
         private void verJogOn_Tick(object sender, EventArgs e)
