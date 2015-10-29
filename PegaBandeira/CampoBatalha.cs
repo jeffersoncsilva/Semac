@@ -32,7 +32,8 @@ namespace PegaBandeira
         private const int ALTURA = 800;
         private MenuInicial frm_Inicio;
 
-        private Thread desenha;//essa trhead fica redesenhando os obj na tela.
+        //essa trhead fica redesenhando os obj na tela.
+        private Thread desenha;
       
         private Player player;
         private AreaPlayers areaPlay;
@@ -59,47 +60,8 @@ namespace PegaBandeira
             ConfigPicBox();
             ConfigForm();
             ConfGraphics();
-
-            elementosJogo = new List<ElementoJogo>();
-            this.podeAtirar = true;
-            this.areaPlay = new AreaPlayers(this.pb.Size.Width, this.pb.Size.Height);
-            //refere-se a HUD do jogo.
-            this.hud = new Interface(this.pb.Size.Width, this.pb.Size.Height);
-            Label[] lab = new Label[] { this.lbl_NomeJog, this.lbl_Placar, this.lbl_TempoRestante, this.lbl_Inativo };
-            this.hud.ConfgLabels(lab);
-
-            this.player = new Player(this.pb.Size.Width, this.pb.Size.Height);
+            InicializaVariaveis();
             
-
-            this.desenha = new Thread(() => Draw());
-            this.desenha.Name = "DesenhaTela";
-            this.desenha.Start();
-            
-            this.tempoRestante = TIMEOUT;
-            this.tm_UpdtTempoPartida.Start();
-           
-
-            this.bands = new Bandeira[2];
-            this.bands[0] = new Bandeira(this.areaPlay, 0);
-            this.bands[1] = new Bandeira(this.areaPlay, 1);
-
-            elementosJogo.Add(bands[0]);
-            elementosJogo.Add(bands[1]);
-            elementosJogo.Add(player);
-
-            this.tiros = new List<Tiro>();
-
-            this.colisaoBala = new Thread(() => ColisaoDaBala());
-            this.colisaoBala.Name = "Colicao_Balas";
-            this.colisaoBala.Start();
-
-            listaObs = new List<Obstaculo>();
-            CriaObstaculos();
-
-            this.powerUp = new PowerUp(this.pb.Size.Width, this.pb.Size.Height);
-            elementosJogo.Add(powerUp);
-
-            Console.WriteLine("Elementos no jogo: " + elementosJogo.Count);
 
         }
 
@@ -107,13 +69,62 @@ namespace PegaBandeira
         public CampoBatalha(MenuInicial m)
         {
             InitializeComponent();
-            // this.hud = new Interface(LARGURA, ALTURA);
             this.frm_Inicio = m;
             ConfigPicBox();
             ConfigForm();
             ConfGraphics();
-            desenha = new Thread(() => Draw());
-            desenha.Start();
+            InicializaVariaveis();
+        }
+
+
+        private void InicializaVariaveis()
+        {
+            elementosJogo = new List<ElementoJogo>();   //cria a lista com todos os elementos do jogo.
+            this.podeAtirar = true;                     //define que o jogador pode atirar.
+            this.areaPlay = new AreaPlayers(this.pb.Size.Width, this.pb.Size.Height);   //cria a rea de jogo do player.
+            //refere-se a HUD do jogo.
+            this.hud = new Interface(this.pb.Size.Width, this.pb.Size.Height);      //cria a hud do jogo.
+            Label[] lab = new Label[] { this.lbl_NomeJog, this.lbl_Placar, this.lbl_TempoRestante, this.lbl_Inativo };//pega as labels da hud do jogo que ta no form.
+            this.hud.ConfgLabels(lab);  //define as posições e tamanhos das labels que tem no jogo.
+
+            this.player = new Player(this.pb.Size.Width, this.pb.Size.Height);//cria o player local.
+
+            //thread de desenho.
+            this.desenha = new Thread(() => Draw());
+            this.desenha.Name = "DesenhaTela";
+            this.desenha.Start();
+
+            //timer que controle o tempo de jogo.
+            this.tempoRestante = TIMEOUT;
+            this.tm_UpdtTempoPartida.Start();
+
+            //cria as bandeiras que ha no jogo.
+            this.bands = new Bandeira[2];
+            this.bands[0] = new Bandeira(this.areaPlay, 0);
+            this.bands[1] = new Bandeira(this.areaPlay, 1);
+
+            //adicionas as bandeiras a lista de lemento de jogo e eo player.
+            elementosJogo.Add(bands[0]);
+            elementosJogo.Add(bands[1]);
+            elementosJogo.Add(player);
+
+            //cra a lista de tiros.
+            this.tiros = new List<Tiro>();
+
+            //cria uma thread que ficara responsavel por verificar se houve alguma colisão do tiro com algum elemento do jogo.
+            this.colisaoBala = new Thread(() => ColisaoDaBala());
+            this.colisaoBala.Name = "Colicao_Balas";
+            this.colisaoBala.Start();
+
+            //cria uma lista onde ficara armazenado os obstaculos. Cria os obstaculos do jogo.
+            listaObs = new List<Obstaculo>();
+            CriaObstaculos();
+
+            //cria o powerUp do jogo e adiciona a lista de elementos do jogo.
+            this.powerUp = new PowerUp(this.pb.Size.Width, this.pb.Size.Height);//cria o powerUp do jogo e adiciona a lista de elementos do jogo.
+            elementosJogo.Add(powerUp);
+
+            Console.WriteLine("Elementos no jogo: " + elementosJogo.Count);
         }
 
 

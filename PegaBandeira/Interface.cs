@@ -10,7 +10,7 @@ namespace PegaBandeira
 {
     class Interface
     {
-
+        
         private PosRect hud;
         private Label nomeJog;
         private int altura;
