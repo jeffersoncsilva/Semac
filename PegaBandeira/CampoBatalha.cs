@@ -91,7 +91,7 @@ namespace PegaBandeira
 
 
             this.player = new Player(this.pb.Size.Width, this.pb.Size.Height, tipo, this.frm_Inicio);
-            
+            playerEnemy = new JogadorInimigo(this.player.tamX, this.player.tamY, this.pb.Size.Width, this.pb.Size.Height, tipo);
 
             //thread de desenho.
             this.desenha = new Thread(() => Draw());
@@ -359,6 +359,7 @@ namespace PegaBandeira
                     this.bands[0].Draw(this.g);
                     this.bands[1].Draw(this.g);
                     this.player.Draw(this.g);
+                    this.playerEnemy.Draw(this.g);
 
                     this.powerUp.Draw(this.g);
 
@@ -464,5 +465,32 @@ namespace PegaBandeira
         }
 
         #endregion
+
+
+        //---------------- Tratamento das MSG recebidas. ---------------------------
+
+        /// <summary>
+        /// Define a nova posição do player remoto com base nos dados recebidos.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="direcao"></param>
+        public void DefinePosicaoPlayerRemoto(float x, float y, char direcao)
+        {
+            this.playerEnemy.SetPosicao(x, y);
+        }
+
+        /// <summary>
+        /// Retorna um vetor indicando a posição do player em coordenadas normalizadas.
+        /// </summary>
+        /// <returns></returns>
+        public float[] GetPosPlayerUni()
+        {
+            float[] pos = new float[2];
+            pos[0] = this.player.xAtual;
+            pos[1] = this.player.yAtual;
+            return pos;
+        }
+       
     }
 }

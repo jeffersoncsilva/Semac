@@ -136,42 +136,51 @@ namespace PegaBandeira
 
                     break;
 
-
-
                 case 11:
+                    Console.WriteLine("Recebido: {0} -- {1}", dados[0], dados[1]);
+
+                   
+                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
+
+
                     break;
-                    Console.WriteLine("msg 11 recebida.");
 
                 case 12:
-                    break;
+                    Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
 
+                    break;
 
                 case 13:
-                    break;
 
+
+                    break;
 
                 case 14:
-                    break;
 
+
+                    break;
 
                 case 15:
-                    break;
 
+
+                    break;
 
                 case 16:
-                    break;
 
+
+                    break;
 
                 case 17:
-                    break;
 
+
+                    break;
 
                 case 18:
+
+
                     break;
 
-
                 case 19:
-
 
                     this.EncerraConexaoTcp();
                     this.Msg19 = true;

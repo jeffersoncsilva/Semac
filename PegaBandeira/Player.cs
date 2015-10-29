@@ -245,15 +245,13 @@ namespace PegaBandeira
 
         private void EnviaMsgMov()
         {
-            float xUni = 1 / this.xAtual;
-            float yUni = 1 / this.yAtual;
-            string aux = string.Format("{0}|{1}|{2}", xUni, yUni, this.direcaoJogador);
-            string msg = string.Format("11{0}{1}", aux.Length + 5, aux);
+            //float xUni = this.xAtual;
+            //float yUni = this.yAtual;
+            string aux = string.Format("{0}|{1}|{2}", this.xAtual, this.yAtual, this.direcaoJogador);
+            int v = aux.Length + 5;
+            string msg = string.Format("11{0}{1}", v.ToString("000"), aux);
+            
             this.frm_MenuInicio.EnviaMsgTcp(msg);
         }
-
-
-
-    
     }
 }

@@ -24,14 +24,30 @@ namespace PegaBandeira
         /// </summary>
         /// <param name="wi"></param>
         /// <param name="hei"></param>
-        public JogadorInimigo(float wi, float hei, float wS, float hS)
+        public JogadorInimigo(float wi, float hei, float wS, float hS, int tipo)
         {
             this.widthJogador = wi;
             this.heightJogador = hei;
             this.widthScreen = wS;
             this.heightScreen = hS;
+            DefinePosicaoInicial(tipo);
         }
 
+
+        private void DefinePosicaoInicial(int tipo)
+        {
+            //lado esquerdo.
+            if (tipo == 1)
+            {
+                this.posLocalX = ((AreaPlayers.CalcPercet(10, this.widthScreen)) / 2) - (this.widthJogador / 2);
+            }
+            else
+            {
+                //lado direito.
+                this.posLocalX = (((AreaPlayers.CalcPercet(10, this.widthScreen)) / 2) - (this.widthJogador / 2) + AreaPlayers.CalcPercet(90, this.widthScreen));
+            }
+            this.posLocalY = (this.heightScreen / 2) - (this.heightJogador / 2);
+        }
 
 
         /// <summary>
@@ -41,8 +57,11 @@ namespace PegaBandeira
         /// <param name="y"></param>
         public void SetPosicao(float x, float y)
         {
-            this.posUniverX = x;
-            this.posUniverY = y;
+            //this.posUniverX = x;
+            //this.posUniverY = y;
+            //ConvertPos();
+            posLocalX = x;
+            posLocalY = y;
         }
 
         
@@ -52,7 +71,6 @@ namespace PegaBandeira
         /// <param name="g"></param>
         public void Draw(Graphics g)
         {
-            ConvertPos();
             g.FillRectangle(new SolidBrush(Color.Red), this.posLocalX, this.posLocalY, this.widthJogador, this.heightJogador);
         }
 

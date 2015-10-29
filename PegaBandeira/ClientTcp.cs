@@ -150,20 +150,24 @@ namespace PegaBandeira
             switch (int.Parse(tipo))
             {
                 case 10:
-
-
                     this.RemotePlayer = true;
                     if (this.RemotePlayer && this.LocalPlayer)
                     {   //player no lado direito.
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(1); });
                     }
-
-
                     break;
+
+
                 case 11:
-                    Console.WriteLine("msg 11 recebida.");
+                    //Console.WriteLine("msg 11 recebida.");
+                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
+
                     break;
                 case 12:
+                    
+                    Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
+
+
                     break;
                 case 13:
                     break;

@@ -29,6 +29,7 @@ namespace PegaBandeira
         private bool euDesisto;
         private bool foiConvidado;
 
+        #region
 
         public MenuInicial()
         {
@@ -381,6 +382,30 @@ namespace PegaBandeira
                 this.clientTcp.EnviaMsg(msg);
             }
         }
+
+        #endregion
+
+        //------------------ MSG TCP IP --------------
+
+        public void TrataMsgOnze(string[] dados)
+        {
+            //divido os dados nas posições recebidas. (player remoto).
+            float xU = float.Parse(dados[0]);
+            float yU = float.Parse(dados[1]);
+            char dir = char.Parse(dados[2]);
+            this.cBat.DefinePosicaoPlayerRemoto(xU, yU, dir);//seto as novas posições.
+            //monta a msg 12
+            float[] pos = this.cBat.GetPosPlayerUni();//pego a posição do player local para montar a resposta do jogador.
+            string aux = string.Format("{0}|{1}", pos[0], pos[1]);
+            int count = aux.Length + 5;
+            string msg = string.Format("12{0}{1}", count.ToString("000"), aux);
+            if (serverTcp != null)
+                serverTcp.EnviaMsg(msg);
+            else if (clientTcp != null)
+                clientTcp.EnviaMsg(msg);
+        }
+
+
 
         //a cada 5 segundos, ele verifica quem ta online.
         private void verJogOn_Tick(object sender, EventArgs e)
