@@ -154,13 +154,14 @@ namespace PegaBandeira
 
                     this.RemotePlayer = true;
                     if (this.RemotePlayer && this.LocalPlayer)
-                    {
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(); });
+                    {   //player no lado direito.
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(1); });
                     }
 
 
                     break;
                 case 11:
+                    Console.WriteLine("msg 11 recebida.");
                     break;
                 case 12:
                     break;

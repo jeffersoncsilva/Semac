@@ -57,13 +57,13 @@ namespace PegaBandeira
                 if(this.dir == 'd')
                     this.xAtual += this.velTiro;
 
-                if (this.dir == 'a')
+                if (this.dir == 'e')
                     this.xAtual -= this.velTiro;
 
-                if (this.dir == 's')
+                if (this.dir == 'b')
                     this.yAtual += this.velTiro;
 
-                if (this.dir == 'w')
+                if (this.dir == 'c')
                     this.yAtual -= this.velTiro; 
 
                 Thread.Sleep(14);

@@ -130,8 +130,8 @@ namespace PegaBandeira
 
                     this.RemotePlayer = true;
                     if (this.RemotePlayer && this.LocalPlayer)
-                    {
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(); });
+                    {   //player no lado esquerdo.
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(0); });
                     }
 
                     break;
@@ -140,7 +140,7 @@ namespace PegaBandeira
 
                 case 11:
                     break;
-
+                    Console.WriteLine("msg 11 recebida.");
 
                 case 12:
                     break;

@@ -17,22 +17,24 @@ namespace PegaBandeira
         private float larguraTela;
         private float alturaTela;
         private float inicioTelaY;
-        public char direcaoBala;
+        public char direcaoJogador;
 
+        private MenuInicial frm_MenuInicio;
 
         public bool PegouBand { get { return this.pegouBandeira; } set { this.pegouBandeira = value; } }
         public bool PegouPowerUp { get { return this.pegouPowerUp; } set { this.pegouPowerUp = value; } }
 
-        public Player(int larg, int alt)
+        public Player(int larg, int alt, int onde, MenuInicial b)
         {
             this.larguraTela = larg;
             this.alturaTela = AreaPlayers.CalcPercet(90, alt);
+            this.frm_MenuInicio = b;
             DefineAreaDeJogo(larg, alt);
             DefineTamPlayer();
-            DefinePosInicial();
+            DefinePosInicial(onde);
             DefineVelocidades();
             
-            this.direcaoBala = 'd';
+            this.direcaoJogador = 'd';
         }
 
 
@@ -53,12 +55,22 @@ namespace PegaBandeira
             this.inicioTelaY = AreaPlayers.CalcPercet(10, this.alturaTela);
         }
 
-        private void DefinePosInicial()
+        private void DefinePosInicial(int onde)
         {
-            //Pego a largura da area do jogador, divido no meio, e diminuo o equivalente a metade do tamanho do jogador.
-            this.xInicial = ((AreaPlayers.CalcPercet(10, this.larguraTela)) / 2) - (this.tamX / 2);
-            //pego a altura da area  de jogo e divido ao meio.
+            if (onde == 0)//player na esquerda e inimigo na direita.
+            {
+                //Pego a largura da area do jogador, divido no meio, e diminuo o equivalente a metade do tamanho do jogador.
+                this.xInicial = ((AreaPlayers.CalcPercet(10, this.larguraTela)) / 2) - (this.tamX / 2);
+            }
+            else//player na direita e inimigo na esquerda.
+            {
+                //Pego a largura da area do jogador, divido no meio, e diminuo o equivalente a metade do tamanho do jogador, Depois soma onde inicia a area do outro jogador.
+                this.xInicial = (((AreaPlayers.CalcPercet(10, this.larguraTela)) / 2) - (this.tamX / 2) + AreaPlayers.CalcPercet(90, this.larguraTela));
+                //pego a altura da area  de jogo e divido ao meio.
+                
+            }
             this.yInicial = this.alturaTela / 2;
+
             this.xAtual = this.xInicial;
             this.yAtual = this.yInicial;
         }
@@ -85,28 +97,33 @@ namespace PegaBandeira
             if (e.KeyChar == 'w' && this.yAtual > inicioTelaY && !HasBlock(lstObs, 'w', this.xAtual, this.yAtual - this.velocidadeAtual))
             {
                 this.yAtual -= this.velocidadeAtual;
-                this.direcaoBala = 'w';
+                this.direcaoJogador = 'c';
+                EnviaMsgMov();
             }
 
             if (e.KeyChar == 's' && this.yAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual))
             {
                 this.yAtual += this.velocidadeAtual;
-                this.direcaoBala = 's';
+                this.direcaoJogador = 'b';
+                EnviaMsgMov();
             }
 
             if (e.KeyChar == 'a' && this.xAtual > 0 && !HasBlock(lstObs, 'a', this.xAtual - this.velocidadeAtual, this.yAtual))
             {
                 this.xAtual -= this.velocidadeAtual;
-                this.direcaoBala = 'a';
+                this.direcaoJogador = 'e';
+                EnviaMsgMov();
             }
 
             if (e.KeyChar == 'd' && this.xAtual < this.larguraTela - this.tamX && !HasBlock(lstObs, 'd', this.xAtual + this.velocidadeAtual, this.yAtual))
             {
                 this.xAtual += this.velocidadeAtual;
-                this.direcaoBala = 'd';
+                this.direcaoJogador = 'd';
+                EnviaMsgMov();
             }
         }
 
+        #region PLAYER_MOV
 
         public void Draw(Graphics g)
         {
@@ -222,6 +239,21 @@ namespace PegaBandeira
         {
             this.velocidadeAtual = this.velSemPowerUp;
         }
+        #endregion
 
+        //-------- MESAGENS REFERENTES A COMUNICAÇÃO DE REDES --------
+
+        private void EnviaMsgMov()
+        {
+            float xUni = 1 / this.xAtual;
+            float yUni = 1 / this.yAtual;
+            string aux = string.Format("{0}|{1}|{2}", xUni, yUni, this.direcaoJogador);
+            string msg = string.Format("11{0}{1}", aux.Length + 5, aux);
+            this.frm_MenuInicio.EnviaMsgTcp(msg);
+        }
+
+
+
+    
     }
 }

@@ -39,7 +39,11 @@ namespace PegaBandeira
             this.foiConvidado = false;
         }
 
-
+        /// <summary>
+        /// Inicia o envio de broadcas na rede para verificar os jogadores que estão online. Ativa a escuta de braodcast da rede.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_VeriJog_Click(object sender, EventArgs e)
         {
             //Dispara o boradcast na rede para encontrar os jogadores que estiverem online
@@ -50,29 +54,36 @@ namespace PegaBandeira
         }
 
 
+        /// <summary>
+        /// Envia msg para dizer ao outro jogador que pode iniciar a partida. Caso este ja tenha enviado essa msg, inicia a partida.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_IniPartida_Click(object sender, EventArgs e)
         {
             string msg = "10005";
+            //+--------  SERVIDOR  +--------
             if (serverTcp != null)
             {
                 serverTcp.LocalPlayer = true;
                 if (serverTcp.RemotePlayer && serverTcp.LocalPlayer)
                 {
                     serverTcp.EnviaMsg(msg);
-                    CarregaCampoBatalha();
+                    CarregaCampoBatalha(0);
                 }
                 else
                 {
                     serverTcp.EnviaMsg(msg);
                 }
             }
+            //+--------  CLIENTE  +--------
             else if (clientTcp != null)
             {
                 clientTcp.LocalPlayer = true;
                 if (clientTcp.RemotePlayer && clientTcp.LocalPlayer)
                 {
                     clientTcp.EnviaMsg(msg);
-                    CarregaCampoBatalha();
+                    CarregaCampoBatalha(1);
                 }
                 else
                 {
@@ -84,18 +95,28 @@ namespace PegaBandeira
         }
 
 
+        /// <summary>
+        /// Convida o jogador selecionado para jogar.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_Convida_Click(object sender, EventArgs e)
         {
             if (ltb_JogOn.Items.Count > 0)
             {
                 serverUdp.EnviaConviteJogo(ltb_JogOn.SelectedIndex);
                 btn_Convida.Enabled = false;
-                tm_verJogOn.Start();
                 //começo a contar o tempo de resposta
+                tm_verJogOn.Start();
             }
         }
 
 
+        /// <summary>
+        /// Aceita o convite de jogo realizado pelo outro jogaor.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_AceitoConv_Click(object sender, EventArgs e)
         {
             if (this.foiConvidado)
@@ -106,10 +127,16 @@ namespace PegaBandeira
                 gb_Convite.Enabled = false;
                 gb_ConviteRecv.Visible = false;
                 tm_verJogOn.Stop();
+                //paro a thread de escuta e envio de broadcast.
             }
         }
 
 
+        /// <summary>
+        /// Recusa o convite de jogo do outro jogador.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btn_RecusConv_Click(object sender, EventArgs e)
         {
             if (this.foiConvidado)
@@ -125,8 +152,11 @@ namespace PegaBandeira
 
 
 
-        //função chamada sempre que o nome e apelido e mudado para liberar o botao de verificar
-        //jogadores online.
+        /// <summary>
+        /// Verifica se o nome e apelido atende os requisitos para poder habilitar o botão de inicio de partida.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AlteraNomeTxb(object sender, EventArgs e)
         {
             HabilitaBotoes();
@@ -134,9 +164,12 @@ namespace PegaBandeira
 
 
 
-        //habilita o botao de verificar jogadores online (broadcast)
+       /// <summary>
+       /// Para verificar se o jogador pode iniciar a escuta e envio de broadcast.
+       /// </summary>
         private void HabilitaBotoes()
         {
+            //habilita o botao de verificar jogadores online (broadcast)
             if (txb_Apelido.Text != "" && txb_Nome.Text != "")
             {
                 btn_VeriJog.Enabled = true;
@@ -160,16 +193,19 @@ namespace PegaBandeira
         /// <summary>
         /// Adiciona um jogador a lista de jogadores online.
         /// </summary>
-        /// <param name="jogadorNome"></param>
-        /// <param name="jogadorApelido"></param>
+        /// <param name="jogadorNome">Nome do jogador.</param>
+        /// <param name="jogadorApelido">Apelido do jogador.</param>
         public void AddJogador(string jogadorNome, string jogad)
         {
             ltb_JogOn.Items.Add(string.Format(jogadorNome + "; " + jogad));
         }
 
-        //mostra o nome do jogador adversario que convidou para jogo.
-        public void AddNomeEnemy(string nome) 
-        { 
+        /// <summary>
+       /// Para mostrar o nome do jogador que o vonvidou para jogo.
+       /// </summary>
+       /// <param name="nome">nome jogador.</param>
+        public void AddNomeEnemy(string nome)
+        {  //mostra o nome do jogador adversario que convidou para jogo.
             lbl_Convidou.Text = string.Format("Convidou: {0} para jogar. Esperando pela resposta dojogador.", nome);  
         }
 
@@ -178,9 +214,12 @@ namespace PegaBandeira
 
 
 
-        //mostra uma message box quado foi convidado para jogo, para escoher se deseja ou nao jogar.
+        /// <summary>
+        /// Mostra as opções de aceitar ou negar o convite de jogo recebido por um jogador.
+        /// </summary>
+        /// <param name="apelido"></param>
         public void ConviteReciv(string apelido)
-        {
+        {//Ativar os botoes de aceitar e negar o convite de jogo.
             if (!this.connect && !this.foiConvidado)
             {
                 this.foiConvidado = true;
@@ -198,11 +237,15 @@ namespace PegaBandeira
 
 
 
-        #region
+        
 
-        //Método que conecta como "cliente" ao outro jogador.
+        /// <summary>
+        /// Conecta ao outro jogador como cliente.
+        /// </summary>
+        /// <param name="ip">Ip do outro jogador.</param>
+        /// <param name="port">Porta do outro jogador.</param>
         public void ConnectToServerTcp(string ip, int port)
-        {
+        {//Método que conecta como "cliente" ao outro jogador.
             this.clientTcp = new ClientTcp(this);
             if (clientTcp.Conecta(ip, port))
             {
@@ -211,36 +254,45 @@ namespace PegaBandeira
         }
 
 
-        //quando o jogador recusa o convite para jogo.
+        /// <summary>
+        /// Recusa o convite de jogar do jogador.
+        /// </summary>
         public void ConexaoNegada()
-        {
+        {//quando o jogador recusa o convite para jogo.
             lbl_Convidou.Text = "O jogador convidado recusou o convite.";
             btn_Convida.Enabled = true;
             btn_IniPartida.Visible = false;
         }
 
 
-        //quando o jogador aceita o convite para jogo, e ja esta conectado com o adversario.
+        /// <summary>
+        /// Aceita o convite do outro jogador.
+        /// </summary>
         public void ConexoAceita()
-        {
+        {//quando o jogador aceita o convite para jogo, e ja esta conectado com o adversario.
             lbl_Convidou.Text = "Conectado com o outro jogador.";
             btn_IniPartida.Visible = true;
             this.connect = true;
             tm_verJogOn.Stop();
         }
 
-
-        public void CarregaCampoBatalha()
+        /// <summary>
+        /// Carrega o campo de batalha do jogo.
+        /// </summary>
+        /// <param name="tipo">Se o jogador e um cliente ou o servidor.</param>
+        public void CarregaCampoBatalha(int tipo)
         {
-            cBat = new CampoBatalha(this);
+            cBat = new CampoBatalha(this, tipo);
             cBat.Show();
             this.Hide();
         }
 
 
-        //quando o jogador desiste de jogar. Quando ele desiste, envio uma msg de desistencia e fecha a conexao.
+        /// <summary>
+        /// Quando a a desistencia do jogador da partida.
+        /// </summary>
         public void Desisto()
-        {
+        {//quando o jogador desiste de jogar. Quando ele desiste, envio uma msg de desistencia e fecha a conexao.
             this.euDesisto = true;
 
             string msg = "19005";
@@ -268,9 +320,11 @@ namespace PegaBandeira
         }
 
 
-        //quando o outro jogador encerra a conexão
+        /// <summary>
+        /// O outro jogador encerra a conexão. Quando a perda de conexão com o outro jogador.
+        /// </summary>
         public void ConexaoEncerrada()
-        {
+        {//quando o outro jogador encerra a conexão
 
             if (this.euDesisto)
                 return;
@@ -297,10 +351,12 @@ namespace PegaBandeira
         }        
 
 
-        //restaura os dados importantes para os valores iniciais para poder iniciar outra partida.
+       /// <summary>
+       /// Restaura os valores para poder começar novamente a escutar e enviar o broadcast.
+       /// </summary>
         public void Padrao()
         {
-
+            //restaura os dados importantes para os valores iniciais para poder iniciar outra partida.
 
             btn_IniPartida.Visible = false;
             gb_Convite.Enabled = true;
@@ -313,8 +369,18 @@ namespace PegaBandeira
 
 
         }
-        #endregion
 
+        public void EnviaMsgTcp(string msg)
+        {
+            if (this.serverTcp != null)
+            {
+                this.serverTcp.EnviaMsg(msg);
+            }
+            else if (this.clientTcp != null)
+            {
+                this.clientTcp.EnviaMsg(msg);
+            }
+        }
 
         //a cada 5 segundos, ele verifica quem ta online.
         private void verJogOn_Tick(object sender, EventArgs e)

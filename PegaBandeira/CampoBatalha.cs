@@ -34,10 +34,12 @@ namespace PegaBandeira
 
         //essa trhead fica redesenhando os obj na tela.
         private Thread desenha;
-      
+
+        //Referente aos players do jogo.
         private Player player;
         private AreaPlayers areaPlay;
         private Interface hud;
+        private JogadorInimigo playerEnemy;
 
         private Bandeira[] bands;
         private static List<ElementoJogo> elementosJogo;
@@ -46,7 +48,6 @@ namespace PegaBandeira
         private List<Tiro> tiros;
 
         private Thread colisaoBala;
-
 
         private List<Obstaculo> listaObs;
 
@@ -60,24 +61,25 @@ namespace PegaBandeira
             ConfigPicBox();
             ConfigForm();
             ConfGraphics();
-            InicializaVariaveis();
+            InicializaVariaveis(1);
             
 
         }
 
 
-        public CampoBatalha(MenuInicial m)
+        public CampoBatalha(MenuInicial m, int tipo)
         {
             InitializeComponent();
             this.frm_Inicio = m;
             ConfigPicBox();
             ConfigForm();
             ConfGraphics();
-            InicializaVariaveis();
+            InicializaVariaveis(tipo);
         }
 
 
-        private void InicializaVariaveis()
+
+        private void InicializaVariaveis(int tipo)
         {
             elementosJogo = new List<ElementoJogo>();   //cria a lista com todos os elementos do jogo.
             this.podeAtirar = true;                     //define que o jogador pode atirar.
@@ -87,7 +89,9 @@ namespace PegaBandeira
             Label[] lab = new Label[] { this.lbl_NomeJog, this.lbl_Placar, this.lbl_TempoRestante, this.lbl_Inativo };//pega as labels da hud do jogo que ta no form.
             this.hud.ConfgLabels(lab);  //define as posições e tamanhos das labels que tem no jogo.
 
-            this.player = new Player(this.pb.Size.Width, this.pb.Size.Height);//cria o player local.
+
+            this.player = new Player(this.pb.Size.Width, this.pb.Size.Height, tipo, this.frm_Inicio);
+            
 
             //thread de desenho.
             this.desenha = new Thread(() => Draw());
@@ -106,7 +110,6 @@ namespace PegaBandeira
             //adicionas as bandeiras a lista de lemento de jogo e eo player.
             elementosJogo.Add(bands[0]);
             elementosJogo.Add(bands[1]);
-            elementosJogo.Add(player);
 
             //cra a lista de tiros.
             this.tiros = new List<Tiro>();
@@ -166,6 +169,7 @@ namespace PegaBandeira
         }
         #endregion
 
+        #region
 
         private void CampoBatalha_Resize(object sender, EventArgs e)
         {
@@ -208,7 +212,7 @@ namespace PegaBandeira
 
             if (e.KeyCode == Keys.Space && !endPartida && podeAtirar && !PossoAtirar())
             {
-                Tiro t = new Tiro(this.player.xAtual, this.player.yAtual, this.player.tamX, LARGURA, this.player.direcaoBala);
+                Tiro t = new Tiro(this.player.xAtual, this.player.yAtual, this.player.tamX, LARGURA, this.player.direcaoJogador);
                 lock (_lock)
                 {
                     tiros.Add(t);
@@ -458,5 +462,7 @@ namespace PegaBandeira
             this.podeAtirar = true;
             tm_Bala.Stop();
         }
+
+        #endregion
     }
 }

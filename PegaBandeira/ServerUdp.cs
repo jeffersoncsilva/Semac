@@ -260,7 +260,7 @@ namespace PegaBandeira
                 return;
 
 
-            Console.WriteLine(msgRecebida);
+            //Console.WriteLine(msgRecebida);
 
 
             switch (tipo)
