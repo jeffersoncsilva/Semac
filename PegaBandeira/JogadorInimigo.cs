@@ -71,6 +71,7 @@ namespace PegaBandeira
         /// <param name="g"></param>
         public void Draw(Graphics g)
         {
+            //Console.WriteLine("PD: {0} | {1}", this.posLocalX, this.posLocalY);
             g.FillRectangle(new SolidBrush(Color.Red), this.posLocalX, this.posLocalY, this.widthJogador, this.heightJogador);
         }
 

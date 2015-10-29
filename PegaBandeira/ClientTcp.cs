@@ -163,10 +163,9 @@ namespace PegaBandeira
                     this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
 
                     break;
-                case 12:
-                    
-                    Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
-
+                case 12:                    
+                    //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
+                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
 
                     break;
                 case 13:

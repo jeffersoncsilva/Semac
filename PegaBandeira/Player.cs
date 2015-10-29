@@ -27,7 +27,7 @@ namespace PegaBandeira
         public Player(int larg, int alt, int onde, MenuInicial b)
         {
             this.larguraTela = larg;
-            this.alturaTela = AreaPlayers.CalcPercet(90, alt);
+            this.alturaTela = alt;
             this.frm_MenuInicio = b;
             DefineAreaDeJogo(larg, alt);
             DefineTamPlayer();
@@ -93,35 +93,49 @@ namespace PegaBandeira
         {
             /*
              * Verifica se está tendo colisão do player com algum obj ou se esta excedento os limites da tela antes de movimenta.
+             * 
+             * Considere o seguinte para as comparações:
+             * 1º: verifica a tecla que foi pressionada.
+             * 2º: verifica se o player ira sair dos limites da tela, e for sair, impede a movimentação. 
+             * 3º: verifica se tem algum bloco no caminho. Se tiver, impede a movimentação.
              */
-            if (e.KeyChar == 'w' && this.yAtual > inicioTelaY && !HasBlock(lstObs, 'w', this.xAtual, this.yAtual - this.velocidadeAtual))
+
+
+            if (e.KeyChar == 'w' && this.yAtual - this.velocidadeAtual > inicioTelaY && !HasBlock(lstObs, 'w', this.xAtual, this.yAtual - this.velocidadeAtual)) 
             {
-                this.yAtual -= this.velocidadeAtual;
                 this.direcaoJogador = 'c';
-                EnviaMsgMov();
+                EnviaMsgMov(this.xAtual, this.yAtual - this.velocidadeAtual);
+               // Movimenta();
             }
 
-            if (e.KeyChar == 's' && this.yAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual))
+            if (e.KeyChar == 's'  && this.yAtual + this.velocidadeAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual))
             {
-                this.yAtual += this.velocidadeAtual;
                 this.direcaoJogador = 'b';
-                EnviaMsgMov();
+                EnviaMsgMov(this.xAtual, this.yAtual + this.velocidadeAtual);
+               // Movimenta();
             }
 
-            if (e.KeyChar == 'a' && this.xAtual > 0 && !HasBlock(lstObs, 'a', this.xAtual - this.velocidadeAtual, this.yAtual))
+            if (e.KeyChar == 'a' &&  this.xAtual - this.velocidadeAtual > 0 && !HasBlock(lstObs, 'a', this.xAtual - this.velocidadeAtual, this.yAtual))
             {
-                this.xAtual -= this.velocidadeAtual;
                 this.direcaoJogador = 'e';
-                EnviaMsgMov();
+                EnviaMsgMov(this.xAtual - this.velocidadeAtual, this.yAtual);
+               // Movimenta();
             }
 
-            if (e.KeyChar == 'd' && this.xAtual < this.larguraTela - this.tamX && !HasBlock(lstObs, 'd', this.xAtual + this.velocidadeAtual, this.yAtual))
+            if (e.KeyChar == 'd' && this.xAtual + this.velocidadeAtual < this.larguraTela - this.tamX && !HasBlock(lstObs, 'd', this.xAtual + this.velocidadeAtual, this.yAtual))
             {
-                this.xAtual += this.velocidadeAtual;
                 this.direcaoJogador = 'd';
-                EnviaMsgMov();
+                EnviaMsgMov(this.xAtual + this.velocidadeAtual, this.yAtual);
+                //Movimenta();
             }
+           
         }
+
+        private bool SaiDaTela(float pos, float larg)
+        {
+            return pos + this.velocidadeAtual > larg;
+        }
+
 
         #region PLAYER_MOV
 
@@ -243,11 +257,32 @@ namespace PegaBandeira
 
         //-------- MESAGENS REFERENTES A COMUNICAÇÃO DE REDES --------
 
-        private void EnviaMsgMov()
+
+        public void Movimenta()
+        {
+            switch (direcaoJogador)
+            {
+                case 'c':
+                    this.yAtual -= this.velocidadeAtual;
+                    break;
+                case 'b':
+                    this.yAtual += this.velocidadeAtual;
+                    break;
+                case 'e':
+                    this.xAtual -= this.velocidadeAtual;
+                    break;
+                case 'd':
+                    this.xAtual += this.velocidadeAtual;
+                    break;
+            }
+        }
+
+
+        private void EnviaMsgMov(float nPX, float nPy)
         {
             //float xUni = this.xAtual;
             //float yUni = this.yAtual;
-            string aux = string.Format("{0}|{1}|{2}", this.xAtual, this.yAtual, this.direcaoJogador);
+            string aux = string.Format("{0}|{1}|{2}", nPX, nPy, this.direcaoJogador);
             int v = aux.Length + 5;
             string msg = string.Format("11{0}{1}", v.ToString("000"), aux);
             

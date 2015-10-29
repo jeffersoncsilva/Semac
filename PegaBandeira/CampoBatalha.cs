@@ -352,27 +352,29 @@ namespace PegaBandeira
                 try
                 {
                     this.Invoke((MethodInvoker)delegate() { ResetaGraphics(); });
-                    hud.Draw(this.g);
-                    
+                    lock (_lock)
+                    {
+                        hud.Draw(this.g);
 
-                    this.areaPlay.Draw(this.g);
-                    this.bands[0].Draw(this.g);
-                    this.bands[1].Draw(this.g);
-                    this.player.Draw(this.g);
-                    this.playerEnemy.Draw(this.g);
+                        this.areaPlay.Draw(this.g);
+                        this.bands[0].Draw(this.g);
+                        this.bands[1].Draw(this.g);
+                        this.player.Draw(this.g);
+                        this.playerEnemy.Draw(this.g);
 
-                    this.powerUp.Draw(this.g);
+                        this.powerUp.Draw(this.g);
 
-                    foreach (var t in tiros)
-                        t.Draw(this.g);
-                    foreach (var o in listaObs)
-                        o.Draw(this.g);
+                        foreach (var t in tiros)
+                            t.Draw(this.g);
+                        foreach (var o in listaObs)
+                            o.Draw(this.g);
+                    }
                 }
                 catch (Exception e)
                 {
                     //Console.WriteLine("ERRO: " + e.ToString());
                 }
-                Thread.Sleep(16);
+                Thread.Sleep(60);
             }
         }        
         
@@ -470,6 +472,15 @@ namespace PegaBandeira
         //---------------- Tratamento das MSG recebidas. ---------------------------
 
         /// <summary>
+        /// Quando recebida a msg de movimento autorizado, ele movimenta realiza o jogador na tela.
+        /// </summary>
+        public void MovimentoAutorizado()
+        {
+            this.player.Movimenta();
+        }
+
+
+        /// <summary>
         /// Define a nova posição do player remoto com base nos dados recebidos.
         /// </summary>
         /// <param name="x"></param>
@@ -478,6 +489,10 @@ namespace PegaBandeira
         public void DefinePosicaoPlayerRemoto(float x, float y, char direcao)
         {
             this.playerEnemy.SetPosicao(x, y);
+            lock (_lock)
+            {
+                this.playerEnemy.Draw(this.g);
+            }
         }
 
         /// <summary>

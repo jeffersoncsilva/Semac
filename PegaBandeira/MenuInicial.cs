@@ -393,8 +393,15 @@ namespace PegaBandeira
             float xU = float.Parse(dados[0]);
             float yU = float.Parse(dados[1]);
             char dir = char.Parse(dados[2]);
+
+            //Console.WriteLine("PR: {0} | {1}", xU, yU);
+
+
             this.cBat.DefinePosicaoPlayerRemoto(xU, yU, dir);//seto as novas posições.
             //monta a msg 12
+
+
+
             float[] pos = this.cBat.GetPosPlayerUni();//pego a posição do player local para montar a resposta do jogador.
             string aux = string.Format("{0}|{1}", pos[0], pos[1]);
             int count = aux.Length + 5;
@@ -403,9 +410,13 @@ namespace PegaBandeira
                 serverTcp.EnviaMsg(msg);
             else if (clientTcp != null)
                 clientTcp.EnviaMsg(msg);
+
         }
 
-
+        public void TrataMsgDoze()
+        {
+            this.cBat.MovimentoAutorizado();
+        }
 
         //a cada 5 segundos, ele verifica quem ta online.
         private void verJogOn_Tick(object sender, EventArgs e)
