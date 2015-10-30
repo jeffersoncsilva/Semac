@@ -110,7 +110,8 @@ namespace PegaBandeira
                 if (this.dir == 'c')
                     this.yAtual -= this.velTiro;                 
                 Thread.Sleep(15);
-                colidiu = SaiuTela();
+                if(!colidiu)
+                    colidiu = SaiuTela();
             }
         }
 

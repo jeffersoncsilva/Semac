@@ -465,5 +465,51 @@ namespace PegaBandeira
             this.cBat.TiroAutorizado();
         }
 
+
+
+        public void TrtaMsgQuinze(string[] dados)
+        {
+            if (dados[0] == "T")
+            {
+                //testo se a colisão foi com a fileira de blocos.
+                string col = dados[1].Substring(0, 2);
+                if (col == "BL")
+                {
+                    this.cBat.RemoveBlocos(dados);
+                }
+                else if (col == "J1") { }
+                else if (col == "J2") 
+                {
+                    Console.WriteLine("Jogador atingido.");
+                }
+                else if (col == "B1") { }
+                else if (col == "B2") { }
+
+
+
+            }
+            else if(dados[0] == "CE")
+            {
+                //colisão com outra coisa.
+            }
+            else if (dados[0] == "J1")
+            {
+
+            }
+            else if (dados[0] == "J2")
+            {
+                
+            }
+            else if (dados[0] == "B1")
+            {
+
+            }
+            else if (dados[0] == "B2")
+            {
+
+            }
+        }
+
+
     }
 }

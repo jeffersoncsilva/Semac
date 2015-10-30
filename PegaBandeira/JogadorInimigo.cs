@@ -19,6 +19,12 @@ namespace PegaBandeira
         private float widthScreen;
         private float heightScreen;
 
+
+        public float GetX { get { return this.posLocalX; } }
+        public float GetY { get { return this.posLocalY; } }
+        public float GetTam { get { return this.widthJogador; } }
+
+
         /// <summary>
         /// Metodo construtor. Cria o objeto com seu respectivo tamanho.
         /// </summary>

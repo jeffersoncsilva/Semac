@@ -64,7 +64,7 @@ namespace PegaBandeira
             //verificar se ja existe uma conexão com o outro jogador.
         }
 
-       
+
         //fução responsavel por receber os dados.
         private void ClientReciveTcp()
         {
@@ -105,12 +105,12 @@ namespace PegaBandeira
             }
             catch (Exception e)
             {
-               Console.WriteLine("Conexão encerrada. ERRO: " + e.ToString());
-               this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
+                Console.WriteLine("Conexão encerrada. ERRO: " + e.ToString());
+                this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
             }
         }
 
-        
+
 
         public override void EnviaMsg(string msg)
         {
@@ -138,7 +138,7 @@ namespace PegaBandeira
                 MessageBox.Show("Erro no envido de dados. ERRO: " + e.ToString());
             }
         }
-        
+
 
         protected override void VerificaDadosRecebidos(string msg)
         {
@@ -169,8 +169,8 @@ namespace PegaBandeira
 
 
                     break;
-                case 12:  
-                  
+                case 12:
+
 
                     //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
                     this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
@@ -192,6 +192,16 @@ namespace PegaBandeira
 
                     break;
                 case 15:
+
+
+
+                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrtaMsgQuinze(dados); });
+
+                    //for (int i = 0; i < dados.Length; i++)
+                    //    Console.WriteLine(dados[i]);
+
+
+
                     break;
                 case 16:
                     break;

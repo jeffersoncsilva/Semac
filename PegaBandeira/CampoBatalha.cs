@@ -135,8 +135,6 @@ namespace PegaBandeira
             //cria o powerUp do jogo e adiciona a lista de elementos do jogo.
             this.powerUp = new PowerUp(this.pb.Size.Width, this.pb.Size.Height);//cria o powerUp do jogo e adiciona a lista de elementos do jogo.
             elementosJogo.Add(powerUp);
-
-            Console.WriteLine("Elementos no jogo: " + elementosJogo.Count);
         }
 
 
@@ -177,6 +175,8 @@ namespace PegaBandeira
             this.g.Clear(Color.White);
         }
         #endregion
+
+
 
         #region
 
@@ -334,11 +334,20 @@ namespace PegaBandeira
                             {
                                 t.colidiu = true;
                                 o.mostrarAtual = false;
+                                //hove colisão com da bala com o obstaculo.
+                                EnviaMsgColisaoObstaculo(o, t);
                                 break;
                             }
                         }
+                        Rectangle r = new Rectangle((int)this.playerEnemy.GetX, (int)this.playerEnemy.GetY, (int)this.playerEnemy.GetTam, (int)this.playerEnemy.GetTam);
+                        if (t.Colisao(r))
+                        {
+                            MsgColisaoPlayer(t);
+                            t.colidiu = true;
+                        }
                     }
                 }
+                Thread.Sleep(20);
             }
         }
 
@@ -419,28 +428,29 @@ namespace PegaBandeira
 
             //cria o 1ª bloco de obstaculos.
             float x = AreaPlayers.CalcPercet(15, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);  //representa a posição em x DO 1º BLOCO. Varia para cada bloco.
-            Cria(x, y, tX, tY);
+            Cria(x, y, tX, tY, 1);//crio a 1 coluna de obstaculos
 
 
             //define a nova posição em x do 2ª bloco.
             x = AreaPlayers.CalcPercet(30, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);
-            Cria(x, y, tX, tY);
+            Cria(x, y, tX, tY,2);//crio a 2 coluna de obstaculos
 
 
             //define a nova posição em x do 3ª bloco.
             x = AreaPlayers.CalcPercet(70, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);
-            Cria(x, y, tX, tY);
+            Cria(x, y, tX, tY,3);//crio a 3 coluna de obstaculos
 
 
             //define a nova posição em x do 4ª bloco.
             x = AreaPlayers.CalcPercet(85, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);
-            Cria(x, y, tX, tY);
-
+            Cria(x, y, tX, tY,4);//crio a 4 coluna de obstaculos
         }
 
 
-        private void Cria(float xIni, float yIni, float tX, float tY)
+        private void Cria(float xIni, float yIni, float tX, float tY, int coluna)
         {
+            int fileira = 1;
+            int bloco = 1;
             float x = xIni;
             float y = yIni;
             Obstaculo obs;
@@ -448,11 +458,14 @@ namespace PegaBandeira
             {
                 for (int i = 0; i < 10; i++)
                 {
-                    obs = new Obstaculo(x, y, tX, tY);
+                    obs = new Obstaculo(x, y, tX, tY, coluna, fileira, bloco);
                     listaObs.Add(obs);
                     elementosJogo.Add(obs);
                     y += tY;
+                    bloco += 1;
                 }
+                bloco = 1;
+                fileira += 1;
                 x += tX;
                 y = yIni;
             }
@@ -467,6 +480,40 @@ namespace PegaBandeira
         }
 
         #endregion
+
+        /// <summary>
+        /// Procura o tiro na lista de tiro.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        private Tiro ProcuraOTiro(int id)
+        {
+
+            foreach (var v in tirosInimigos)
+                if (v.GetId == id)
+                    return v;
+            return null;
+        }
+
+
+        /// <summary>
+        /// Procura o obstaculo atingido na lista de obstaculo.
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="fil"></param>
+        /// <param name="bl"></param>
+        /// <returns></returns>
+        private Obstaculo ProcuraOObs(int col, int fil, int bl)
+        {
+            foreach (var o in listaObs)
+            {
+                if (o.GetColuna == col)
+                    if (o.GetFileira == fil)
+                        if (o.GetBloco == bl)
+                            return o;
+            }
+            return null;
+        }
 
 
         //---------------- Tratamento das MSG recebidas -- PUBLICS ---------------------------
@@ -535,6 +582,20 @@ namespace PegaBandeira
 
         }
 
+        public void RemoveBlocos(string[] dados)
+        {
+            int idTiro = int.Parse(dados[2]);
+            int col = int.Parse(dados[1].Substring(2, 1));
+            int fil = int.Parse(dados[1].Substring(3, 1));
+            int bl = int.Parse(dados[1].Substring(4, 2));
+
+            Tiro t = ProcuraOTiro(idTiro);//retorna o tiro que colidiu
+            Obstaculo ob = ProcuraOObs(col, fil, bl);
+
+            t.colidiu = true;
+            ob.mostrarAtual = false;
+
+        }
         //---------------- Tratamento das MSG recebidas -- PRIVATES ---------------------------
 
 
@@ -547,6 +608,34 @@ namespace PegaBandeira
             Console.WriteLine("AUX: " + aux);
             Console.WriteLine("MSG: " + msg);
         }
+
+
+        /// <summary>
+        /// Ouve a colisão do tiro com um obstaculo.
+        /// </summary>
+        /// <param name="obs"></param>
+        /// <param name="t"></param>
+        private void EnviaMsgColisaoObstaculo(Obstaculo obs, Tiro t)
+        {
+            string aux = string.Format("T|BL{0}{1}{2}|{3}", obs.GetColuna,obs.GetFileira, obs.GetBloco.ToString("00"), t.GetId);
+            int qtd = aux.Length + 5;
+            string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
+            this.frm_Inicio.EnviaMsgTcp(msg);
+        }
+
+        /// <summary>
+        /// Ouve a colisão do tiro com o player remoto.
+        /// </summary>
+        /// <param name="t"></param>
+        private void MsgColisaoPlayer(Tiro t)
+        {
+            string aux = string.Format("T|J2|{0}", t.GetId);
+            int qtd = aux.Length + 5;
+            string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
+            this.frm_Inicio.EnviaMsgTcp(msg);
+            
+        }
+
 
 
     }

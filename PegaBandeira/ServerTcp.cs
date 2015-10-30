@@ -146,8 +146,12 @@ namespace PegaBandeira
                     break;
 
                 case 12:
+                    
+                
                     //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
                     this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
+
+
                     break;
 
                 case 13:
@@ -163,6 +167,11 @@ namespace PegaBandeira
                     break;
 
                 case 15:
+
+                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrtaMsgQuinze(dados); });
+
+                    //for (int i = 0; i < dados.Length; i++)
+                    //    Console.WriteLine(dados[i]);
 
 
                     break;

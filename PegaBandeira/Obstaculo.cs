@@ -9,8 +9,15 @@ namespace PegaBandeira
 {
     class Obstaculo : ElementoJogo
     {
+        private int coluna;
+        private int fileira;
+        private int bloco;
 
-        public Obstaculo(float x, float y, float tX, float tY)
+        public int GetColuna { get { return this.coluna; } }
+        public int GetFileira { get { return this.fileira; } }
+        public int GetBloco { get { return this.bloco; } }
+
+        public Obstaculo(float x, float y, float tX, float tY, int coluna, int fileira, int bloco)
         {
             this.xInicial = x;
             this.yInicial= y;
@@ -20,6 +27,9 @@ namespace PegaBandeira
             this.tamY = tY;
             this.mostrarInicial = true;
             this.mostrarAtual = this.mostrarInicial;
+            this.coluna = coluna;
+            this.fileira = fileira;
+            this.bloco = bloco;
         }
 
         public void Draw(Graphics g)
