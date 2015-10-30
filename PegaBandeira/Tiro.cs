@@ -10,31 +10,75 @@ namespace PegaBandeira
 {
     class Tiro : ElementoJogo
     {
+        public static int id_Tiro = 1;
 
         private float velTiro;
         public bool colidiu;
         private char dir;
         private Thread tMov;
+        private int _id;
 
-        public Tiro(float x, float y, float tam, float largTela, char direcao)
+        public float GetX { get { return this.xAtual; } }
+        public float GetY { get { return this.yAtual; } }
+        public char GetDirecao { get { return this.dir; } }
+        public int GetId { get { return this._id; } }
+
+
+        /// <summary>
+        /// Cria o tiro local.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <param name="tam"></param>
+        /// <param name="largTela"></param>
+        /// <param name="direcao"></param>
+        /// <param name="id"></param>
+        public Tiro(float x, float y, float tam, float largTela, char direcao, int id)
         {
             DefineTamTiro(tam);
             DefinePosTiro(x, y, tam);
             this.velTiro = AreaPlayers.CalcPercet(0.25f, largTela);
+            this._id = id;
             this.dir = direcao;
-            Vai();
+            colidiu = true;
         }
+
+        /// <summary>
+        /// Construtor do tiro do inimigo.
+        /// </summary>
+        /// <param name="dados"></param>
+        /// <param name="tam"></param>
+        /// <param name="larTela"></param>
+        public Tiro(string[] dados, float tam, float largTela)
+        {
+            this.xAtual = float.Parse(dados[0]);
+            this.yAtual = float.Parse(dados[1]);
+            this.dir = char.Parse(dados[2]);
+            this._id = int.Parse(dados[3]);
+            DefineTamTiro(tam);
+            this.velTiro = AreaPlayers.CalcPercet(0.25f, largTela);
+        }
+
+
+        public void PodeIr()
+        {
+            Vai();
+            colidiu = false;
+        }
+
 
         private void DefineTamTiro(float t)
         {
             this.tamX = AreaPlayers.CalcPercet(25f, t);
         }
 
+
         private void DefinePosTiro(float x, float y, float tam)
         {
             this.xAtual = x + (tam / 2);
             this.yAtual = y + (tam / 2);
         }
+
 
         public void Draw(Graphics g)
         {
@@ -51,7 +95,7 @@ namespace PegaBandeira
 
 
         private void Movimento()
-        {            
+        {
             while (!colidiu)
             {
                 if(this.dir == 'd')
@@ -64,11 +108,12 @@ namespace PegaBandeira
                     this.yAtual += this.velTiro;
 
                 if (this.dir == 'c')
-                    this.yAtual -= this.velTiro; 
-
-                Thread.Sleep(14);
+                    this.yAtual -= this.velTiro;                 
+                Thread.Sleep(15);
+                colidiu = SaiuTela();
             }
         }
+
 
         public bool Colisao(Rectangle rect)
         {
@@ -78,10 +123,10 @@ namespace PegaBandeira
                     this.yAtual < rect.Y + rect.Height);
         }
 
-        public bool SaiuTela(int larg, int alt)
+        public bool SaiuTela()
         {
-            return (this.xAtual > larg || this.xAtual < 0 ||
-                    this.yAtual > alt || this.yAtual < 0);
+            return (this.xAtual > CampoBatalha.LARGURA || this.xAtual < 0 ||
+                    this.yAtual > CampoBatalha.ALTURA || this.yAtual < 0);
         }
     }
 }

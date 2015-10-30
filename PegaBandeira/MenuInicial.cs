@@ -15,9 +15,6 @@ using System.Timers;
 
 namespace PegaBandeira
 {
-    /*
-    * VERSÃO: 0.2.6
-    */
     public partial class MenuInicial : Form
     {
         ServerUdp serverUdp;
@@ -165,9 +162,9 @@ namespace PegaBandeira
 
 
 
-       /// <summary>
-       /// Para verificar se o jogador pode iniciar a escuta e envio de broadcast.
-       /// </summary>
+        /// <summary>
+        /// Para verificar se o jogador pode iniciar a escuta e envio de broadcast.
+        /// </summary>
         private void HabilitaBotoes()
         {
             //habilita o botao de verificar jogadores online (broadcast)
@@ -202,12 +199,12 @@ namespace PegaBandeira
         }
 
         /// <summary>
-       /// Para mostrar o nome do jogador que o vonvidou para jogo.
-       /// </summary>
-       /// <param name="nome">nome jogador.</param>
+        /// Para mostrar o nome do jogador que o vonvidou para jogo.
+        /// </summary>
+        /// <param name="nome">nome jogador.</param>
         public void AddNomeEnemy(string nome)
         {  //mostra o nome do jogador adversario que convidou para jogo.
-            lbl_Convidou.Text = string.Format("Convidou: {0} para jogar. Esperando pela resposta dojogador.", nome);  
+            lbl_Convidou.Text = string.Format("Convidou: {0} para jogar. Esperando pela resposta dojogador.", nome);
         }
 
 
@@ -238,7 +235,7 @@ namespace PegaBandeira
 
 
 
-        
+
 
         /// <summary>
         /// Conecta ao outro jogador como cliente.
@@ -316,7 +313,7 @@ namespace PegaBandeira
                 this.clientTcp = null;
 
             }
-           
+
             Padrao();
         }
 
@@ -347,14 +344,14 @@ namespace PegaBandeira
                 this.clientTcp.EncerraConexaoTcp();
                 this.clientTcp = null;
             }
-            
+
             Padrao();
-        }        
+        }
 
 
-       /// <summary>
-       /// Restaura os valores para poder começar novamente a escutar e enviar o broadcast.
-       /// </summary>
+        /// <summary>
+        /// Restaura os valores para poder começar novamente a escutar e enviar o broadcast.
+        /// </summary>
         public void Padrao()
         {
             //restaura os dados importantes para os valores iniciais para poder iniciar outra partida.
@@ -362,13 +359,38 @@ namespace PegaBandeira
             btn_IniPartida.Visible = false;
             gb_Convite.Enabled = true;
             gb_ConviteRecv.Visible = false;
-            lbl_Espera.Visible = false;            
+            lbl_Espera.Visible = false;
             this.connect = false;
             this.euDesisto = false;
             this.foiConvidado = false;
             //recomeça a thread e broadcast.
 
 
+        }
+
+
+        #endregion
+
+
+        //a cada 5 segundos, ele verifica quem ta online.
+        private void verJogOn_Tick(object sender, EventArgs e)
+        {
+            if (this.foiConvidado)
+            {
+                Console.WriteLine("Tempo limite exedido. O convite foi recusado automaticamente.");
+
+                this.serverUdp.RecusaConviteJogo();
+                gb_ConviteRecv.Visible = false;
+                gb_Convite.Enabled = true;
+                this.foiConvidado = false;
+                tm_verJogOn.Stop();
+            }
+            else if (!this.connect)
+            {
+                ConexaoNegada();
+                tm_verJogOn.Stop();
+                this.serverUdp.naoAceito = true;
+            }
         }
 
         public void EnviaMsgTcp(string msg)
@@ -383,7 +405,7 @@ namespace PegaBandeira
             }
         }
 
-        #endregion
+
 
         //------------------ MSG TCP IP --------------
 
@@ -413,30 +435,35 @@ namespace PegaBandeira
 
         }
 
+
+        /// <summary>
+        /// Autoriza a movimentação do player.
+        /// </summary>
         public void TrataMsgDoze()
         {
             this.cBat.MovimentoAutorizado();
         }
 
-        //a cada 5 segundos, ele verifica quem ta online.
-        private void verJogOn_Tick(object sender, EventArgs e)
+
+        public void TrataMsgTreze(string[] dados)
         {
-            if (this.foiConvidado)
-            {
-                Console.WriteLine("Tempo limite exedido. O convite foi recusado automaticamente.");
-                
-                this.serverUdp.RecusaConviteJogo();
-                gb_ConviteRecv.Visible = false;
-                gb_Convite.Enabled = true;
-                this.foiConvidado = false;
-                tm_verJogOn.Stop();
-            }
-            else if (!this.connect)
-            {
-                ConexaoNegada();
-                tm_verJogOn.Stop();
-                this.serverUdp.naoAceito = true;
-            }
+            //trato os dados, ou seja, crio o tiro e inicio a movimentação desse tiro.
+            this.cBat.DisparaOutroTiro(dados);
+            //respondo a msg 13 com a msg 14.
+            string aux = string.Format("{0}|{1}|{2}|{3}", dados[0], dados[1], dados[2], dados[3]);
+            int tam = aux.Length + 5;
+            string msgRet = string.Format("14{0}{1}", tam.ToString("000"), aux);
+            EnviaMsgTcp(msgRet);
         }
+
+
+        /// <summary>
+        /// Autoriza o disparo do tiro.
+        /// </summary>
+        public void TrataMsgCatorze()
+        {
+            this.cBat.TiroAutorizado();
+        }
+
     }
 }

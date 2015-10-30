@@ -13,6 +13,10 @@ namespace PegaBandeira
 {
     public partial class CampoBatalha : Form
     {
+        //constantes para definir o tamanho da tela
+        public const int LARGURA = 1024;
+        public const int ALTURA = 800;
+
         public const int TIMEOUT = 120;
         public const string TIMEOUTSTRING = "Tempo resante da partida: \n";
         public const string TIMEENDSTRING = "Acabou a partida. A proxima partida inicia em: ";
@@ -27,9 +31,7 @@ namespace PegaBandeira
         Bitmap surface;
         Graphics g;
 
-        //constantes para definir o tamanho da tela
-        private const int LARGURA = 1024;
-        private const int ALTURA = 800;
+        
         private MenuInicial frm_Inicio;
 
         //essa trhead fica redesenhando os obj na tela.
@@ -47,6 +49,9 @@ namespace PegaBandeira
 
         //private Tiro bullet = null;
         private List<Tiro> tiros;
+        Tiro newTiro;
+
+        private List<Tiro> tirosInimigos;
 
         private Thread colisaoBala;
 
@@ -116,6 +121,7 @@ namespace PegaBandeira
 
             //cra a lista de tiros.
             this.tiros = new List<Tiro>();
+            this.tirosInimigos = new List<Tiro>();
 
             //cria uma thread que ficara responsavel por verificar se houve alguma colisão do tiro com algum elemento do jogo.
             this.colisaoBala = new Thread(() => ColisaoDaBala());
@@ -215,13 +221,11 @@ namespace PegaBandeira
 
             if (e.KeyCode == Keys.Space && !endPartida && podeAtirar && !PossoAtirar())
             {
-                Tiro t = new Tiro(this.player.xAtual, this.player.yAtual, this.player.tamX, LARGURA, this.player.direcaoJogador);
-                lock (_lock)
-                {
-                    tiros.Add(t);
-                }
+                newTiro = new Tiro(this.player.xAtual, this.player.yAtual, this.player.tamX, LARGURA, this.player.direcaoJogador, Tiro.id_Tiro);
+                Tiro.id_Tiro += 1;
                 podeAtirar = false;
                 tm_Bala.Start();
+                EnviaMsgTiro(newTiro);
             }
         }
 
@@ -323,11 +327,6 @@ namespace PegaBandeira
                     Rectangle rect;
                     foreach (var t in tiros)
                     {
-                        if (t.SaiuTela(LARGURA, ALTURA))
-                        {
-                            t.colidiu = true;
-                        }
-
                         foreach (var o in listaObs)
                         {
                             rect = new Rectangle((int)o.xAtual, (int)o.yAtual, (int)o.tamX, (int)o.tamY);
@@ -367,6 +366,8 @@ namespace PegaBandeira
                             t.Draw(this.g);
                         foreach (var o in listaObs)
                             o.Draw(this.g);
+                        foreach (var t in tirosInimigos)
+                            t.Draw(this.g);
                     }
                 }
                 catch (Exception e)
@@ -468,7 +469,7 @@ namespace PegaBandeira
         #endregion
 
 
-        //---------------- Tratamento das MSG recebidas. ---------------------------
+        //---------------- Tratamento das MSG recebidas -- PUBLICS ---------------------------
 
         /// <summary>
         /// Quando recebida a msg de movimento autorizado, ele movimenta realiza o jogador na tela.
@@ -478,6 +479,17 @@ namespace PegaBandeira
             this.player.Movimenta();
         }
 
+        /// <summary>
+        /// Desenha o tiro na tela e começa a movimentação desse tiro na tela.
+        /// </summary>
+        public void TiroAutorizado()
+        {
+            lock (_lock)
+            {
+                tiros.Add(this.newTiro);
+            }
+            this.newTiro.PodeIr();
+        }
 
         /// <summary>
         /// Define a nova posição do player remoto com base nos dados recebidos.
@@ -505,6 +517,37 @@ namespace PegaBandeira
             pos[1] = this.player.yAtual;
             return pos;
         }
+
+
+        /// <summary>
+        /// Desenha o tiro disparado pelo outro jogador.
+        /// </summary>
+        /// <param name="dados">Dados referentes a posição do tiro do outro jogador.</param>
+        public void DisparaOutroTiro(string[] dados)
+        {
+            Console.WriteLine("Tiros disparado pelo outro player.");
+            //vetor de dados sempre tem que ser um vetor com 4 posição.
+
+            Tiro newTiro = new Tiro(dados, this.player.tamX, this.pb.Size.Width);
+            newTiro.PodeIr();
+            this.tirosInimigos.Add(newTiro);
+
+
+        }
+
+        //---------------- Tratamento das MSG recebidas -- PRIVATES ---------------------------
+
+
+        private void EnviaMsgTiro(Tiro t)
+        {
+            string aux = string.Format("{0}|{1}|{2}|{3}", t.GetX, t.GetY, t.GetDirecao, t.GetId);
+            int qtd = aux.Length + 5;
+            string msg = string.Format("13{0}{1}", qtd.ToString("000"), aux);
+            this.frm_Inicio.EnviaMsgTcp(msg);
+            Console.WriteLine("AUX: " + aux);
+            Console.WriteLine("MSG: " + msg);
+        }
+
 
     }
 }

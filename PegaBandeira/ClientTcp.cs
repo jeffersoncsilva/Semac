@@ -150,6 +150,8 @@ namespace PegaBandeira
             switch (int.Parse(tipo))
             {
                 case 10:
+
+
                     this.RemotePlayer = true;
                     if (this.RemotePlayer && this.LocalPlayer)
                     {   //player no lado direito.
@@ -158,19 +160,36 @@ namespace PegaBandeira
                     break;
 
 
+
                 case 11:
+
+
                     //Console.WriteLine("msg 11 recebida.");
                     this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
 
+
                     break;
-                case 12:                    
+                case 12:  
+                  
+
                     //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
                     this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
 
+
                     break;
                 case 13:
+
+
+                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgTreze(dados); });
+
+
                     break;
                 case 14:
+
+
+                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgCatorze(); });
+
+
                     break;
                 case 15:
                     break;
