@@ -21,7 +21,7 @@ namespace PegaBandeira
         private bool endPartida;
         private bool podeAtirar;
         private static readonly object _lock = new object();
-        
+
         //necessario para fazer o desenho na tela.
         PictureBox pb;
         Bitmap surface;
@@ -42,6 +42,7 @@ namespace PegaBandeira
         private JogadorInimigo playerEnemy;
 
         private Bandeira[] bands;
+        private int mB; //armazena o index da minha bandeira.
         private static List<ElementoJogo> elementosJogo;
 
         //private Tiro bullet = null;
@@ -62,7 +63,7 @@ namespace PegaBandeira
             ConfigForm();
             ConfGraphics();
             InicializaVariaveis(1);
-            
+
 
         }
 
@@ -106,6 +107,8 @@ namespace PegaBandeira
             this.bands = new Bandeira[2];
             this.bands[0] = new Bandeira(this.areaPlay, 0);
             this.bands[1] = new Bandeira(this.areaPlay, 1);
+            this.mB = tipo == 1 ? 0 : 1; //dis qual e a minha bandeira.
+
 
             //adicionas as bandeiras a lista de lemento de jogo e eo player.
             elementosJogo.Add(bands[0]);
@@ -240,7 +243,7 @@ namespace PegaBandeira
                     MostraMsgFinal();
                 }
             }
-                //mostra a msg de fim de jogo, e depois reinica o jogo passado o tempo.
+            //mostra a msg de fim de jogo, e depois reinica o jogo passado o tempo.
             else
             {
                 if (proxPartida > 0)
@@ -271,10 +274,10 @@ namespace PegaBandeira
         private bool PossoAtirar()
         {
             return (this.player.Colisao(
-                                    (int)this.areaPlay.GetAreaPlayerLocal.x, (int)this.areaPlay.GetAreaPlayerLocal.y, 
+                                    (int)this.areaPlay.GetAreaPlayerLocal.x, (int)this.areaPlay.GetAreaPlayerLocal.y,
                                     (int)this.areaPlay.GetAreaPlayerLocal.largura, (int)this.areaPlay.GetAreaPlayerLocal.altura)
                                     ||
-                                    this.player.Colisao((int)this.areaPlay.GetAreaPlayerRemoto.x, (int)this.areaPlay.GetAreaPlayerRemoto.y, 
+                                    this.player.Colisao((int)this.areaPlay.GetAreaPlayerRemoto.x, (int)this.areaPlay.GetAreaPlayerRemoto.y,
                                     (int)this.areaPlay.GetAreaPlayerRemoto.largura, (int)this.areaPlay.GetAreaPlayerRemoto.altura)
                                     );
         }
@@ -287,15 +290,11 @@ namespace PegaBandeira
             //nenhuma bandeira.
             if (!this.player.PegouBand)
             {
-                for (int i = 0; i < this.bands.Length && !this.player.PegouBand; i++)
+                if (player.Colisao((int)bands[mB].GetPosX, (int)bands[mB].GetPosY, (int)bands[mB].GetTam, (int)bands[mB].GetTam))
                 {
-                    if (player.Colisao((int)bands[i].GetPosX, (int)bands[i].GetPosY, (int)bands[i].GetTam, (int)bands[i].GetTam) && bands[i].GetMyBand)
-                    {
-                        this.player.PegouBand = true;
-                        bands[i].mostrarAtual = false;
-                    }
+                    this.player.PegouBand = true;
+                    bands[mB].mostrarAtual = false;
                 }
-
             }
             #endregion
 
@@ -374,13 +373,13 @@ namespace PegaBandeira
                 {
                     //Console.WriteLine("ERRO: " + e.ToString());
                 }
-                Thread.Sleep(60);
+                Thread.Sleep(30);
             }
-        }        
-        
+        }
+
 
         private void Restart()
-        {            
+        {
             this.tempoRestante = TIMEOUT;
             this.proxPartida = 5;
             this.endPartida = false;
@@ -414,7 +413,7 @@ namespace PegaBandeira
             float tY = AreaPlayers.CalcPercet(10f, altAreJogo);
             float tX = AreaPlayers.CalcPercet(1f, largAreaJogo);
 
-             //POSIÇÃO  DOS OBS.
+            //POSIÇÃO  DOS OBS.
             float y = AreaPlayers.CalcPercet(10, this.pb.Size.Height);   //represnta a posição em y. Sempre sera a mesma.
 
             //cria o 1ª bloco de obstaculos.
@@ -423,17 +422,17 @@ namespace PegaBandeira
 
 
             //define a nova posição em x do 2ª bloco.
-            x = AreaPlayers.CalcPercet(30, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width); 
+            x = AreaPlayers.CalcPercet(30, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);
             Cria(x, y, tX, tY);
 
 
             //define a nova posição em x do 3ª bloco.
-            x = AreaPlayers.CalcPercet(70, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width); 
+            x = AreaPlayers.CalcPercet(70, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);
             Cria(x, y, tX, tY);
 
 
             //define a nova posição em x do 4ª bloco.
-            x = AreaPlayers.CalcPercet(85, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width); 
+            x = AreaPlayers.CalcPercet(85, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);
             Cria(x, y, tX, tY);
 
         }
@@ -506,6 +505,6 @@ namespace PegaBandeira
             pos[1] = this.player.yAtual;
             return pos;
         }
-       
+
     }
 }

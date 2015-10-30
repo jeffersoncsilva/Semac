@@ -105,21 +105,21 @@ namespace PegaBandeira
             {
                 this.direcaoJogador = 'c';
                 EnviaMsgMov(this.xAtual, this.yAtual - this.velocidadeAtual);
-               // Movimenta();
+               //Movimenta();
             }
 
             if (e.KeyChar == 's'  && this.yAtual + this.velocidadeAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual))
             {
                 this.direcaoJogador = 'b';
                 EnviaMsgMov(this.xAtual, this.yAtual + this.velocidadeAtual);
-               // Movimenta();
+                //Movimenta();
             }
 
             if (e.KeyChar == 'a' &&  this.xAtual - this.velocidadeAtual > 0 && !HasBlock(lstObs, 'a', this.xAtual - this.velocidadeAtual, this.yAtual))
             {
                 this.direcaoJogador = 'e';
                 EnviaMsgMov(this.xAtual - this.velocidadeAtual, this.yAtual);
-               // Movimenta();
+                //Movimenta();
             }
 
             if (e.KeyChar == 'd' && this.xAtual + this.velocidadeAtual < this.larguraTela - this.tamX && !HasBlock(lstObs, 'd', this.xAtual + this.velocidadeAtual, this.yAtual))
