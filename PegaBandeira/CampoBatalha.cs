@@ -23,6 +23,7 @@ namespace PegaBandeira
         private int tempoRestante;
         private int proxPartida = 2;
         private bool endPartida;
+        private bool congelado;
         private bool podeAtirar;
         private static readonly object _lock = new object();
 
@@ -45,6 +46,7 @@ namespace PegaBandeira
 
         private Bandeira[] bands;
         private int mB; //armazena o index da minha bandeira.
+        private int qualPlayer; // 0 se for o player 1 servidor || 1 se for o player 2 cliente.
         private static List<ElementoJogo> elementosJogo;
 
         //private Tiro bullet = null;
@@ -85,7 +87,7 @@ namespace PegaBandeira
 
 
 
-        private void InicializaVariaveis(int tipo)
+        private void InicializaVariaveis(int qPlayer)
         {
             elementosJogo = new List<ElementoJogo>();   //cria a lista com todos os elementos do jogo.
             this.podeAtirar = true;                     //define que o jogador pode atirar.
@@ -95,9 +97,9 @@ namespace PegaBandeira
             Label[] lab = new Label[] { this.lbl_NomeJog, this.lbl_Placar, this.lbl_TempoRestante, this.lbl_Inativo };//pega as labels da hud do jogo que ta no form.
             this.hud.ConfgLabels(lab);  //define as posições e tamanhos das labels que tem no jogo.
 
-
-            this.player = new Player(this.pb.Size.Width, this.pb.Size.Height, tipo, this.frm_Inicio);
-            playerEnemy = new JogadorInimigo(this.player.tamX, this.player.tamY, this.pb.Size.Width, this.pb.Size.Height, tipo);
+            this.qualPlayer = qPlayer;
+            this.player = new Player(this.pb.Size.Width, this.pb.Size.Height, this.qualPlayer, this.frm_Inicio);
+            playerEnemy = new JogadorInimigo(this.player.tamX, this.player.tamY, this.pb.Size.Width, this.pb.Size.Height, this.qualPlayer);
 
             //thread de desenho.
             this.desenha = new Thread(() => Draw());
@@ -112,7 +114,7 @@ namespace PegaBandeira
             this.bands = new Bandeira[2];
             this.bands[0] = new Bandeira(this.areaPlay, 0);
             this.bands[1] = new Bandeira(this.areaPlay, 1);
-            this.mB = tipo == 1 ? 0 : 1; //dis qual e a minha bandeira.
+            this.mB = qPlayer == 1 ? 0 : 1; //dis qual e a minha bandeira.
 
 
             //adicionas as bandeiras a lista de lemento de jogo e eo player.
@@ -178,7 +180,7 @@ namespace PegaBandeira
 
 
 
-        #region
+        
 
         private void CampoBatalha_Resize(object sender, EventArgs e)
         {
@@ -206,7 +208,7 @@ namespace PegaBandeira
 
         private void CampoBatalha_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (!endPartida)
+            if (!endPartida && !congelado)
             {
                 this.player.Input(e, this.listaObs);
                 VerificaColisaoPlayer();
@@ -332,8 +334,6 @@ namespace PegaBandeira
                             rect = new Rectangle((int)o.xAtual, (int)o.yAtual, (int)o.tamX, (int)o.tamY);
                             if (t.Colisao(rect) && o.mostrarAtual)
                             {
-                                t.colidiu = true;
-                                o.mostrarAtual = false;
                                 //hove colisão com da bala com o obstaculo.
                                 EnviaMsgColisaoObstaculo(o, t);
                                 break;
@@ -344,7 +344,6 @@ namespace PegaBandeira
                         if (t.Colisao(r) && !t.colidiu)
                         {
                             TiroColidiuPlayerMsg(t);
-                            t.colidiu = true;
                         }
                     }
                 }
@@ -480,17 +479,17 @@ namespace PegaBandeira
             tm_Bala.Stop();
         }
 
-        #endregion
+        
+
 
         /// <summary>
         /// Procura o tiro na lista de tiro.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        private Tiro ProcuraOTiro(int id)
+        private Tiro ProcuraOTiro(int id, List<Tiro> tiros)
         {
-
-            foreach (var v in tirosInimigos)
+            foreach (var v in tiros)
                 if (v.GetId == id)
                     return v;
             return null;
@@ -531,6 +530,22 @@ namespace PegaBandeira
         }
 
 
+        private void VoltaBandeira()
+        {
+            if (!bands[0].mostrarAtual)
+                bands[0].mostrarAtual = bands[0].mostrarInicial;
+            else if(!bands[1].mostrarAtual)
+                bands[1].mostrarAtual = bands[1].mostrarInicial;
+
+        }
+
+
+        private void VoltaPowerUp()
+        {
+            if (!this.powerUp.mostrarAtual)
+                this.powerUp.mostrarAtual = this.powerUp.mostrarInicial;
+        }
+
 
         //---------------- Tratamento das MSG recebidas -- PUBLICS ---------------------------
 
@@ -541,6 +556,7 @@ namespace PegaBandeira
         {
             this.player.Movimenta();
         }
+
 
         /// <summary>
         /// Desenha o tiro na tela e começa a movimentação desse tiro na tela.
@@ -553,6 +569,7 @@ namespace PegaBandeira
             }
             this.newTiro.PodeIr();
         }
+
 
         /// <summary>
         /// Define a nova posição do player remoto com base nos dados recebidos.
@@ -568,6 +585,7 @@ namespace PegaBandeira
                 this.playerEnemy.Draw(this.g);
             }
         }
+
 
         /// <summary>
         /// Retorna um vetor indicando a posição do player em coordenadas normalizadas.
@@ -587,8 +605,19 @@ namespace PegaBandeira
         {
             this.player.ApplyDamange();
             this.tirosInimigos.Remove(BuscaTiro(int.Parse(dados[2])));
+            
+            //Verifica se o player NÃO tem vida, se não tiver, reinicia os valores abaixo.
             if (this.player.TemVida())
-                Console.WriteLine("Player morreu.");
+            {
+                this.player.Reestart();
+                congelado = true;
+                tm_Congelamento.Start();
+                if (this.player.PegouBand)
+                    VoltaBandeira();
+                if (this.player.PegouPowerUp)
+                    VoltaPowerUp();
+
+            }
         }
 
 
@@ -607,20 +636,81 @@ namespace PegaBandeira
             this.tirosInimigos.Add(newTiro);
         }
 
+
+        //Remove o bloco e o tiro que colidiu.
         public void RemoveBlocos(string[] dados)
         {
             int idTiro = int.Parse(dados[2]);
             int col = int.Parse(dados[1].Substring(2, 1));
             int fil = int.Parse(dados[1].Substring(3, 1));
             int bl = int.Parse(dados[1].Substring(4, 2));
-
-            Tiro t = ProcuraOTiro(idTiro);//retorna o tiro que colidiu
             Obstaculo ob = ProcuraOObs(col, fil, bl);
-
-            t.colidiu = true;
             ob.mostrarAtual = false;
-
         }
+
+        private void RemoveTiro(int id)
+        {
+            Tiro tir = null;
+            tir = ProcuraOTiro(id, this.tiros);
+            if (tir != null)
+                tir.colidiu = true;
+            tir = ProcuraOTiro(id, this.tirosInimigos);
+            if (tir != null)
+                tir.colidiu = true;
+        }
+
+
+        public void ColisaoAutorisada(string[] dados)
+        {
+            if (dados[0] == "T")
+            {
+                //testo se a colisão foi com a fileira de blocos.
+                //Console.WriteLine("Colisao autorizada.");
+                string col = dados[1].Substring(0, 2);
+                if (col == "BL")
+                {
+                    this.RemoveBlocos(dados);
+                    this.RemoveTiro(int.Parse(dados[2]));
+                }
+                else if (col == "J1")
+                {                    
+                    this.JogadorAtingido(dados);
+                    this.RemoveTiro(int.Parse(dados[2]));
+                }
+                else if (col == "J2")
+                {
+                    this.JogadorAtingido(dados);
+                    this.RemoveTiro(int.Parse(dados[2]));
+                }
+                else if (col == "B1") { }
+                else if (col == "B2") { }
+            }
+            else if (dados[0] == "CE")
+            {
+                //colisão com outra coisa.
+            }
+            else if (dados[0] == "J1")
+            {
+
+            }
+            else if (dados[0] == "J2")
+            {
+
+            }
+            else if (dados[0] == "B1")
+            {
+
+            }
+            else if (dados[0] == "B2")
+            {
+
+            }
+        }
+
+
+
+
+
         //---------------- Tratamento das MSG recebidas -- PRIVATES ---------------------------
 
         /// <summary>
@@ -651,16 +741,30 @@ namespace PegaBandeira
             this.frm_Inicio.EnviaMsgTcp(msg);
         }
 
+
         /// <summary>
         /// Ouve a colisão do tiro com o player remoto.
         /// </summary>
         /// <param name="t"></param>
         private void TiroColidiuPlayerMsg(Tiro t)
         {
-            string aux = string.Format("T|J2|{0}", t.GetId);
+            string aux = "";
+
+            if(this.qualPlayer == 0)
+                aux = string.Format("T|J2|{0}", t.GetId);
+            else if(this.qualPlayer == 1)
+                aux = string.Format("T|J1|{0}", t.GetId);
+
             int qtd = aux.Length + 5;
             string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
+        }
+
+
+        private void tm_Congelamento_Tick(object sender, EventArgs e)
+        {
+            this.congelado = false;
+            tm_Congelamento.Stop();
         }
 
 

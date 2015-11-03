@@ -174,8 +174,9 @@ namespace PegaBandeira
                         break;
 
                     case 15:
+                       
 
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrtaMsgQuinze(dados); });
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgQuinze(dados); });
 
                         //for (int i = 0; i < dados.Length; i++)
                         //    Console.WriteLine(dados[i]);
@@ -184,7 +185,8 @@ namespace PegaBandeira
                         break;
 
                     case 16:
-
+                        //Console.WriteLine("Mensagem 16 recebida.");
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezeceis(dados); });
 
                         break;
 

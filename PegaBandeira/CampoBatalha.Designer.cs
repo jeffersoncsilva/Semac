@@ -36,6 +36,7 @@
             this.tm_UpdtTempoPartida = new System.Windows.Forms.Timer(this.components);
             this.lbl_Resultado = new System.Windows.Forms.Label();
             this.tm_Bala = new System.Windows.Forms.Timer(this.components);
+            this.tm_Congelamento = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // lbl_NomeJog
@@ -90,6 +91,11 @@
             this.tm_Bala.Interval = 500;
             this.tm_Bala.Tick += new System.EventHandler(this.tm_Bala_Tick);
             // 
+            // tm_Congelamento
+            // 
+            this.tm_Congelamento.Interval = 2000;
+            this.tm_Congelamento.Tick += new System.EventHandler(this.tm_Congelamento_Tick);
+            // 
             // CampoBatalha
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -120,5 +126,6 @@
         private System.Windows.Forms.Timer tm_UpdtTempoPartida;
         private System.Windows.Forms.Label lbl_Resultado;
         private System.Windows.Forms.Timer tm_Bala;
+        private System.Windows.Forms.Timer tm_Congelamento;
     }
 }

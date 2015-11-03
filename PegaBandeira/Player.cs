@@ -26,7 +26,6 @@ namespace PegaBandeira
 
         public bool PegouBand { get { return this.pegouBandeira; } set { this.pegouBandeira = value; } }
         public bool PegouPowerUp { get { return this.pegouPowerUp; } set { this.pegouPowerUp = value; } }
-
         public Player(int larg, int alt, int onde, MenuInicial b)
         {
             this.larguraTela = larg;
@@ -50,7 +49,6 @@ namespace PegaBandeira
             this.velocidadeAtual = this.velSemPowerUp; //define a velocidade inicial do player.
         }
 
-        
 
         #region CONFIGURACAO PLAYER
         private void DefineAreaDeJogo(int larg, int alt)
@@ -133,6 +131,7 @@ namespace PegaBandeira
             }
            
         }
+
 
         private bool SaiDaTela(float pos, float larg)
         {
@@ -256,6 +255,7 @@ namespace PegaBandeira
         {
             this.velocidadeAtual = this.velSemPowerUp;
         }
+        
         #endregion
 
         //-------- MESAGENS REFERENTES A COMUNICAÇÃO DE REDES --------
@@ -293,15 +293,28 @@ namespace PegaBandeira
         }
 
 
+
+
         public void ApplyDamange()
         {
             this.vidas -= 1;            
-        }
+        }        
+
 
         public bool TemVida()
         {
             return this.vidas == 0;
         }
+
+
+        public override void Reestart()
+        {
+            xAtual = xInicial;
+            yAtual = yInicial;
+            mostrarAtual = mostrarInicial;
+            this.vidas = 3;
+        }
+
 
     }
 }

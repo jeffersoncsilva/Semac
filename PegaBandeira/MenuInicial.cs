@@ -17,6 +17,8 @@ namespace PegaBandeira
 {
     public partial class MenuInicial : Form
     {
+        private int player; //0: player 1 servidor || 1: player 2 cliente.
+
         ServerUdp serverUdp;
         ServerTcp serverTcp = null;
         ClientTcp clientTcp = null;
@@ -67,7 +69,8 @@ namespace PegaBandeira
                 if (serverTcp.RemotePlayer && serverTcp.LocalPlayer)
                 {
                     serverTcp.EnviaMsg(msg);
-                    CarregaCampoBatalha(0);
+                    this.player = 0;
+                    CarregaCampoBatalha(player);
                 }
                 else
                 {
@@ -81,7 +84,8 @@ namespace PegaBandeira
                 if (clientTcp.RemotePlayer && clientTcp.LocalPlayer)
                 {
                     clientTcp.EnviaMsg(msg);
-                    CarregaCampoBatalha(1);
+                    this.player = 1;
+                    CarregaCampoBatalha(player);
                 }
                 else
                 {
@@ -416,13 +420,8 @@ namespace PegaBandeira
             float yU = float.Parse(dados[1]);
             char dir = char.Parse(dados[2]);
 
-            //Console.WriteLine("PR: {0} | {1} | D: {2}", xU, yU, dir);
-
-
             this.cBat.DefinePosicaoPlayerRemoto(xU, yU, dir);//seto as novas posições.
             //monta a msg 12
-
-
 
             float[] pos = this.cBat.GetPosPlayerUni();//pego a posição do player local para montar a resposta do jogador.
             string aux = string.Format("{0}|{1}", pos[0], pos[1]);
@@ -432,7 +431,6 @@ namespace PegaBandeira
                 serverTcp.EnviaMsg(msg);
             else if (clientTcp != null)
                 clientTcp.EnviaMsg(msg);
-
         }
 
 
@@ -467,49 +465,34 @@ namespace PegaBandeira
 
 
 
-        public void TrtaMsgQuinze(string[] dados)
+        public void TrataMsgQuinze(string[] dados)
         {
-            if (dados[0] == "T")
-            {
-                //testo se a colisão foi com a fileira de blocos.
-                string col = dados[1].Substring(0, 2);
-                if (col == "BL")
-                {
-                    this.cBat.RemoveBlocos(dados);
-                }
-                else if (col == "J1") { }
-                else if (col == "J2") 
-                {
-                    this.cBat.JogadorAtingido(dados);
-                    //Console.WriteLine("Jogador atingido.");
-                }
-                else if (col == "B1") { }
-                else if (col == "B2") { }
+            //Console.WriteLine("Msg 15 recebida.");
+            //responde com a msg 16.
+            string aux = string.Format("{0}|{1}|{2}", dados[0], dados[1], dados[2]);
+            //for (int i = 0; i < dados.Length; i++)
+            //    aux += dados[i] + "|";
 
-
-
-            }
-            else if(dados[0] == "CE")
-            {
-                //colisão com outra coisa.
-            }
-            else if (dados[0] == "J1")
-            {
-
-            }
-            else if (dados[0] == "J2")
-            {
-                
-            }
-            else if (dados[0] == "B1")
-            {
-
-            }
-            else if (dados[0] == "B2")
-            {
-
-            }
+            int qtd = aux.Length + 5;
+            string msg = string.Format("16{0}{1}", qtd.ToString("000"), aux);
+            this.EnviaMsgTcp(msg);
+            //Console.WriteLine(msg);
+            this.cBat.ColisaoAutorisada(dados);
+            
+            //------------------- TRATO OS DADOS RECEBIDOS -------------------------------
+           
         }
+
+
+
+
+        public void TrataMsgDezeceis(string[] dados)
+        {
+            
+            this.cBat.ColisaoAutorisada(dados);
+        }
+
+
 
 
     }

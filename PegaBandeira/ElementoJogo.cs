@@ -20,7 +20,7 @@ namespace PegaBandeira
         public float tamX;
         public float tamY;
 
-        public void Reestart()
+        public virtual void Reestart()
         {
             xAtual = xInicial;
             yAtual = yInicial;

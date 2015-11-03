@@ -203,12 +203,13 @@ namespace PegaBandeira
                     case 15:
 
 
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrtaMsgQuinze(dados); });
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgQuinze(dados); });
 
 
 
                         break;
                     case 16:
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezeceis(dados); });
                         break;
                     case 17:
                         break;
