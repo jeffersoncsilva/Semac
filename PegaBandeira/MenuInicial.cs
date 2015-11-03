@@ -407,7 +407,7 @@ namespace PegaBandeira
 
 
 
-        //------------------ MSG TCP IP --------------
+        //------------------ MSG TCP IP RECEBIDAS --------------
 
         public void TrataMsgOnze(string[] dados)
         {
@@ -416,7 +416,7 @@ namespace PegaBandeira
             float yU = float.Parse(dados[1]);
             char dir = char.Parse(dados[2]);
 
-            //Console.WriteLine("PR: {0} | {1}", xU, yU);
+            //Console.WriteLine("PR: {0} | {1} | D: {2}", xU, yU, dir);
 
 
             this.cBat.DefinePosicaoPlayerRemoto(xU, yU, dir);//seto as novas posições.
@@ -448,7 +448,7 @@ namespace PegaBandeira
         public void TrataMsgTreze(string[] dados)
         {
             //trato os dados, ou seja, crio o tiro e inicio a movimentação desse tiro.
-            this.cBat.DisparaOutroTiro(dados);
+            this.cBat.TiroDisparadoOutroJogador(dados);
             //respondo a msg 13 com a msg 14.
             string aux = string.Format("{0}|{1}|{2}|{3}", dados[0], dados[1], dados[2], dados[3]);
             int tam = aux.Length + 5;
@@ -480,7 +480,8 @@ namespace PegaBandeira
                 else if (col == "J1") { }
                 else if (col == "J2") 
                 {
-                    Console.WriteLine("Jogador atingido.");
+                    this.cBat.JogadorAtingido(dados);
+                    //Console.WriteLine("Jogador atingido.");
                 }
                 else if (col == "B1") { }
                 else if (col == "B2") { }

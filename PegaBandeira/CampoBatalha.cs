@@ -339,10 +339,11 @@ namespace PegaBandeira
                                 break;
                             }
                         }
+                        //colisão do tiro com o player.
                         Rectangle r = new Rectangle((int)this.playerEnemy.GetX, (int)this.playerEnemy.GetY, (int)this.playerEnemy.GetTam, (int)this.playerEnemy.GetTam);
-                        if (t.Colisao(r))
+                        if (t.Colisao(r) && !t.colidiu)
                         {
-                            MsgColisaoPlayer(t);
+                            TiroColidiuPlayerMsg(t);
                             t.colidiu = true;
                         }
                     }
@@ -516,6 +517,21 @@ namespace PegaBandeira
         }
 
 
+        private Tiro BuscaTiro(int index)
+        {
+            foreach (var v in this.tirosInimigos)
+            {
+                if (v.GetId == index)
+                {
+                    v.colidiu = true;
+                    return v;
+                }
+            }
+            return null;
+        }
+
+
+
         //---------------- Tratamento das MSG recebidas -- PUBLICS ---------------------------
 
         /// <summary>
@@ -566,20 +582,29 @@ namespace PegaBandeira
         }
 
 
+
+        public void JogadorAtingido(string[] dados)
+        {
+            this.player.ApplyDamange();
+            this.tirosInimigos.Remove(BuscaTiro(int.Parse(dados[2])));
+            if (this.player.TemVida())
+                Console.WriteLine("Player morreu.");
+        }
+
+
+
+
         /// <summary>
         /// Desenha o tiro disparado pelo outro jogador.
         /// </summary>
         /// <param name="dados">Dados referentes a posição do tiro do outro jogador.</param>
-        public void DisparaOutroTiro(string[] dados)
+        public void TiroDisparadoOutroJogador(string[] dados)
         {
-            Console.WriteLine("Tiros disparado pelo outro player.");
             //vetor de dados sempre tem que ser um vetor com 4 posição.
 
             Tiro newTiro = new Tiro(dados, this.player.tamX, this.pb.Size.Width);
             newTiro.PodeIr();
             this.tirosInimigos.Add(newTiro);
-
-
         }
 
         public void RemoveBlocos(string[] dados)
@@ -598,15 +623,18 @@ namespace PegaBandeira
         }
         //---------------- Tratamento das MSG recebidas -- PRIVATES ---------------------------
 
-
+        /// <summary>
+        /// Envia MSG que foi disparada um tiro.
+        /// </summary>
+        /// <param name="t"></param>
         private void EnviaMsgTiro(Tiro t)
         {
             string aux = string.Format("{0}|{1}|{2}|{3}", t.GetX, t.GetY, t.GetDirecao, t.GetId);
             int qtd = aux.Length + 5;
             string msg = string.Format("13{0}{1}", qtd.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
-            Console.WriteLine("AUX: " + aux);
-            Console.WriteLine("MSG: " + msg);
+            //Console.WriteLine("AUX: " + aux);
+            //Console.WriteLine("MSG: " + msg);
         }
 
 
@@ -627,13 +655,12 @@ namespace PegaBandeira
         /// Ouve a colisão do tiro com o player remoto.
         /// </summary>
         /// <param name="t"></param>
-        private void MsgColisaoPlayer(Tiro t)
+        private void TiroColidiuPlayerMsg(Tiro t)
         {
             string aux = string.Format("T|J2|{0}", t.GetId);
             int qtd = aux.Length + 5;
             string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
-            
         }
 
 

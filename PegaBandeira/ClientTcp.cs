@@ -88,6 +88,7 @@ namespace PegaBandeira
             }
         }
 
+
         private void RecevCliTcp(IAsyncResult ar)
         {
             StateObject state = (StateObject)ar.AsyncState;
@@ -142,79 +143,84 @@ namespace PegaBandeira
 
         protected override void VerificaDadosRecebidos(string msg)
         {
-            string tipo = msg.Substring(0, 2);
-            int tam = int.Parse(msg.Substring(2, 3));
-            string str = msg.Remove(0, 5);
-            string[] dados = str.Split('|');
-
-            switch (int.Parse(tipo))
+            while (!String.IsNullOrEmpty(msg))
             {
-                case 10:
+                string tipo = msg.Substring(0, 2);
+
+                int tam = int.Parse(msg.Substring(2, 3));
+
+                string dado = msg.Substring(0, tam);
+                dado = dado.Remove(0, 5);                
+
+                msg = msg.Remove(0, tam);
+
+                string[] dados = dado.Split('|');
+
+                switch (int.Parse(tipo))
+                {
+                    case 10:
 
 
-                    this.RemotePlayer = true;
-                    if (this.RemotePlayer && this.LocalPlayer)
-                    {   //player no lado direito.
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(1); });
-                    }
-                    break;
-
-
-
-                case 11:
-
-
-                    //Console.WriteLine("msg 11 recebida.");
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
-
-
-                    break;
-                case 12:
-
-
-                    //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
-
-
-                    break;
-                case 13:
-
-
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgTreze(dados); });
-
-
-                    break;
-                case 14:
-
-
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgCatorze(); });
-
-
-                    break;
-                case 15:
+                        this.RemotePlayer = true;
+                        if (this.RemotePlayer && this.LocalPlayer)
+                        {   //player no lado direito.
+                            this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(1); });
+                        }
+                        break;
 
 
 
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrtaMsgQuinze(dados); });
-
-                    //for (int i = 0; i < dados.Length; i++)
-                    //    Console.WriteLine(dados[i]);
+                    case 11:
 
 
+                        //Console.WriteLine("msg 11 recebida.");
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
 
-                    break;
-                case 16:
-                    break;
-                case 17:
-                    break;
-                case 18:
-                    break;
-                case 19:
-                    //MessageBox.Show("O outro jogador desistiu do jogo.");
-                    this.EncerraConexaoTcp();
-                    this.Msg19 = true;
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
-                    break;
+
+                        break;
+                    case 12:
+
+
+                        //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
+
+
+                        break;
+                    case 13:
+
+
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgTreze(dados); });
+
+
+                        break;
+                    case 14:
+
+
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgCatorze(); });
+
+
+                        break;
+                    case 15:
+
+
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrtaMsgQuinze(dados); });
+
+
+
+                        break;
+                    case 16:
+                        break;
+                    case 17:
+                        break;
+                    case 18:
+                        break;
+                    case 19:
+                        //MessageBox.Show("O outro jogador desistiu do jogo.");
+                        this.EncerraConexaoTcp();
+                        this.Msg19 = true;
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
+                        break;
+                }
             }
         }
     }

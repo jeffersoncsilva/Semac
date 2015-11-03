@@ -20,7 +20,6 @@ namespace PegaBandeira
         public ServerTcp(int porta, MenuInicial m)
         {
             this.frm_Inicial = m;
-            //this.Ip = ip;
             this.PortaTcp = porta;
             isListeningServerTcp = false;
         }
@@ -119,88 +118,99 @@ namespace PegaBandeira
         /// <param name="msg">Dados recebidos.</param>
         protected override void VerificaDadosRecebidos(string msg)
         {
-            string tipo = msg.Substring(0, 2);
-            int tam = int.Parse(msg.Substring(2, 3));
-            string str = msg.Remove(0, 5);
-            string[] dados = str.Split('|');
-
-            switch (int.Parse(tipo))
+            while (!String.IsNullOrEmpty(msg))
             {
-                case 10:
+                int tipo = int.Parse(msg.Substring(0, 2));
 
-                    this.RemotePlayer = true;
-                    if (this.RemotePlayer && this.LocalPlayer)
-                    {   //player no lado esquerdo.
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(0); });
-                    }
+                int tam = int.Parse(msg.Substring(2, 3));
 
-                    break;
+                string dado = msg.Substring(0, tam);
+                dado = dado.Remove(0, 5);
 
-                case 11:
-                    //Console.WriteLine("Recebido: {0} -- {1}", dados[0], dados[1]);
-
-                   
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
-
-
-                    break;
-
-                case 12:
-                    
+                msg = msg.Remove(0, tam);
                 
-                    //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
+                string[] dados = dado.Split('|');
+
+                switch (tipo)
+                {
+                    case 10:
+
+                        this.RemotePlayer = true;
+                        if (this.RemotePlayer && this.LocalPlayer)
+                        {   //player no lado esquerdo.
+                            this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(0); });
+                        }
+
+                        break;
+
+                    case 11:
+                        //Console.WriteLine("Recebido: {0} -- {1}", dados[0], dados[1]);
 
 
-                    break;
-
-                case 13:
-
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgTreze(dados); });
-
-                    break;
-
-                case 14:
-
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgCatorze(); });
-
-                    break;
-
-                case 15:
-
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrtaMsgQuinze(dados); });
-
-                    //for (int i = 0; i < dados.Length; i++)
-                    //    Console.WriteLine(dados[i]);
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
 
 
-                    break;
+                        break;
 
-                case 16:
-
-
-                    break;
-
-                case 17:
+                    case 12:
 
 
-                    break;
-
-                case 18:
-
-
-                    break;
-
-                case 19:
-
-                    this.EncerraConexaoTcp();
-                    this.Msg19 = true;
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
+                        //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
 
 
-                    break;
+                        break;
+
+                    case 13:
+
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgTreze(dados); });
+
+                        break;
+
+                    case 14:
+
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgCatorze(); });
+
+                        break;
+
+                    case 15:
+
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrtaMsgQuinze(dados); });
+
+                        //for (int i = 0; i < dados.Length; i++)
+                        //    Console.WriteLine(dados[i]);
+
+
+                        break;
+
+                    case 16:
+
+
+                        break;
+
+                    case 17:
+
+
+                        break;
+
+                    case 18:
+
+
+                        break;
+
+                    case 19:
+
+                        this.EncerraConexaoTcp();
+                        this.Msg19 = true;
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
+
+
+                        break;
+                }
             }
         }
+
+
 
         /// <summary>
         /// Somente envia a mensagem para quem estiver conectado.

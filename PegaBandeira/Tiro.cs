@@ -43,6 +43,7 @@ namespace PegaBandeira
             colidiu = true;
         }
 
+
         /// <summary>
         /// Construtor do tiro do inimigo.
         /// </summary>
@@ -124,10 +125,13 @@ namespace PegaBandeira
                     this.yAtual < rect.Y + rect.Height);
         }
 
+
         public bool SaiuTela()
         {
             return (this.xAtual > CampoBatalha.LARGURA || this.xAtual < 0 ||
                     this.yAtual > CampoBatalha.ALTURA || this.yAtual < 0);
         }
+
+
     }
 }

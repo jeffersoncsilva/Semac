@@ -20,6 +20,9 @@ namespace PegaBandeira
         public char direcaoJogador;
 
         private MenuInicial frm_MenuInicio;
+        private int vidas = 3;
+        
+        
 
         public bool PegouBand { get { return this.pegouBandeira; } set { this.pegouBandeira = value; } }
         public bool PegouPowerUp { get { return this.pegouPowerUp; } set { this.pegouPowerUp = value; } }
@@ -33,7 +36,7 @@ namespace PegaBandeira
             DefineTamPlayer();
             DefinePosInicial(onde);
             DefineVelocidades();
-            
+
             this.direcaoJogador = 'd';
         }
 
@@ -47,7 +50,7 @@ namespace PegaBandeira
             this.velocidadeAtual = this.velSemPowerUp; //define a velocidade inicial do player.
         }
 
-
+        
 
         #region CONFIGURACAO PLAYER
         private void DefineAreaDeJogo(int larg, int alt)
@@ -288,5 +291,17 @@ namespace PegaBandeira
             
             this.frm_MenuInicio.EnviaMsgTcp(msg);
         }
+
+
+        public void ApplyDamange()
+        {
+            this.vidas -= 1;            
+        }
+
+        public bool TemVida()
+        {
+            return this.vidas == 0;
+        }
+
     }
 }
