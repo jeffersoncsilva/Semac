@@ -275,7 +275,7 @@ namespace PegaBandeira
             }
 
             //Envia MSG 15 dizendo que o player colidiu com o POWER'UP
-            if (this.player.Colisao(this.powerUp.xAtual, this.powerUp.yAtual, this.powerUp.tamX, this.powerUp.tamY))
+            if (this.player.Colisao(this.powerUp.xAtual, this.powerUp.yAtual, this.powerUp.tamX, this.powerUp.tamY) && this.powerUp.mostrarAtual)
                 ColisaoPlayerPowerUp();            
 
             //verifica se o player colidiu com o outro player.
@@ -651,11 +651,42 @@ namespace PegaBandeira
                 this.bands[this.mB].mostrarAtual = false;
             }
             else
-            {
-                
-                int b = this.mB == 0 ? 1 : 0;//pra saber qual e a outra bandeira.
+            {                
+                int b = this.mB == 0 ? 1 : 0;//pra saber qual e a outra bandeira e desativala da tela.
                 this.bands[b].mostrarAtual = false;
                 this.bands[b].Pegada = false;
+            }
+        }
+
+
+        private void VerificaQuemColidiuPowerUp(string[] dados)
+        {
+            /*
+                Verifica quem foi que colidiu. Se for o player local que colidiu, aumenta a sua velocidade, e desativa o power up.
+             *  Se tiver sido o player remoto que colidiu, somente desativa o power up.
+             *  
+             *  Como funciona a comparação:
+             *  
+             * 1º - Verifico se eu sou o player servidor, e os dados recebidos são do jogador 2, que significa q sou eu.
+             * 2º - Verifico se eu sou o player cliente, e os dados recebidos são do jogador 1 que significa q sou eu. 
+             * 
+             * Sem duvidas q ha uma maneira mais facil, mais vamo deixa essa q ta funcionando.
+            */
+            if (this.qualPlayer == 0 && dados[0].Equals("J2"))//quer dizer q sou eu e eu sou o servidor.
+            {
+                this.player.PegouPowerUp = true;
+                this.player.MudaVelPwUp();
+                this.powerUp.mostrarAtual = false;
+            }
+            else if (this.qualPlayer == 1 && dados[0].Equals("J1"))//quer dizer q sou eu e eu sou o cliente.
+            {
+                this.player.PegouPowerUp = true;
+                this.player.MudaVelPwUp();
+                this.powerUp.mostrarAtual = false;
+            }
+            else
+            {
+                this.powerUp.mostrarAtual = false;
             }
         }
 
@@ -689,45 +720,40 @@ namespace PegaBandeira
             {
                 //colisão com outra coisa.
             }
-#endregion
+            #endregion
 
             else if (dados[0].Equals("J1"))//representa o player local. Indiferente se e o servidor ou não.
             {
                 //bandeira 2
                 if (String.Compare(dados[1], "B1") == 0 || String.Compare(dados[1], "B2") == 0)
                 {
-                    Console.WriteLine("Alguem colidiu com uma bandeira. Quem foi: " + dados[0]);
+                    //Console.WriteLine("Alguem colidiu com uma bandeira. Quem foi: " + dados[0]);
                     VerificaQuemColidiuBandeira(dados);
                 }
                 else if (String.Compare(dados[1], "PU") == 0)
                 {
-                    Console.WriteLine("Alquem colidiu com o Power Up.");
+                    //Console.WriteLine("Alquem colidiu com o Power Up.");
+                    VerificaQuemColidiuPowerUp(dados);
                 }
                 else if (String.Compare(dados[1], "J2") == 0)
                 {
-                    Console.WriteLine("J2");
+                    Console.WriteLine("Colisão entre jogadores.");
                 }
-                
             }
-            else if (dados[0] == "J2")
+            else if (dados[0] == "J2") //Representa o player remoto. Indiferente se for o servidor ou não.
             {
-                //badeira 1
+                //Colisão com bandeira. Verifica quem colidiu com a bandeira e marca quem colidiu e a bandeira que foi colidida.
                 if (String.Compare(dados[1], "B1") == 0 || String.Compare(dados[1], "B2") == 0)
                 {
-                    Console.WriteLine("Alguem colidiu com uma bandeira. Quem Foi: " + dados[0]);
+                    //Console.WriteLine("Alguem colidiu com uma bandeira. Quem Foi: " + dados[0]);
                     VerificaQuemColidiuBandeira(dados);
                 }
-
-                Console.WriteLine("MSG REC: " + dados[0]);
-                Console.WriteLine("MSG REC: " + dados[1]);
-            }
-            else if (dados[0] == "B1")
-            {
-
-            }
-            else if (dados[0] == "B2")
-            {
-
+                //Colisão com Power Up. Verifica quem colidiu com o Power Up e marca o Power Up como inativo.
+                else if (String.Compare(dados[1], "PU") == 0)
+                {
+                    Console.WriteLine("Alquem colidiu com o Power Up.");
+                    VerificaQuemColidiuPowerUp(dados);
+                }
             }
         }
 

@@ -26,6 +26,7 @@ namespace PegaBandeira
 
         public bool PegouBand { get { return this.pegouBandeira; } set { this.pegouBandeira = value; } }
         public bool PegouPowerUp { get { return this.pegouPowerUp; } set { this.pegouPowerUp = value; } }
+       
         public Player(int larg, int alt, int onde, MenuInicial b)
         {
             this.larguraTela = larg;
@@ -239,13 +240,7 @@ namespace PegaBandeira
         }
 
 
-        /// <summary>
-        /// Muda a velocidade atual para velocidade com o power up. Quando o jogador pegar o power up, ele muda a velocidade de movimento.
-        /// </summary>
-        public void MudaVelPwUp()
-        {
-            this.velocidadeAtual = this.velComPowerUp;
-        }
+
 
 
         /// <summary>
@@ -259,6 +254,17 @@ namespace PegaBandeira
         #endregion
 
         //-------- MESAGENS REFERENTES A COMUNICAÇÃO DE REDES --------
+
+
+
+        /// <summary>
+        /// Muda a velocidade atual para velocidade com o power up. Quando o jogador pegar o power up, ele muda a velocidade de movimento.
+        /// </summary>
+        public void MudaVelPwUp()
+        {
+            this.velocidadeAtual += this.velComPowerUp;
+        }
+
 
 
         public void Movimenta()
