@@ -636,11 +636,37 @@ namespace PegaBandeira
         }
 
 
+        private void VerificaQuemColidiuBandeira(string[] dados)
+        {
+            /*verifica se e a minha bandeira.
+                    Pego os dados recebidos (qual foi a bandeira (obj 2)) e comparo se a bandeira que ta na posição 0
+                e a minha bandeira. Se for a minha bandeira, marca meu player como se tiver pegado a bandeira
+                e apaga a bandeira. 
+                Se nao for a minha bandeira, somente apaga a bandeira para não desenhar mais na tela.
+            */
+            if (dados[1].Equals(bands[this.mB].GetBandeira))
+            {
+                this.player.PegouBand = true;
+                this.bands[this.mB].Pegada = true;
+                this.bands[this.mB].mostrarAtual = false;
+            }
+            else
+            {
+                
+                int b = this.mB == 0 ? 1 : 0;//pra saber qual e a outra bandeira.
+                this.bands[b].mostrarAtual = false;
+                this.bands[b].Pegada = false;
+            }
+        }
+
+
         public void ColisaoAutorisada(string[] dados)
         {
+
+            #region COLISAO_TIRO
             if (dados[0] == "T")
             {
-                this.RemoveTiro(int.Parse(dados[2]));
+                
                 //testo se a colisão foi com a fileira de blocos.
                 string col = dados[1].Substring(0, 2);
                 if (col == "BL")
@@ -657,21 +683,41 @@ namespace PegaBandeira
                     
                     this.JogadorAtingido(dados);
                 }
-                else if (col == "B1") { }
-                else if (col == "B2") { }
+                this.RemoveTiro(int.Parse(dados[2]));
             }
             else if (dados[0] == "CE")
             {
                 //colisão com outra coisa.
             }
-            else if (dados[0] == "J1")
+#endregion
+
+            else if (dados[0].Equals("J1"))//representa o player local. Indiferente se e o servidor ou não.
             {
-                Console.WriteLine("MSG REC: " + dados[0]);
-                Console.WriteLine("MSG REC: " + dados[1]);
+                //bandeira 2
+                if (String.Compare(dados[1], "B1") == 0 || String.Compare(dados[1], "B2") == 0)
+                {
+                    Console.WriteLine("Alguem colidiu com uma bandeira. Quem foi: " + dados[0]);
+                    VerificaQuemColidiuBandeira(dados);
+                }
+                else if (String.Compare(dados[1], "PU") == 0)
+                {
+                    Console.WriteLine("Alquem colidiu com o Power Up.");
+                }
+                else if (String.Compare(dados[1], "J2") == 0)
+                {
+                    Console.WriteLine("J2");
+                }
                 
             }
             else if (dados[0] == "J2")
             {
+                //badeira 1
+                if (String.Compare(dados[1], "B1") == 0 || String.Compare(dados[1], "B2") == 0)
+                {
+                    Console.WriteLine("Alguem colidiu com uma bandeira. Quem Foi: " + dados[0]);
+                    VerificaQuemColidiuBandeira(dados);
+                }
+
                 Console.WriteLine("MSG REC: " + dados[0]);
                 Console.WriteLine("MSG REC: " + dados[1]);
             }
@@ -728,9 +774,9 @@ namespace PegaBandeira
         private void ColisaoPlayerPowerUp()
         {
             string aux = "";
-            if (this.qualPlayer == 1)
+            if (this.qualPlayer == 1)//representa o player que e o cliente.
                 aux = string.Format("J1|PU");
-            else if (this.qualPlayer == 2)
+            else if (this.qualPlayer == 0)//representa o player que e o servidor.
                 aux = string.Format("J2|PU");
 
             int tam = aux.Length + 5;
