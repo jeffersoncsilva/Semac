@@ -21,8 +21,8 @@ namespace PegaBandeira
 
         private MenuInicial frm_MenuInicio;
         private int vidas = 3;
-        
-        
+
+        public int GetVida { get { return this.vidas; } }
 
         public bool PegouBand { get { return this.pegouBandeira; } set { this.pegouBandeira = value; } }
         public bool PegouPowerUp { get { return this.pegouPowerUp; } set { this.pegouPowerUp = value; } }

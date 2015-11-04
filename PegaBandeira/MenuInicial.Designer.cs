@@ -243,6 +243,7 @@
             this.Controls.Add(this.gb_Convite);
             this.Controls.Add(this.btn_IniPartida);
             this.Controls.Add(this.ltb_JogOn);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MenuInicial";
             this.Text = "Menu Inicial";
             this.gb_Convite.ResumeLayout(false);

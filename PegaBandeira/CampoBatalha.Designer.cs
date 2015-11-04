@@ -106,12 +106,12 @@
             this.Controls.Add(this.lbl_Placar);
             this.Controls.Add(this.lbl_TempoRestante);
             this.Controls.Add(this.lbl_NomeJog);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "CampoBatalha";
             this.Text = "CampoBatalha";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CampoBatalha_FormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CampoBatalha_KeyDown);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.CampoBatalha_KeyPress);
-            this.Resize += new System.EventHandler(this.CampoBatalha_Resize);
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -467,20 +467,17 @@ namespace PegaBandeira
 
         public void TrataMsgQuinze(string[] dados)
         {
-            //Console.WriteLine("Msg 15 recebida.");
             //responde com a msg 16.
             string aux = string.Format("{0}|{1}|{2}", dados[0], dados[1], dados[2]);
-            //for (int i = 0; i < dados.Length; i++)
-            //    aux += dados[i] + "|";
-
             int qtd = aux.Length + 5;
             string msg = string.Format("16{0}{1}", qtd.ToString("000"), aux);
             this.EnviaMsgTcp(msg);
-            //Console.WriteLine(msg);
+            //Trato os dados recebidos.
             this.cBat.ColisaoAutorisada(dados);
-            
-            //------------------- TRATO OS DADOS RECEBIDOS -------------------------------
-           
+
+            //Console.WriteLine("MSG REC: " + dados[0]);
+            //Console.WriteLine("MSG REC: " + dados[1]);
+            //Console.WriteLine("MSG REC: " + dados[2]);
         }
 
 
@@ -488,7 +485,11 @@ namespace PegaBandeira
 
         public void TrataMsgDezeceis(string[] dados)
         {
-            
+            //Console.WriteLine("MSG REC: " + dados[0]);
+            //Console.WriteLine("MSG REC: " + dados[1]);
+            //Console.WriteLine("MSG REC: " + dados[2]);
+
+
             this.cBat.ColisaoAutorisada(dados);
         }
 

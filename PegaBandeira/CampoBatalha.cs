@@ -32,7 +32,7 @@ namespace PegaBandeira
         Bitmap surface;
         Graphics g;
 
-        
+
         private MenuInicial frm_Inicio;
 
         //essa trhead fica redesenhando os obj na tela.
@@ -45,7 +45,7 @@ namespace PegaBandeira
         private JogadorInimigo playerEnemy;
 
         private Bandeira[] bands;
-        private int mB; //armazena o index da minha bandeira.
+       // private int mB; //armazena o index da minha bandeira.
         private int qualPlayer; // 0 se for o player 1 servidor || 1 se for o player 2 cliente.
         private static List<ElementoJogo> elementosJogo;
 
@@ -112,9 +112,9 @@ namespace PegaBandeira
 
             //cria as bandeiras que ha no jogo.
             this.bands = new Bandeira[2];
-            this.bands[0] = new Bandeira(this.areaPlay, 0);
-            this.bands[1] = new Bandeira(this.areaPlay, 1);
-            this.mB = qPlayer == 1 ? 0 : 1; //dis qual e a minha bandeira.
+            this.bands[0] = new Bandeira(this.areaPlay, qualPlayer);
+            this.bands[1] = new Bandeira(this.areaPlay, qualPlayer);
+            //this.mB = qPlayer == 1 ? 0 : 1; //dis qual e a minha bandeira.
 
 
             //adicionas as bandeiras a lista de lemento de jogo e eo player.
@@ -177,25 +177,6 @@ namespace PegaBandeira
             this.g.Clear(Color.White);
         }
         #endregion
-
-
-
-        
-
-        private void CampoBatalha_Resize(object sender, EventArgs e)
-        {
-            /*
-             * Essa seria uma solução para fazer com que o fomr redesenha-se de forma
-             * que fique da mesma perspectiva quando redimencionar a tela do formulario.
-             * Defido a desempenho, quando se redimensiona o formulario, esta ocorrendo um grande salto no consumo
-             * de memoria, entao foi desativado a opção de redimencionar o formulario para evitar
-             * maiores problemas de falta de memoria.
-             */
-            //ConfGraphics();
-            //hud.Altura = this.pb.Size.Height;
-            //hud.Largra = this.pb.Size.Width;
-            //hud.DefineRetangulos();
-        }
 
 
         private void CampoBatalha_FormClosing(object sender, FormClosingEventArgs e)
@@ -291,32 +272,20 @@ namespace PegaBandeira
 
         private void VerificaColisaoPlayer()
         {
-            #region BANDEIRAS
-            //para verificar se houve colisão com alguma bandeira. Somente ira verificar se o player local nao tiver pegado 
-            //nenhuma bandeira.
+            //envia a MSG 15 dizendo que o player colidiu com a bandeira se o player nao tive pegado a bandeira.
             if (!this.player.PegouBand)
             {
-                if (player.Colisao((int)bands[mB].GetPosX, (int)bands[mB].GetPosY, (int)bands[mB].GetTam, (int)bands[mB].GetTam))
-                {
-                    this.player.PegouBand = true;
-                    bands[mB].mostrarAtual = false;
-                }
+                if (player.Colisao((int)bands[qualPlayer].GetPosX, (int)bands[qualPlayer].GetPosY, (int)bands[qualPlayer].GetTam, (int)bands[qualPlayer].GetTam))
+                    ColisaoPlayerBandeira(bands[qualPlayer]);
             }
-            #endregion
 
-            #region PowerUp
-
-
+            //Envia MSG 15 dizendo que o player colidiu com o POWER'UP
             if (this.player.Colisao(this.powerUp.xAtual, this.powerUp.yAtual, this.powerUp.tamX, this.powerUp.tamY))
-            {
-                this.player.PegouPowerUp = true;
-                this.powerUp.mostrarAtual = false;
-                this.player.MudaVelPwUp();
-            }
+                ColisaoPlayerPowerUp();            
 
-
-            #endregion
-
+            //verifica se o player colidiu com o outro player.
+            if (this.player.Colisao(this.playerEnemy.GetX, this.playerEnemy.GetY, this.playerEnemy.GetTam, this.playerEnemy.GetTam))
+                ColisaoEntreJogadores();
         }
 
 
@@ -340,8 +309,8 @@ namespace PegaBandeira
                             }
                         }
                         //colisão do tiro com o player.
-                        Rectangle r = new Rectangle((int)this.playerEnemy.GetX, (int)this.playerEnemy.GetY, (int)this.playerEnemy.GetTam, (int)this.playerEnemy.GetTam);
-                        if (t.Colisao(r) && !t.colidiu)
+                        rect = new Rectangle((int)this.playerEnemy.GetX, (int)this.playerEnemy.GetY, (int)this.playerEnemy.GetTam, (int)this.playerEnemy.GetTam);
+                        if (t.Colisao(rect) && !t.colidiu)
                         {
                             TiroColidiuPlayerMsg(t);
                         }
@@ -433,17 +402,17 @@ namespace PegaBandeira
 
             //define a nova posição em x do 2ª bloco.
             x = AreaPlayers.CalcPercet(30, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);
-            Cria(x, y, tX, tY,2);//crio a 2 coluna de obstaculos
+            Cria(x, y, tX, tY, 2);//crio a 2 coluna de obstaculos
 
 
             //define a nova posição em x do 3ª bloco.
             x = AreaPlayers.CalcPercet(70, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);
-            Cria(x, y, tX, tY,3);//crio a 3 coluna de obstaculos
+            Cria(x, y, tX, tY, 3);//crio a 3 coluna de obstaculos
 
 
             //define a nova posição em x do 4ª bloco.
             x = AreaPlayers.CalcPercet(85, largAreaJogo) + AreaPlayers.CalcPercet(10, this.pb.Size.Width);
-            Cria(x, y, tX, tY,4);//crio a 4 coluna de obstaculos
+            Cria(x, y, tX, tY, 4);//crio a 4 coluna de obstaculos
         }
 
 
@@ -479,7 +448,7 @@ namespace PegaBandeira
             tm_Bala.Stop();
         }
 
-        
+
 
 
         /// <summary>
@@ -534,7 +503,7 @@ namespace PegaBandeira
         {
             if (!bands[0].mostrarAtual)
                 bands[0].mostrarAtual = bands[0].mostrarInicial;
-            else if(!bands[1].mostrarAtual)
+            else if (!bands[1].mostrarAtual)
                 bands[1].mostrarAtual = bands[1].mostrarInicial;
 
         }
@@ -605,7 +574,7 @@ namespace PegaBandeira
         {
             this.player.ApplyDamange();
             this.tirosInimigos.Remove(BuscaTiro(int.Parse(dados[2])));
-            
+
             //Verifica se o player NÃO tem vida, se não tiver, reinicia os valores abaixo.
             if (this.player.TemVida())
             {
@@ -616,7 +585,6 @@ namespace PegaBandeira
                     VoltaBandeira();
                 if (this.player.PegouPowerUp)
                     VoltaPowerUp();
-
             }
         }
 
@@ -651,12 +619,15 @@ namespace PegaBandeira
         private void RemoveTiro(int id)
         {
             Tiro tir = null;
+
             tir = ProcuraOTiro(id, this.tiros);
             if (tir != null)
                 tir.colidiu = true;
+
             tir = ProcuraOTiro(id, this.tirosInimigos);
             if (tir != null)
                 tir.colidiu = true;
+
         }
 
 
@@ -664,23 +635,22 @@ namespace PegaBandeira
         {
             if (dados[0] == "T")
             {
+                this.RemoveTiro(int.Parse(dados[2]));
                 //testo se a colisão foi com a fileira de blocos.
-                //Console.WriteLine("Colisao autorizada.");
                 string col = dados[1].Substring(0, 2);
                 if (col == "BL")
                 {
                     this.RemoveBlocos(dados);
-                    this.RemoveTiro(int.Parse(dados[2]));
                 }
-                else if (col == "J1")
-                {                    
-                    this.JogadorAtingido(dados);
-                    this.RemoveTiro(int.Parse(dados[2]));
-                }
-                else if (col == "J2")
+                else if (col == "J1" && this.qualPlayer == 0)
                 {
+                    Console.WriteLine("Jogador 1");
                     this.JogadorAtingido(dados);
-                    this.RemoveTiro(int.Parse(dados[2]));
+                }
+                else if (col == "J2" && this.qualPlayer == 1)
+                {
+                    Console.WriteLine("Jogador 2");
+                    this.JogadorAtingido(dados);
                 }
                 else if (col == "B1") { }
                 else if (col == "B2") { }
@@ -723,42 +693,7 @@ namespace PegaBandeira
             int qtd = aux.Length + 5;
             string msg = string.Format("13{0}{1}", qtd.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
-            //Console.WriteLine("AUX: " + aux);
-            //Console.WriteLine("MSG: " + msg);
-        }
-
-
-        /// <summary>
-        /// Ouve a colisão do tiro com um obstaculo.
-        /// </summary>
-        /// <param name="obs"></param>
-        /// <param name="t"></param>
-        private void EnviaMsgColisaoObstaculo(Obstaculo obs, Tiro t)
-        {
-            string aux = string.Format("T|BL{0}{1}{2}|{3}", obs.GetColuna,obs.GetFileira, obs.GetBloco.ToString("00"), t.GetId);
-            int qtd = aux.Length + 5;
-            string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
-            this.frm_Inicio.EnviaMsgTcp(msg);
-        }
-
-
-        /// <summary>
-        /// Ouve a colisão do tiro com o player remoto.
-        /// </summary>
-        /// <param name="t"></param>
-        private void TiroColidiuPlayerMsg(Tiro t)
-        {
-            string aux = "";
-
-            if(this.qualPlayer == 0)
-                aux = string.Format("T|J2|{0}", t.GetId);
-            else if(this.qualPlayer == 1)
-                aux = string.Format("T|J1|{0}", t.GetId);
-
-            int qtd = aux.Length + 5;
-            string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
-            this.frm_Inicio.EnviaMsgTcp(msg);
-        }
+        }       
 
 
         private void tm_Congelamento_Tick(object sender, EventArgs e)
@@ -768,6 +703,60 @@ namespace PegaBandeira
         }
 
 
+        //---------------- MENSSAGENS DE COLISÕES DO PLAYER-----------
+        private void ColisaoPlayerBandeira(Bandeira band)
+        {
+            string auxMsg; 
+            if (this.qualPlayer == 0)//se o jogador local for o jogador 1 (servidor)
+                auxMsg = "J1|B1";           
+            else if (this.qualPlayer == 1)//se o jogador local for o jogador 2 (cliente)
+                auxMsg = "J2|B1"; 
+            
+        }
+
+        private void ColisaoPlayerPowerUp()
+        {
+
+        }
+
+        private void ColisaoEntreJogadores()
+        {
+
+        }
+
+        //---------------- MENSSAGENS DE COLISÕES DOS TIROS -----------
+
+        /// <summary>
+        /// Ouve a colisão do tiro com um obstaculo.
+        /// </summary>
+        /// <param name="obs"></param>
+        /// <param name="t"></param>
+        private void EnviaMsgColisaoObstaculo(Obstaculo obs, Tiro t)
+        {
+            string aux = string.Format("T|BL{0}{1}{2}|{3}", obs.GetColuna, obs.GetFileira, obs.GetBloco.ToString("00"), t.GetId);
+            int qtd = aux.Length + 5;
+            string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
+            this.frm_Inicio.EnviaMsgTcp(msg);
+        }
+
+        /// <summary>
+        /// Ouve a colisão do tiro com o player remoto.
+        /// </summary>
+        /// <param name="t"></param>
+        private void TiroColidiuPlayerMsg(Tiro t)
+        {
+            string aux = "";
+
+            if (this.qualPlayer == 0)
+                aux = string.Format("T|J2|{0}", t.GetId);
+            else if (this.qualPlayer == 1)
+                aux = string.Format("T|J1|{0}", t.GetId);
+
+            int qtd = aux.Length + 5;
+            string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
+            this.frm_Inicio.EnviaMsgTcp(msg);
+            Console.WriteLine("Msg Enviada: " + msg);
+        }
 
     }
 }

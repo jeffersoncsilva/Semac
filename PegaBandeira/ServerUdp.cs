@@ -11,9 +11,6 @@ using System.Windows.Forms;
 
 namespace PegaBandeira
 {
-    /*
-    * VERSÃO: 0.2.6
-    */
     public class ServerUdp
     {
         MenuInicial frm_Inicial;
@@ -48,6 +45,7 @@ namespace PegaBandeira
             quemRespondeu = new List<QuemTaOn>();
         }
 
+
         /// <summary>
         /// Iniciar a escutar os dados vindos de broadcast UDP.
         /// </summary>
@@ -64,6 +62,7 @@ namespace PegaBandeira
             this.escuta.Start();
         }
 
+
         /// <summary>
         /// Envia o broadcast na rede para ver quem ta online.
         /// </summary>
@@ -77,6 +76,7 @@ namespace PegaBandeira
             broadcast.Start();
         }
 
+
         private void SendBroadCast(EndPoint brod)
         {
             while (!comecouJogo)
@@ -89,6 +89,7 @@ namespace PegaBandeira
                 Thread.Sleep(1000);
             }
         }
+
 
         private void Escuta()
         {
@@ -107,6 +108,7 @@ namespace PegaBandeira
                 Console.WriteLine(e.ToString());
             }
         }
+
 
         private void EscutaCallback(IAsyncResult iResult)
         {
@@ -140,6 +142,7 @@ namespace PegaBandeira
             }
         }
 
+
         public void SendMsgUdp(string msg, EndPoint destino)
         {
             try
@@ -154,6 +157,7 @@ namespace PegaBandeira
             }
         }
 
+
         private void SendCallback(IAsyncResult iResult)
         {
             try
@@ -165,6 +169,7 @@ namespace PegaBandeira
                 MessageBox.Show("Erro ao enviar mensagem.");
             }
         }
+
 
         //funções auxiliares
         private bool TemEsseJogador(EndPoint jo)
@@ -186,6 +191,7 @@ namespace PegaBandeira
             return false;
         }
 
+
         //MSG 03
         /// <summary>
         /// Procura o cidadao escolhido na lista e envia um convite para iniciar a jogar com esse cidadao.
@@ -206,6 +212,7 @@ namespace PegaBandeira
             }
         }
 
+
         /// <summary>
         /// Envia essa msg se for aceito o convite.
         /// </summary>
@@ -217,6 +224,7 @@ namespace PegaBandeira
             SendMsgUdp(msg, this.jogQueConvidou);
         }
 
+
         /// <summary>
         /// Envia essa msg se nao quiser esse convite.
         /// </summary>
@@ -227,6 +235,7 @@ namespace PegaBandeira
             string msg = string.Format("04" + comp.ToString("000") + aux);
             SendMsgUdp(msg, this.jogQueConvidou);
         }
+
 
         private void AddListOnline(string msg, EndPoint cidadao)
         {
@@ -246,6 +255,7 @@ namespace PegaBandeira
             }
         }
 
+
         private void VerificaMsgUdp(byte[] dados, EndPoint remetente)
         {
             //Console.WriteLine("Recebendo MSG.");
@@ -259,38 +269,24 @@ namespace PegaBandeira
             if (nomeApelido[0] == this.apelidoPlayerLocal)
                 return;
 
-
-            //Console.WriteLine(msgRecebida);
-
-
             switch (tipo)
             {
                 case "01":
-
-                   // Console.WriteLine("Recebendo 01");
-
                     string msgResp = string.Format(apelidoPlayerLocal + "|" + nomePlayerLocal);
                     int tamResp = msgResp.Count() + 5;
                     SendMsgUdp(string.Format("02" + tamResp.ToString("000") + msgResp), remetente);
                     AddListOnline(msgRecebida, remetente);
-
-
-
                     break;
+
                 case "02":
-
-                    //Console.WriteLine("Recebendo 02");
-
                     AddListOnline(msgRecebida, remetente);
-
                     break;
-                case "03":
 
+                case "03":
                     this.jogQueConvidou = remetente;
                     this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConviteReciv(nomeApelido[0]); });
-
-
                     break;
+
                 case "04":
                     if (nomeApelido[1].Count() > 3)
                     {
@@ -307,48 +303,6 @@ namespace PegaBandeira
                     break;
             }
         }
-
-        /*
-        //envia msg 01 para quem tiver na lista.
-        public void VerificaJogadoresOnline()
-        {
-            Console.WriteLine("Msg verificação quem ta on enviada.");
-            quemRespondeu = userOnline;
-            
-            foreach (var item in userOnline)
-            {
-                string nome = string.Format(apelidoPlayerLocal + "|" + nomePlayerLocal);
-                int aux = nome.Length + 5;
-                string msg = string.Format("01{0}{1}", aux.ToString("000"), nome);
-                SendMsgUdp(msg, item.cidEndPoint);
-            }
-        }
-
-
-        public void UpdateListOn()
-        {
-            try
-            {
-                foreach (var v in quemRespondeu)
-                {
-                    if (!userOnline.Contains(v))
-                    {
-                        quemRespondeu.Remove(v);
-                    }
-                }
-                userOnline = quemRespondeu;
-
-                this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.VerificaListBox(this.userOnline); });
-
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("Erro no update. ERRO: " + e.ToString());
-            }
-
-        }
-        */
-
 
 
         private string GetIp(EndPoint ed)
