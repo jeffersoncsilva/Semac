@@ -32,7 +32,6 @@ namespace PegaBandeira
         Bitmap surface;
         Graphics g;
 
-
         private MenuInicial frm_Inicio;
 
         //essa trhead fica redesenhando os obj na tela.
@@ -82,8 +81,7 @@ namespace PegaBandeira
             ConfGraphics();
             InicializaVariaveis(tipo);
         }
-
-
+        
 
         private void InicializaVariaveis(int qPlayer)
         {
@@ -311,6 +309,20 @@ namespace PegaBandeira
                         {
                             TiroColidiuPlayerMsg(t);
                         }
+                        //colisao do tiro com o power up
+                        rect = new Rectangle((int)this.powerUp.xAtual, (int)this.powerUp.yAtual, (int)this.powerUp.tamX, (int)this.powerUp.tamY);
+                        if (t.Colisao(rect) && this.powerUp.mostrarAtual)
+                            TiroColidiuPowerUp(t);
+
+                        //colisao do tiro com uma das bandeiras
+                        for (int i = 0; i < this.bands.Length; i++)
+                        {
+                            rect = new Rectangle((int)bands[i].xAtual, (int)bands[i].yAtual, (int)bands[i].GetTam, (int)bands[i].GetTam);                            
+                            if (t.Colisao(rect))
+                            {
+                                TiroColidiuBandeira(bands[i], t);
+                            }
+                        }
                     }
                 }
                 Thread.Sleep(20);
@@ -446,8 +458,6 @@ namespace PegaBandeira
         }
 
 
-
-
         /// <summary>
         /// Procura o tiro na lista de tiro.
         /// </summary>
@@ -566,7 +576,6 @@ namespace PegaBandeira
         }
 
 
-
         public void JogadorAtingido(string[] dados)
         {
             this.player.ApplyDamange();
@@ -584,8 +593,6 @@ namespace PegaBandeira
                     VoltaPowerUp();
             }
         }
-
-
 
 
         /// <summary>
@@ -612,6 +619,7 @@ namespace PegaBandeira
             Obstaculo ob = ProcuraOObs(col, fil, bl);
             ob.mostrarAtual = false;
         }
+
 
         private void RemoveTiro(int id)
         {
@@ -641,12 +649,12 @@ namespace PegaBandeira
                 }
                 else if (col == "J1" && this.qualPlayer == 0)
                 {
-                    Console.WriteLine("Jogador 1");
+                    
                     this.JogadorAtingido(dados);
                 }
                 else if (col == "J2" && this.qualPlayer == 1)
                 {
-                    Console.WriteLine("Jogador 2");
+                    
                     this.JogadorAtingido(dados);
                 }
                 else if (col == "B1") { }
@@ -676,9 +684,6 @@ namespace PegaBandeira
 
             }
         }
-
-
-
 
 
         //---------------- Tratamento das MSG recebidas -- PRIVATES ---------------------------
@@ -739,6 +744,23 @@ namespace PegaBandeira
 
         }
 
+
+        private void TiroColidiuPowerUp(Tiro t)
+        {
+            string aux = string.Format("T|PU|{0}", t.GetId);
+            int tam = aux.Length + 5;
+            string msg = string.Format("15{0}{1}", tam.ToString("000"), aux);
+            this.frm_Inicio.EnviaMsgTcp(msg);
+        }
+
+
+        private void TiroColidiuBandeira(Bandeira band, Tiro t)
+        {
+            string aux = string.Format("T|{0}|{1}", band.GetBandeira, t.GetId);
+            int tam = aux.Length + 5;
+            string msg = string.Format("15{0}{1}", tam.ToString("000"), aux);
+            this.frm_Inicio.EnviaMsgTcp(msg);
+        }
 
         //---------------- MENSSAGENS DE COLISÕES DOS TIROS -----------
 

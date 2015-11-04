@@ -28,21 +28,25 @@ namespace PegaBandeira
             this.mostrarInicial = true;
             this.mostrarAtual = this.mostrarInicial;
 
-            //e a bandeira do player local.
+            //e a bandeira do player local. ----> BANDEIRA DO O LADO DIREITO.
             if (qualBand == 1)
             {
-                //defini a posição da bandeira do player local.
-                this.xInicial = (area.GetAreaPlayerLocal.largura / 2) - (this.tamX / 2);
-                this.yInicial = area.GetAreaPlayerLocal.altura - (AreaPlayers.CalcPercet(2, area.GetAreaPlayerLocal.altura)) + this.tamX;
+                this.xInicial = AreaPlayers.CalcPercet(5, area.GetLargPb) - (this.tamX / 2);
+                this.yInicial = AreaPlayers.CalcPercet(90, area.GetAltPb) - (this.tamY / 2);
+
                 this.xAtual = this.xInicial;
                 this.yAtual = this.yInicial;
                 this.myBand = false;
                 this.bandeira = "B1";
-            }//nao e a bandeira do player local. e a bandeira do player remoto.
+            }//nao e a bandeira do player local. e a bandeira do player remoto. 
+                //------> BANDEIRA DO LADO ESQUERDO.
             else if(qualBand == 0)
             {
-                this.xInicial = area.GetAreaPlayerRemoto.x + (area.GetAreaPlayerRemoto.largura / 2) - (this.tamX / 2);
-                this.yInicial = AreaPlayers.CalcPercet(12, area.GetAreaPlayerLocal.altura);
+                
+
+                this.xInicial = AreaPlayers.CalcPercet(95, area.GetLargPb) - (this.tamX / 2);
+                this.yInicial = AreaPlayers.CalcPercet(10, area.GetAltPb);
+
                 this.xAtual = this.xInicial;
                 this.yAtual = this.yInicial;
                 this.myBand = true;

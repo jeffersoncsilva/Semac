@@ -480,10 +480,6 @@ namespace PegaBandeira
 
             //Trato os dados recebidos.
             this.cBat.ColisaoAutorisada(dados);
-
-            //Console.WriteLine("MSG REC: " + dados[0]);
-            //Console.WriteLine("MSG REC: " + dados[1]);
-            //Console.WriteLine("MSG REC: " + dados[2]);
         }
 
 
@@ -491,11 +487,6 @@ namespace PegaBandeira
 
         public void TrataMsgDezeceis(string[] dados)
         {
-            Console.WriteLine("MSG REC: " + dados[0]);
-            Console.WriteLine("MSG REC: " + dados[1]);
-            //Console.WriteLine("MSG REC: " + dados[2]);
-
-
             this.cBat.ColisaoAutorisada(dados);
         }
 

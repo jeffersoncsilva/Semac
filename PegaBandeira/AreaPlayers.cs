@@ -14,13 +14,13 @@ namespace PegaBandeira
         private PosRect playerLocal;
         private PosRect playerRemoto;
 
+
         public AreaPlayers(int x, int y)
         {
             this.larg = x;
             this.alt = y;
             SetaAreas();
         }
-
         public PosRect GetAreaPlayerLocal { get { return this.playerLocal; } }
         public PosRect GetAreaPlayerRemoto { get { return this.playerRemoto; } }
 
