@@ -11,13 +11,14 @@ namespace PegaBandeira
     {
         private bool myBand;
 
+        private string bandeira;
 
         public bool GetMyBand { get { return this.myBand; } }
         public bool Pegada { get { return this.mostrarAtual; } set { this.mostrarAtual = value; } }
         public float GetPosX { get { return this.xAtual; } }
         public float GetPosY { get { return this.yAtual; } }
         public float GetTam { get { return this.tamX; } }
-
+        public string GetBandeira { get { return this.bandeira; } }
 
 
         public Bandeira(AreaPlayers area, int qualBand)
@@ -28,7 +29,7 @@ namespace PegaBandeira
             this.mostrarAtual = this.mostrarInicial;
 
             //e a bandeira do player local.
-            if (qualBand == 0)
+            if (qualBand == 1)
             {
                 //defini a posição da bandeira do player local.
                 this.xInicial = (area.GetAreaPlayerLocal.largura / 2) - (this.tamX / 2);
@@ -36,14 +37,16 @@ namespace PegaBandeira
                 this.xAtual = this.xInicial;
                 this.yAtual = this.yInicial;
                 this.myBand = false;
+                this.bandeira = "B1";
             }//nao e a bandeira do player local. e a bandeira do player remoto.
-            else if(qualBand == 1)
+            else if(qualBand == 0)
             {
                 this.xInicial = area.GetAreaPlayerRemoto.x + (area.GetAreaPlayerRemoto.largura / 2) - (this.tamX / 2);
                 this.yInicial = AreaPlayers.CalcPercet(12, area.GetAreaPlayerLocal.altura);
                 this.xAtual = this.xInicial;
                 this.yAtual = this.yInicial;
                 this.myBand = true;
+                this.bandeira = "B2";
             }
         }
 

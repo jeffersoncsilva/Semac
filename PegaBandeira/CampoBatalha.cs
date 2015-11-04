@@ -45,7 +45,7 @@ namespace PegaBandeira
         private JogadorInimigo playerEnemy;
 
         private Bandeira[] bands;
-       // private int mB; //armazena o index da minha bandeira.
+        private int mB; //armazena o index da minha bandeira.
         private int qualPlayer; // 0 se for o player 1 servidor || 1 se for o player 2 cliente.
         private static List<ElementoJogo> elementosJogo;
 
@@ -70,8 +70,6 @@ namespace PegaBandeira
             ConfigForm();
             ConfGraphics();
             InicializaVariaveis(1);
-
-
         }
 
 
@@ -112,10 +110,9 @@ namespace PegaBandeira
 
             //cria as bandeiras que ha no jogo.
             this.bands = new Bandeira[2];
-            this.bands[0] = new Bandeira(this.areaPlay, qualPlayer);
-            this.bands[1] = new Bandeira(this.areaPlay, qualPlayer);
-            //this.mB = qPlayer == 1 ? 0 : 1; //dis qual e a minha bandeira.
-
+            this.bands[0] = new Bandeira(this.areaPlay, 1);
+            this.bands[1] = new Bandeira(this.areaPlay, 0);
+            this.mB = qPlayer == 1 ? 0 : 1; //dis qual e a minha bandeira.
 
             //adicionas as bandeiras a lista de lemento de jogo e eo player.
             elementosJogo.Add(bands[0]);
@@ -275,8 +272,8 @@ namespace PegaBandeira
             //envia a MSG 15 dizendo que o player colidiu com a bandeira se o player nao tive pegado a bandeira.
             if (!this.player.PegouBand)
             {
-                if (player.Colisao((int)bands[qualPlayer].GetPosX, (int)bands[qualPlayer].GetPosY, (int)bands[qualPlayer].GetTam, (int)bands[qualPlayer].GetTam))
-                    ColisaoPlayerBandeira(bands[qualPlayer]);
+                if (player.Colisao((int)bands[mB].GetPosX, (int)bands[mB].GetPosY, (int)bands[mB].GetTam, (int)bands[mB].GetTam))
+                    ColisaoPlayerBandeira(bands[mB]);
             }
 
             //Envia MSG 15 dizendo que o player colidiu com o POWER'UP
@@ -661,11 +658,14 @@ namespace PegaBandeira
             }
             else if (dados[0] == "J1")
             {
-
+                Console.WriteLine("MSG REC: " + dados[0]);
+                Console.WriteLine("MSG REC: " + dados[1]);
+                
             }
             else if (dados[0] == "J2")
             {
-
+                Console.WriteLine("MSG REC: " + dados[0]);
+                Console.WriteLine("MSG REC: " + dados[1]);
             }
             else if (dados[0] == "B1")
             {
@@ -706,25 +706,42 @@ namespace PegaBandeira
         //---------------- MENSSAGENS DE COLISÕES DO PLAYER-----------
         private void ColisaoPlayerBandeira(Bandeira band)
         {
-            string auxMsg; 
+            string auxMsg = string.Format("J1|" + band.GetBandeira);
             if (this.qualPlayer == 0)//se o jogador local for o jogador 1 (servidor)
-                auxMsg = "J1|B1";           
+                auxMsg = string.Format("J1|" + band.GetBandeira);
+
             else if (this.qualPlayer == 1)//se o jogador local for o jogador 2 (cliente)
-                auxMsg = "J2|B1"; 
-            
+                auxMsg = string.Format("J2|" + band.GetBandeira);
+
+
+            int tam = auxMsg.Length + 5;
+            string msg = string.Format("15{0}{1}", tam.ToString("000"), auxMsg);
+            this.frm_Inicio.EnviaMsgTcp(msg);
         }
+
 
         private void ColisaoPlayerPowerUp()
         {
+            string aux = "";
+            if (this.qualPlayer == 1)
+                aux = string.Format("J1|PU");
+            else if (this.qualPlayer == 2)
+                aux = string.Format("J2|PU");
 
+            int tam = aux.Length + 5;
+            string msg = string.Format("15{0}{1}", tam.ToString("000"), aux);
+            this.frm_Inicio.EnviaMsgTcp(msg);
         }
+
 
         private void ColisaoEntreJogadores()
         {
 
         }
 
+
         //---------------- MENSSAGENS DE COLISÕES DOS TIROS -----------
+
 
         /// <summary>
         /// Ouve a colisão do tiro com um obstaculo.
@@ -738,6 +755,7 @@ namespace PegaBandeira
             string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
         }
+
 
         /// <summary>
         /// Ouve a colisão do tiro com o player remoto.
@@ -755,7 +773,6 @@ namespace PegaBandeira
             int qtd = aux.Length + 5;
             string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
-            Console.WriteLine("Msg Enviada: " + msg);
         }
 
     }

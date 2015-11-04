@@ -397,6 +397,7 @@ namespace PegaBandeira
             }
         }
 
+
         public void EnviaMsgTcp(string msg)
         {
             if (this.serverTcp != null)
@@ -408,7 +409,6 @@ namespace PegaBandeira
                 this.clientTcp.EnviaMsg(msg);
             }
         }
-
 
 
         //------------------ MSG TCP IP RECEBIDAS --------------
@@ -467,11 +467,17 @@ namespace PegaBandeira
 
         public void TrataMsgQuinze(string[] dados)
         {
+            string aux = "";
             //responde com a msg 16.
-            string aux = string.Format("{0}|{1}|{2}", dados[0], dados[1], dados[2]);
+            if(dados.Length == 3)
+                aux = string.Format("{0}|{1}|{2}", dados[0], dados[1], dados[2]);
+            else if(dados.Length == 2)
+                aux = string.Format("{0}|{1}", dados[0], dados[1]);
+
             int qtd = aux.Length + 5;
             string msg = string.Format("16{0}{1}", qtd.ToString("000"), aux);
             this.EnviaMsgTcp(msg);
+
             //Trato os dados recebidos.
             this.cBat.ColisaoAutorisada(dados);
 
@@ -485,8 +491,8 @@ namespace PegaBandeira
 
         public void TrataMsgDezeceis(string[] dados)
         {
-            //Console.WriteLine("MSG REC: " + dados[0]);
-            //Console.WriteLine("MSG REC: " + dados[1]);
+            Console.WriteLine("MSG REC: " + dados[0]);
+            Console.WriteLine("MSG REC: " + dados[1]);
             //Console.WriteLine("MSG REC: " + dados[2]);
 
 
