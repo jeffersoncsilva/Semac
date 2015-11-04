@@ -373,7 +373,7 @@ namespace PegaBandeira
         }
 
 
-        #endregion
+        
 
 
         //a cada 5 segundos, ele verifica quem ta online.
@@ -398,6 +398,9 @@ namespace PegaBandeira
         }
 
 
+        #endregion
+
+
         public void EnviaMsgTcp(string msg)
         {
             if (this.serverTcp != null)
@@ -412,6 +415,8 @@ namespace PegaBandeira
 
 
         //------------------ MSG TCP IP RECEBIDAS --------------
+
+        #region MSG_PRONTAS
 
         public void TrataMsgOnze(string[] dados)
         {
@@ -464,6 +469,8 @@ namespace PegaBandeira
         }
 
 
+        #endregion
+
 
         public void TrataMsgQuinze(string[] dados)
         {
@@ -491,7 +498,39 @@ namespace PegaBandeira
         }
 
 
+        public void TrataMsgDezecete(string[] dados)
+        {
+            //Console.WriteLine("Msg 17 recebida.");
+            if (int.Parse(dados[0]) == 0)
+            {
+                //congelo o jogador. E responde com a MSG 18.
+                this.cBat.CongelaJogadorLocal();
+                //Envia a MSG 18 confirmando o congelamento do jogador.
+                EnviaMsgTcp("180060");
+            }
+            else if (int.Parse(dados[0]) == 1)
+            {
+                //descongelo o jogador.
+                this.cBat.DescongelaJogadorLocal();
+                //Envia a MSG 18 confirmando o descongelamento do jogador.
+                EnviaMsgTcp("180061");
+            }
+        }
 
 
+        public void TrataMsgDezoito(string[] dados)
+        {
+            //Console.WriteLine("Msg 18 recebida.");
+            if (int.Parse(dados[0]) == 0)
+            {
+                //confirmação do congelo do jogador remoto.
+                this.cBat.ConfirmaCongelamento();
+            }
+            else if (int.Parse(dados[0]) == 1)
+            {
+                //confirmação do descongelo do jogador remoto.
+                this.cBat.ConfirmaDescongelamento();
+            }
+        }
     }
 }

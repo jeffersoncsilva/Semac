@@ -91,7 +91,7 @@ namespace PegaBandeira
         /// </summary>
         /// <param name="e">Resultado de um evento disparado do windows forms. </param>
         /// <param name="lstObs">Lista de obstaculos.</param>
-        public void Input(KeyPressEventArgs e, List<Obstaculo> lstObs)
+        public bool Input(KeyPressEventArgs e, List<Obstaculo> lstObs, JogadorInimigo enemy)
         {
             /*
              * Verifica se está tendo colisão do player com algum obj ou se esta excedento os limites da tela antes de movimenta.
@@ -100,37 +100,53 @@ namespace PegaBandeira
              * 1º: verifica a tecla que foi pressionada.
              * 2º: verifica se o player ira sair dos limites da tela, e for sair, impede a movimentação. 
              * 3º: verifica se tem algum bloco no caminho. Se tiver, impede a movimentação.
+             * 
+             * ------------- VERIFICA SE O PLAYER IRA COMLIDIR COM O OUTRO PLAYER
+             * 
+             * Se esse player se colidir com o outro player, ele retorna um valor negativo e o programa envia para o outro programa
+             * que havera uma colisão entre os dois jogadores, e interrompe a movimentação entre os dois jogadores.
              */
 
 
             if (e.KeyChar == 'w' && this.yAtual - this.velocidadeAtual > inicioTelaY && !HasBlock(lstObs, 'w', this.xAtual, this.yAtual - this.velocidadeAtual)) 
             {
+                if (ColisaoInimigo(enemy, this.xAtual, this.yAtual - this.velocidadeAtual))
+                    return false;
+
                 this.direcaoJogador = 'c';
-                EnviaMsgMov(this.xAtual, this.yAtual - this.velocidadeAtual);
-               //Movimenta();
+                EnviaMsgMov(this.xAtual, this.yAtual - this.velocidadeAtual);  
             }
 
-            if (e.KeyChar == 's'  && this.yAtual + this.velocidadeAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual))
+            if (e.KeyChar == 's' && this.yAtual + this.velocidadeAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual) )
             {
+                if (ColisaoInimigo(enemy, this.xAtual, this.yAtual + this.velocidadeAtual))
+                    return false;
+
                 this.direcaoJogador = 'b';
-                EnviaMsgMov(this.xAtual, this.yAtual + this.velocidadeAtual);
-                //Movimenta();
+                EnviaMsgMov(this.xAtual, this.yAtual + this.velocidadeAtual);                
             }
 
-            if (e.KeyChar == 'a' &&  this.xAtual - this.velocidadeAtual > 0 && !HasBlock(lstObs, 'a', this.xAtual - this.velocidadeAtual, this.yAtual))
+
+            if (e.KeyChar == 'a' && this.xAtual - this.velocidadeAtual > 0 && !HasBlock(lstObs, 'a', this.xAtual - this.velocidadeAtual, this.yAtual) )
             {
+                if (ColisaoInimigo(enemy, this.xAtual - this.velocidadeAtual, this.yAtual))
+                    return false;
+
                 this.direcaoJogador = 'e';
-                EnviaMsgMov(this.xAtual - this.velocidadeAtual, this.yAtual);
-                //Movimenta();
+                EnviaMsgMov(this.xAtual - this.velocidadeAtual, this.yAtual);                
             }
+
 
             if (e.KeyChar == 'd' && this.xAtual + this.velocidadeAtual < this.larguraTela - this.tamX && !HasBlock(lstObs, 'd', this.xAtual + this.velocidadeAtual, this.yAtual))
             {
+                if (ColisaoInimigo(enemy, this.xAtual + this.velocidadeAtual, this.yAtual))
+                    return false;
+
                 this.direcaoJogador = 'd';
-                EnviaMsgMov(this.xAtual + this.velocidadeAtual, this.yAtual);
-                //Movimenta();
+                EnviaMsgMov(this.xAtual + this.velocidadeAtual, this.yAtual);                
             }
-           
+
+            return true;           
         }
 
 
@@ -255,6 +271,14 @@ namespace PegaBandeira
 
         //-------- MESAGENS REFERENTES A COMUNICAÇÃO DE REDES --------
 
+        public bool ColisaoInimigo(JogadorInimigo jogIni, float nX, float nY)
+        {
+            /*
+             * Verifica se o player local ira se colidir com o outro player. 
+             * Se for colidir, retorna um valor verdadeiro.
+            */
+            return Colisao(jogIni.GetX, jogIni.GetY, jogIni.GetTam, jogIni.GetTam, nX, nY);            
+        }
 
 
         /// <summary>
@@ -265,8 +289,7 @@ namespace PegaBandeira
             this.velocidadeAtual += this.velComPowerUp;
         }
 
-
-
+        
         public void Movimenta()
         {
             switch (direcaoJogador)
@@ -298,9 +321,7 @@ namespace PegaBandeira
             this.frm_MenuInicio.EnviaMsgTcp(msg);
         }
 
-
-
-
+        
         public void ApplyDamange()
         {
             this.vidas -= 1;            
@@ -319,8 +340,14 @@ namespace PegaBandeira
             yAtual = yInicial;
             mostrarAtual = mostrarInicial;
             this.vidas = 3;
+            this.velocidadeAtual = this.velSemPowerUp;
         }
 
+
+        public void ForcaEnvioPos()
+        {
+            EnviaMsgMov(this.xAtual, this.yAtual);
+        }
 
     }
 }

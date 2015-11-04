@@ -13,6 +13,10 @@ namespace PegaBandeira
 {
     public partial class CampoBatalha : Form
     {
+        private int vidasOutroPlayer = 3;
+        private bool outroJogadorCongelado = false;
+
+        #region
         //constantes para definir o tamanho da tela
         public const int LARGURA = 1024;
         public const int ALTURA = 800;
@@ -132,6 +136,9 @@ namespace PegaBandeira
             //cria o powerUp do jogo e adiciona a lista de elementos do jogo.
             this.powerUp = new PowerUp(this.pb.Size.Width, this.pb.Size.Height);//cria o powerUp do jogo e adiciona a lista de elementos do jogo.
             elementosJogo.Add(powerUp);
+
+            //atualiza a posição para o outro jogador
+            this.player.ForcaEnvioPos();
         }
 
 
@@ -180,18 +187,83 @@ namespace PegaBandeira
             //frm_Inicio.Desisto();   //envio a msg de desistencia para o jogador.
             //frm_Inicio.Show();      // mostro o formulario inicial.
         }
-
+#endregion
 
         private void CampoBatalha_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (!endPartida && !congelado)
             {
-                this.player.Input(e, this.listaObs);
-                VerificaColisaoPlayer();
+                /*
+                 * Verifio se o player nao ira colidir com algo. 
+                 * Nesse caso, vai retornar verdadeiro se o player nao colidir com o outro player. se colidir, ele envia uma msg de colisão,
+                 * e impede o movimento do player naquela direção.
+                 * Quando for retornado um valor falso, o player nao podera se mover e sera enviada uma msg de colisão para o outro jogador.
+                 */
+                if (!this.player.Input(e, this.listaObs, this.playerEnemy))
+                {
+                    //Movimento foi negado pois esta havendo colisão com o outro jogador.
+                    ColisaoEntreJogadores();
+                }
+            }
+        }
+
+        #region
+
+        private void VerificaQuemColidiuBandeira(string[] dados)
+        {
+            /*verifica se e a minha bandeira.
+                    Pego os dados recebidos (qual foi a bandeira (obj 2)) e comparo se a bandeira que ta na posição 0
+                e a minha bandeira. Se for a minha bandeira, marca meu player como se tiver pegado a bandeira
+                e apaga a bandeira. 
+                Se nao for a minha bandeira, somente apaga a bandeira para não desenhar mais na tela.
+            */
+            if (dados[1].Equals(bands[this.mB].GetBandeira))
+            {
+                this.player.PegouBand = true;
+                this.bands[this.mB].Pegada = true;
+                this.bands[this.mB].mostrarAtual = false;
+            }
+            else
+            {                
+                int b = this.mB == 0 ? 1 : 0;//pra saber qual e a outra bandeira e desativala da tela.
+                this.bands[b].mostrarAtual = false;
+                this.bands[b].Pegada = false;
             }
         }
 
 
+        private void VerificaQuemColidiuPowerUp(string[] dados)
+        {
+            /*
+                Verifica quem foi que colidiu. Se for o player local que colidiu, aumenta a sua velocidade, e desativa o power up.
+             *  Se tiver sido o player remoto que colidiu, somente desativa o power up.
+             *  
+             *  Como funciona a comparação:
+             *  
+             * 1º - Verifico se eu sou o player servidor, e os dados recebidos são do jogador 2, que significa q sou eu.
+             * 2º - Verifico se eu sou o player cliente, e os dados recebidos são do jogador 1 que significa q sou eu. 
+             * 
+             * Sem duvidas q ha uma maneira mais facil, mais vamo deixa essa q ta funcionando.
+            */
+            if (this.qualPlayer == 0 && dados[0].Equals("J2"))//quer dizer q sou eu e eu sou o servidor.
+            {
+                this.player.PegouPowerUp = true;
+                this.player.MudaVelPwUp();
+                this.powerUp.mostrarAtual = false;
+            }
+            else if (this.qualPlayer == 1 && dados[0].Equals("J1"))//quer dizer q sou eu e eu sou o cliente.
+            {
+                this.player.PegouPowerUp = true;
+                this.player.MudaVelPwUp();
+                this.powerUp.mostrarAtual = false;
+            }
+            else
+            {
+                this.powerUp.mostrarAtual = false;
+            }
+        }
+
+       
         private void CampoBatalha_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
@@ -265,6 +337,9 @@ namespace PegaBandeira
         }
 
 
+        /// <summary>
+        /// Verifico se o player local colidiu como power up ou com a bandeira.
+        /// </summary>
         private void VerificaColisaoPlayer()
         {
             //envia a MSG 15 dizendo que o player colidiu com a bandeira se o player nao tive pegado a bandeira.
@@ -276,11 +351,7 @@ namespace PegaBandeira
 
             //Envia MSG 15 dizendo que o player colidiu com o POWER'UP
             if (this.player.Colisao(this.powerUp.xAtual, this.powerUp.yAtual, this.powerUp.tamX, this.powerUp.tamY) && this.powerUp.mostrarAtual)
-                ColisaoPlayerPowerUp();            
-
-            //verifica se o player colidiu com o outro player.
-            if (this.player.Colisao(this.playerEnemy.GetX, this.playerEnemy.GetY, this.playerEnemy.GetTam, this.playerEnemy.GetTam))
-                ColisaoEntreJogadores();
+                ColisaoPlayerPowerUp();
         }
 
 
@@ -305,9 +376,10 @@ namespace PegaBandeira
                         }
                         //colisão do tiro com o player.
                         rect = new Rectangle((int)this.playerEnemy.GetX, (int)this.playerEnemy.GetY, (int)this.playerEnemy.GetTam, (int)this.playerEnemy.GetTam);
-                        if (t.Colisao(rect) && !t.colidiu)
+                        if (t.Colisao(rect) && !t.colidiu && !this.outroJogadorCongelado)
                         {
                             TiroColidiuPlayerMsg(t);
+                            
                         }
                         //colisao do tiro com o power up
                         rect = new Rectangle((int)this.powerUp.xAtual, (int)this.powerUp.yAtual, (int)this.powerUp.tamX, (int)this.powerUp.tamY);
@@ -317,7 +389,7 @@ namespace PegaBandeira
                         //colisao do tiro com uma das bandeiras
                         for (int i = 0; i < this.bands.Length; i++)
                         {
-                            rect = new Rectangle((int)bands[i].xAtual, (int)bands[i].yAtual, (int)bands[i].GetTam, (int)bands[i].GetTam);                            
+                            rect = new Rectangle((int)bands[i].xAtual, (int)bands[i].yAtual, (int)bands[i].GetTam, (int)bands[i].GetTam);
                             if (t.Colisao(rect))
                             {
                                 TiroColidiuBandeira(bands[i], t);
@@ -531,6 +603,7 @@ namespace PegaBandeira
         public void MovimentoAutorizado()
         {
             this.player.Movimenta();
+            VerificaColisaoPlayer();
         }
 
 
@@ -576,23 +649,7 @@ namespace PegaBandeira
         }
 
 
-        public void JogadorAtingido(string[] dados)
-        {
-            this.player.ApplyDamange();
-            this.tirosInimigos.Remove(BuscaTiro(int.Parse(dados[2])));
 
-            //Verifica se o player NÃO tem vida, se não tiver, reinicia os valores abaixo.
-            if (this.player.TemVida())
-            {
-                this.player.Reestart();
-                congelado = true;
-                tm_Congelamento.Start();
-                if (this.player.PegouBand)
-                    VoltaBandeira();
-                if (this.player.PegouPowerUp)
-                    VoltaPowerUp();
-            }
-        }
 
 
         /// <summary>
@@ -635,59 +692,32 @@ namespace PegaBandeira
 
         }
 
+        #endregion
 
-        private void VerificaQuemColidiuBandeira(string[] dados)
+        public void JogadorAtingido(string[] dados)
         {
-            /*verifica se e a minha bandeira.
-                    Pego os dados recebidos (qual foi a bandeira (obj 2)) e comparo se a bandeira que ta na posição 0
-                e a minha bandeira. Se for a minha bandeira, marca meu player como se tiver pegado a bandeira
-                e apaga a bandeira. 
-                Se nao for a minha bandeira, somente apaga a bandeira para não desenhar mais na tela.
-            */
-            if (dados[1].Equals(bands[this.mB].GetBandeira))
-            {
-                this.player.PegouBand = true;
-                this.bands[this.mB].Pegada = true;
-                this.bands[this.mB].mostrarAtual = false;
-            }
-            else
-            {                
-                int b = this.mB == 0 ? 1 : 0;//pra saber qual e a outra bandeira e desativala da tela.
-                this.bands[b].mostrarAtual = false;
-                this.bands[b].Pegada = false;
-            }
+            this.player.ApplyDamange();
+            this.tirosInimigos.Remove(BuscaTiro(int.Parse(dados[2])));
+
+            //Verifica se o player NÃO tem vida, se não tiver, reinicia os valores abaixo.
+            //if (this.player.TemVida())
+            //{
+            //    this.player.Reestart();
+            //    congelado = true;
+            //    tm_Congelamento.Start();
+            //    if (this.player.PegouBand)
+            //        VoltaBandeira();
+            //    if (this.player.PegouPowerUp)
+            //        VoltaPowerUp();
+            //}
         }
 
-
-        private void VerificaQuemColidiuPowerUp(string[] dados)
+        private void AcerteiOutroJogador()
         {
-            /*
-                Verifica quem foi que colidiu. Se for o player local que colidiu, aumenta a sua velocidade, e desativa o power up.
-             *  Se tiver sido o player remoto que colidiu, somente desativa o power up.
-             *  
-             *  Como funciona a comparação:
-             *  
-             * 1º - Verifico se eu sou o player servidor, e os dados recebidos são do jogador 2, que significa q sou eu.
-             * 2º - Verifico se eu sou o player cliente, e os dados recebidos são do jogador 1 que significa q sou eu. 
-             * 
-             * Sem duvidas q ha uma maneira mais facil, mais vamo deixa essa q ta funcionando.
-            */
-            if (this.qualPlayer == 0 && dados[0].Equals("J2"))//quer dizer q sou eu e eu sou o servidor.
-            {
-                this.player.PegouPowerUp = true;
-                this.player.MudaVelPwUp();
-                this.powerUp.mostrarAtual = false;
-            }
-            else if (this.qualPlayer == 1 && dados[0].Equals("J1"))//quer dizer q sou eu e eu sou o cliente.
-            {
-                this.player.PegouPowerUp = true;
-                this.player.MudaVelPwUp();
-                this.powerUp.mostrarAtual = false;
-            }
-            else
-            {
-                this.powerUp.mostrarAtual = false;
-            }
+            vidasOutroPlayer -= 1;
+            if (vidasOutroPlayer == 0)
+                EnviaMsgCongelaJogador();
+            
         }
 
 
@@ -696,8 +726,7 @@ namespace PegaBandeira
 
             #region COLISAO_TIRO
             if (dados[0] == "T")
-            {
-                
+            {                
                 //testo se a colisão foi com a fileira de blocos.
                 string col = dados[1].Substring(0, 2);
                 if (col == "BL")
@@ -706,13 +735,18 @@ namespace PegaBandeira
                 }
                 else if (col == "J1" && this.qualPlayer == 0)
                 {
-                    
+                    //quer dizer que o tiro foi com o meu player.
                     this.JogadorAtingido(dados);
                 }
                 else if (col == "J2" && this.qualPlayer == 1)
                 {
                     
                     this.JogadorAtingido(dados);
+                }
+                else
+                {
+                    //Quando chegar aqui, quer dizer q acertei o jogador adiversario.
+                    AcerteiOutroJogador();
                 }
                 this.RemoveTiro(int.Parse(dados[2]));
             }
@@ -722,6 +756,8 @@ namespace PegaBandeira
             }
             #endregion
 
+
+            #region COL_PLA_LOCAL
             else if (dados[0].Equals("J1"))//representa o player local. Indiferente se e o servidor ou não.
             {
                 //bandeira 2
@@ -737,24 +773,34 @@ namespace PegaBandeira
                 }
                 else if (String.Compare(dados[1], "J2") == 0)
                 {
+                    //Não sei o que fazer. E agora??
                     Console.WriteLine("Colisão entre jogadores.");
                 }
             }
+            #endregion
+
+
+            #region COL_PLA_REMOTO
             else if (dados[0] == "J2") //Representa o player remoto. Indiferente se for o servidor ou não.
             {
                 //Colisão com bandeira. Verifica quem colidiu com a bandeira e marca quem colidiu e a bandeira que foi colidida.
                 if (String.Compare(dados[1], "B1") == 0 || String.Compare(dados[1], "B2") == 0)
                 {
-                    //Console.WriteLine("Alguem colidiu com uma bandeira. Quem Foi: " + dados[0]);
+                    
                     VerificaQuemColidiuBandeira(dados);
                 }
                 //Colisão com Power Up. Verifica quem colidiu com o Power Up e marca o Power Up como inativo.
                 else if (String.Compare(dados[1], "PU") == 0)
                 {
-                    Console.WriteLine("Alquem colidiu com o Power Up.");
                     VerificaQuemColidiuPowerUp(dados);
                 }
+                else if (String.Compare(dados[1], "J2") == 0)
+                {
+                    //Não sei o que fazer. E agora??
+                    Console.WriteLine("Colisão entre jogadores.");
+                }
             }
+            #endregion
         }
 
 
@@ -775,7 +821,8 @@ namespace PegaBandeira
 
         private void tm_Congelamento_Tick(object sender, EventArgs e)
         {
-            this.congelado = false;
+            
+            EnviaMsgDescongelaJogador();
             tm_Congelamento.Stop();
         }
 
@@ -813,7 +860,17 @@ namespace PegaBandeira
 
         private void ColisaoEntreJogadores()
         {
+            string aux = "";
+            if (this.qualPlayer == 1)//representa o player que e o cliente.
+                aux = string.Format("J1|J2");
+            else if (this.qualPlayer == 0)//representa o player que e o servidor.
+                aux = string.Format("J2|J1");
 
+            int tam = aux.Length + 5;
+            string msg = string.Format("15{0}{1}", tam.ToString("000"), aux);
+            this.frm_Inicio.EnviaMsgTcp(msg);
+
+            Console.WriteLine("Colisão entre players. MGS Send: " + msg);
         }
 
 
@@ -833,6 +890,8 @@ namespace PegaBandeira
             string msg = string.Format("15{0}{1}", tam.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
         }
+
+
 
         //---------------- MENSSAGENS DE COLISÕES DOS TIROS -----------
 
@@ -869,5 +928,78 @@ namespace PegaBandeira
             this.frm_Inicio.EnviaMsgTcp(msg);
         }
 
+
+    
+        /*
+         * Envia essa MSG dizendo que o player nao tem mais vidas. Portanto deve ser congelado.
+         * ESSA E A MSG 17/0 -> MSG DE CONGELAR O OUTRO JOGADOR.
+        */
+        private void EnviaMsgCongelaJogador()
+        {
+            this.frm_Inicio.EnviaMsgTcp("170060");
+        }
+
+        /*
+         * MSG 17/1 -> MSG QUE DIS QUE O OUTRO JOGADOR FOI DESCONGELADO.
+        */
+        private void EnviaMsgDescongelaJogador()
+        {
+            this.frm_Inicio.EnviaMsgTcp("170061");
+        }
+
+
+        /// <summary>
+        /// Congela o jogador local.
+        /// </summary>
+        public void CongelaJogadorLocal()
+        {
+            this.player.Reestart();
+            this.player.Draw(this.g);
+            congelado = true;
+            tm_Congelamento.Start();
+            VoltaElementosJogo();
+            Console.WriteLine("Congelado.");
+        }
+
+
+        private void VoltaElementosJogo()
+        {
+            if (this.player.PegouBand)
+                VoltaBandeira();
+            if (this.player.PegouPowerUp)
+                VoltaPowerUp();
+        }
+
+
+        /*
+         * FUNÇÃO EXECUTADA QUANDO RECEBE A MSG 17/1 -> DIZ QUE O OUTRO JOGADOR FOI DESCONGELADO.
+         * RETORNA A VIDA DELE PARA 3, MUDA PARA QUE ELE POSSA LEVAR TIRO NOVAMENTE.
+         */
+        public void DescongelaJogadorLocal()
+        {
+            outroJogadorCongelado = false;
+            vidasOutroPlayer = 3;
+        }
+
+
+        /*
+         * Executada para confirma a ação de congelar o outro jogador.
+         * Executa quando recebe a MSG 18 de confirmação de congelamento.
+         * O PLAYER FOI CONGELADO.
+         */
+        public void ConfirmaCongelamento()
+        {
+            outroJogadorCongelado = true;
+            this.powerUp.mostrarAtual = true;
+        }
+
+        /*
+         * Executada quando recebe a confirmação que o tempo e congelamento do jogador remoto passou.
+         * Executa quando a o recebimento da MSG 18.
+        */
+        public void ConfirmaDescongelamento()
+        {
+            this.congelado = false;
+        }
     }
 }

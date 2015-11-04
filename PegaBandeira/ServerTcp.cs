@@ -134,69 +134,43 @@ namespace PegaBandeira
                 switch (tipo)
                 {
                     case 10:
-
                         this.RemotePlayer = true;
                         if (this.RemotePlayer && this.LocalPlayer)
                         {   //player no lado esquerdo.
                             this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(0); });
                         }
-
                         break;
 
                     case 11:
-                        //Console.WriteLine("Recebido: {0} -- {1}", dados[0], dados[1]);
-
-
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
-
-
                         break;
 
                     case 12:
-
-
-                        //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
-
-
                         break;
 
                     case 13:
-
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgTreze(dados); });
-
                         break;
 
                     case 14:
-
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgCatorze(); });
-
                         break;
 
                     case 15:
-                       
-
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgQuinze(dados); });
-
-                        //for (int i = 0; i < dados.Length; i++)
-                        //    Console.WriteLine(dados[i]);
-
-
                         break;
 
                     case 16:
-                        //Console.WriteLine("Mensagem 16 recebida.");
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezeceis(dados); });
-
                         break;
 
                     case 17:
-
-
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezecete(dados); });
                         break;
 
                     case 18:
-
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezoito(dados); });
 
                         break;
 

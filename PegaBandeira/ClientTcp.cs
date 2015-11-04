@@ -168,53 +168,38 @@ namespace PegaBandeira
                         }
                         break;
 
-
-
                     case 11:
-
-
-                        //Console.WriteLine("msg 11 recebida.");
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgOnze(dados); });
-
-
                         break;
+
                     case 12:
-
-
-                        //Console.WriteLine("Recebi msg 12. MSG: {0}", dados.ToString());
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDoze(); });
-
-
                         break;
+
                     case 13:
-
-
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgTreze(dados); });
-
-
                         break;
+
                     case 14:
-
-
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgCatorze(); });
-
-
                         break;
+
                     case 15:
-
-
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgQuinze(dados); });
-
-
-
                         break;
+
                     case 16:
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezeceis(dados); });
                         break;
+
                     case 17:
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezecete(dados); });
                         break;
+
                     case 18:
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezoito(dados); });
                         break;
+
                     case 19:
                         //MessageBox.Show("O outro jogador desistiu do jogo.");
                         this.EncerraConexaoTcp();
