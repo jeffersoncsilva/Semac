@@ -185,8 +185,8 @@ namespace PegaBandeira
         private void CampoBatalha_FormClosing(object sender, FormClosingEventArgs e)
         {
             desenha.Abort();        //paro a thread de desenho.
-            //frm_Inicio.Desisto();   //envio a msg de desistencia para o jogador.
-            //frm_Inicio.Show();      // mostro o formulario inicial.
+            frm_Inicio.Desisto();   //envio a msg de desistencia para o jogador.
+            frm_Inicio.Show();      // mostro o formulario inicial.
         }
         
 
@@ -629,7 +629,7 @@ namespace PegaBandeira
         /// <param name="direcao"></param>
         public void DefinePosicaoPlayerRemoto(float x, float y, char direcao)
         {
-            this.playerEnemy.SetPosicao(x, y);
+            this.playerEnemy.SetPosicao(this.player.ConvertNormalDispositivo(x, y));
             lock (_lock)
             {
                 this.playerEnemy.Draw(this.g);
@@ -657,8 +657,8 @@ namespace PegaBandeira
         public void TiroDisparadoOutroJogador(string[] dados)
         {
             //vetor de dados sempre tem que ser um vetor com 4 posição.
-
-            Tiro newTiro = new Tiro(dados, this.player.tamX, this.pb.Size.Width);
+            float[] posTiros = this.player.ConvertNormalDispositivo(float.Parse(dados[0]), float.Parse(dados[1]));
+            Tiro newTiro = new Tiro(posTiros, this.player.tamX, this.pb.Size.Width, char.Parse(dados[2]), int.Parse(dados[3]));
             newTiro.PodeIr();
             this.tirosInimigos.Add(newTiro);
         }
@@ -816,7 +816,8 @@ namespace PegaBandeira
         /// <param name="t"></param>
         private void EnviaMsgTiro(Tiro t)
         {
-            string aux = string.Format("{0}|{1}|{2}|{3}", t.GetX, t.GetY, t.GetDirecao, t.GetId);
+            float[] posTiro = this.player.ConvertDispositivoNormal(t.GetX, t.GetY);//converto para coordenadas normalizadas.
+            string aux = string.Format("{0}|{1}|{2}|{3}", posTiro[0],posTiro[1], t.GetDirecao, t.GetId);
             int qtd = aux.Length + 5;
             string msg = string.Format("13{0}{1}", qtd.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
@@ -1006,5 +1007,32 @@ namespace PegaBandeira
         {
             this.congelado = false;
         }
+
+
+       ///*
+       // * Converte de coordenadas normalizadas para coordenadas da tela.
+       // */
+       // private float[] ConvertNormalDispositivo(float x, float y)
+       // {
+       //     float[] pos = new float[2];
+
+       //     pos[0] = x * pb.Size.Width;//representa X
+       //     pos[1] = y * pb.Size.Height;//representa Y
+
+       //     return pos;
+       // }
+
+       // /*
+       //  * Converte de coordenadas do dispositivo para coordenadas normalizadas.
+       //  */
+       // private float[] ConvertDispositivoNormal(float x, float y)
+       // {
+       //     float[] pos = new float[2];
+
+       //     pos[0] = x / pb.Size.Width;//representa X
+       //     pos[1] = y / pb.Size.Height;//representa Y
+
+       //     return pos;
+       // }
     }
 }

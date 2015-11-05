@@ -61,13 +61,14 @@ namespace PegaBandeira
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public void SetPosicao(float x, float y)
+        public void SetPosicao(float[] newPos)
         {
             //this.posUniverX = x;
             //this.posUniverY = y;
             //ConvertPos();
-            posLocalX = x;
-            posLocalY = y;
+
+            posLocalX = newPos[0];//representa x
+            posLocalY = newPos[1];//representa y
         }
 
         

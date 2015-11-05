@@ -50,12 +50,12 @@ namespace PegaBandeira
         /// <param name="dados"></param>
         /// <param name="tam"></param>
         /// <param name="larTela"></param>
-        public Tiro(string[] dados, float tam, float largTela)
+        public Tiro(float[] posicao, float tam, float largTela, char direcao, int id)
         {
-            this.xAtual = float.Parse(dados[0]);
-            this.yAtual = float.Parse(dados[1]);
-            this.dir = char.Parse(dados[2]);
-            this._id = int.Parse(dados[3]);
+            this.xAtual = posicao[0];
+            this.yAtual = posicao[1];
+            this.dir = direcao;
+            this._id = id;
             DefineTamTiro(tam);
             this.velTiro = AreaPlayers.CalcPercet(0.25f, largTela);
         }

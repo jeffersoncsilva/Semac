@@ -28,8 +28,7 @@ namespace PegaBandeira
         private bool euDesisto;
         private bool foiConvidado;
 
-        #region
-
+    
         public MenuInicial()
         {
             InitializeComponent();
@@ -191,7 +190,6 @@ namespace PegaBandeira
         }
 
 
-
         /// <summary>
         /// Adiciona um jogador a lista de jogadores online.
         /// </summary>
@@ -202,6 +200,7 @@ namespace PegaBandeira
             ltb_JogOn.Items.Add(string.Format(jogadorNome + "; " + jogad));
         }
 
+
         /// <summary>
         /// Para mostrar o nome do jogador que o vonvidou para jogo.
         /// </summary>
@@ -210,9 +209,6 @@ namespace PegaBandeira
         {  //mostra o nome do jogador adversario que convidou para jogo.
             lbl_Convidou.Text = string.Format("Convidou: {0} para jogar. Esperando pela resposta dojogador.", nome);
         }
-
-
-
 
 
 
@@ -235,10 +231,6 @@ namespace PegaBandeira
                 serverUdp.RecusaConviteJogo();
             }
         }
-
-
-
-
 
 
         /// <summary>
@@ -373,9 +365,6 @@ namespace PegaBandeira
         }
 
 
-        
-
-
         //a cada 5 segundos, ele verifica quem ta online.
         private void verJogOn_Tick(object sender, EventArgs e)
         {
@@ -398,9 +387,6 @@ namespace PegaBandeira
         }
 
 
-        #endregion
-
-
         public void EnviaMsgTcp(string msg)
         {
             if (this.serverTcp != null)
@@ -416,7 +402,6 @@ namespace PegaBandeira
 
         //------------------ MSG TCP IP RECEBIDAS --------------
 
-        #region MSG_PRONTAS
 
         public void TrataMsgOnze(string[] dados)
         {
@@ -469,9 +454,6 @@ namespace PegaBandeira
         }
 
 
-        #endregion
-
-
         public void TrataMsgQuinze(string[] dados)
         {
             string aux = "";
@@ -489,9 +471,7 @@ namespace PegaBandeira
             this.cBat.ColisaoAutorisada(dados);
         }
 
-
-
-
+        
         public void TrataMsgDezeceis(string[] dados)
         {
             this.cBat.ColisaoAutorisada(dados);

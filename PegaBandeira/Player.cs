@@ -312,13 +312,13 @@ namespace PegaBandeira
 
         private void EnviaMsgMov(float nPX, float nPy)
         {
-            //float xUni = this.xAtual;
-            //float yUni = this.yAtual;
-            string aux = string.Format("{0}|{1}|{2}", nPX, nPy, this.direcaoJogador);
+            float[] posSend = ConvertDispositivoNormal(xAtual, yAtual);
+            string aux = string.Format("{0}|{1}|{2}", posSend[0], posSend[1], this.direcaoJogador);
             int v = aux.Length + 5;
             string msg = string.Format("11{0}{1}", v.ToString("000"), aux);
             
             this.frm_MenuInicio.EnviaMsgTcp(msg);
+           
         }
 
         
@@ -354,6 +354,34 @@ namespace PegaBandeira
         {
             EnviaMsgMov(this.xAtual, this.yAtual);
         }
+
+
+        /*
+        * Converte de coordenadas normalizadas para coordenadas da tela.
+        */
+        public float[] ConvertNormalDispositivo(float x, float y)
+        {
+            float[] pos = new float[2];
+
+            pos[0] = x * this.larguraTela;//representa X
+            pos[1] = y * this.alturaTela;//representa Y
+
+            return pos;
+        }
+
+        /*
+         * Converte de coordenadas do dispositivo para coordenadas normalizadas.
+         */
+        public float[] ConvertDispositivoNormal(float x, float y)
+        {
+            float[] pos = new float[2];
+
+            pos[0] = x / this.larguraTela;//representa X
+            pos[1] = y / this.alturaTela;//representa Y
+
+            return pos;
+        }
+
 
     }
 }
