@@ -341,6 +341,12 @@ namespace PegaBandeira
             mostrarAtual = mostrarInicial;
             this.vidas = 3;
             this.velocidadeAtual = this.velSemPowerUp;
+            ForcaEnvioPos();
+            Console.WriteLine("Reestar do player.");
+            Console.WriteLine("XI: " + xInicial);
+            Console.WriteLine("YI: " + yInicial);
+            Console.WriteLine("XA: " + xAtual);
+            Console.WriteLine("YA: " + yAtual);
         }
 
 

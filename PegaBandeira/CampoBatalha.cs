@@ -16,12 +16,11 @@ namespace PegaBandeira
         private int vidasOutroPlayer = 3;
         private bool outroJogadorCongelado = false;
 
-        #region
         //constantes para definir o tamanho da tela
-        public const int LARGURA = 1024;
-        public const int ALTURA = 800;
+        public const int LARGURA = 800;
+        public const int ALTURA = 600;
 
-        public const int TIMEOUT = 120;
+        public const int TIMEOUT = 10;
         public const string TIMEOUTSTRING = "Tempo resante da partida: \n";
         public const string TIMEENDSTRING = "Acabou a partida. A proxima partida inicia em: ";
         private int tempoRestante;
@@ -100,6 +99,7 @@ namespace PegaBandeira
             this.qualPlayer = qPlayer;
             this.player = new Player(this.pb.Size.Width, this.pb.Size.Height, this.qualPlayer, this.frm_Inicio);
             playerEnemy = new JogadorInimigo(this.player.tamX, this.player.tamY, this.pb.Size.Width, this.pb.Size.Height, this.qualPlayer);
+            elementosJogo.Add(player);
 
             //thread de desenho.
             this.desenha = new Thread(() => Draw());
@@ -142,7 +142,6 @@ namespace PegaBandeira
         }
 
 
-        #region Configuracao do grafico.
         private void ConfigForm()
         {
             //this.FormBorderStyle = FormBorderStyle.FixedSingle;
@@ -158,6 +157,7 @@ namespace PegaBandeira
 
         }
 
+
         private void ConfigPicBox()
         {
             this.pb = new PictureBox();
@@ -166,6 +166,7 @@ namespace PegaBandeira
             this.pb.Dock = DockStyle.Fill;
         }
 
+
         private void ConfGraphics()
         {
             this.surface = new Bitmap(pb.Size.Width, pb.Size.Height);
@@ -173,13 +174,13 @@ namespace PegaBandeira
             this.g = Graphics.FromImage(surface);
         }
 
+
         private void ResetaGraphics()
         {
             this.pb.Refresh();
             this.g.Clear(Color.White);
         }
-        #endregion
-
+        
 
         private void CampoBatalha_FormClosing(object sender, FormClosingEventArgs e)
         {
@@ -187,7 +188,7 @@ namespace PegaBandeira
             //frm_Inicio.Desisto();   //envio a msg de desistencia para o jogador.
             //frm_Inicio.Show();      // mostro o formulario inicial.
         }
-#endregion
+        
 
         private void CampoBatalha_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -207,8 +208,7 @@ namespace PegaBandeira
             }
         }
 
-        #region
-
+       
         private void VerificaQuemColidiuBandeira(string[] dados)
         {
             /*verifica se e a minha bandeira.
@@ -358,7 +358,7 @@ namespace PegaBandeira
         private void ColisaoDaBala()
         {
             while (true)
-            {
+            {              
                 lock (_lock)
                 {
                     Rectangle rect;
@@ -370,6 +370,7 @@ namespace PegaBandeira
                             if (t.Colisao(rect) && o.mostrarAtual)
                             {
                                 //hove colisão com da bala com o obstaculo.
+                                //Console.WriteLine("Colidiu com um obstaculo.");
                                 EnviaMsgColisaoObstaculo(o, t);
                                 break;
                             }
@@ -379,7 +380,6 @@ namespace PegaBandeira
                         if (t.Colisao(rect) && !t.colidiu && !this.outroJogadorCongelado)
                         {
                             TiroColidiuPlayerMsg(t);
-                            
                         }
                         //colisao do tiro com o power up
                         rect = new Rectangle((int)this.powerUp.xAtual, (int)this.powerUp.yAtual, (int)this.powerUp.tamX, (int)this.powerUp.tamY);
@@ -451,6 +451,7 @@ namespace PegaBandeira
             {
                 v.Reestart();
             }
+            Console.WriteLine("Reestat metodo.");
         }
 
 
@@ -649,9 +650,6 @@ namespace PegaBandeira
         }
 
 
-
-
-
         /// <summary>
         /// Desenha o tiro disparado pelo outro jogador.
         /// </summary>
@@ -684,16 +682,21 @@ namespace PegaBandeira
 
             tir = ProcuraOTiro(id, this.tiros);
             if (tir != null)
+            {
                 tir.colidiu = true;
+                tiros.Remove(tir);
+            }
 
             tir = ProcuraOTiro(id, this.tirosInimigos);
             if (tir != null)
+            {
                 tir.colidiu = true;
+                tirosInimigos.Remove(tir);
+            }
 
         }
 
-        #endregion
-
+        
         public void JogadorAtingido(string[] dados)
         {
             this.player.ApplyDamange();
@@ -711,6 +714,7 @@ namespace PegaBandeira
             //        VoltaPowerUp();
             //}
         }
+
 
         private void AcerteiOutroJogador()
         {
@@ -927,8 +931,7 @@ namespace PegaBandeira
             string msg = string.Format("15{0}{1}", qtd.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
         }
-
-
+        
     
         /*
          * Envia essa MSG dizendo que o player nao tem mais vidas. Portanto deve ser congelado.
@@ -938,6 +941,7 @@ namespace PegaBandeira
         {
             this.frm_Inicio.EnviaMsgTcp("170060");
         }
+
 
         /*
          * MSG 17/1 -> MSG QUE DIS QUE O OUTRO JOGADOR FOI DESCONGELADO.
@@ -992,6 +996,7 @@ namespace PegaBandeira
             outroJogadorCongelado = true;
             this.powerUp.mostrarAtual = true;
         }
+
 
         /*
          * Executada quando recebe a confirmação que o tempo e congelamento do jogador remoto passou.
