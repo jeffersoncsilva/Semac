@@ -151,8 +151,6 @@ namespace PegaBandeira
         }
 
 
-
-
         /// <summary>
         /// Verifica se o nome e apelido atende os requisitos para poder habilitar o botão de inicio de partida.
         /// </summary>
@@ -162,8 +160,7 @@ namespace PegaBandeira
         {
             HabilitaBotoes();
         }
-
-
+        
 
         /// <summary>
         /// Para verificar se o jogador pode iniciar a escuta e envio de broadcast.
@@ -177,8 +174,6 @@ namespace PegaBandeira
             }
         }
 
-
-        //----------------------DELEGATES METHODS------------------
 
         /// <summary>
         /// Ativa a parte para poder fazer um convite a um jogador.
@@ -269,6 +264,7 @@ namespace PegaBandeira
             this.connect = true;
             tm_verJogOn.Stop();
         }
+
 
         /// <summary>
         /// Carrega o campo de batalha do jogo.
@@ -400,9 +396,6 @@ namespace PegaBandeira
         }
 
 
-        //------------------ MSG TCP IP RECEBIDAS --------------
-
-
         public void TrataMsgOnze(string[] dados)
         {
             //divido os dados nas posições recebidas. (player remoto).
@@ -512,5 +505,7 @@ namespace PegaBandeira
                 this.cBat.ConfirmaDescongelamento();
             }
         }
+
+
     }
 }

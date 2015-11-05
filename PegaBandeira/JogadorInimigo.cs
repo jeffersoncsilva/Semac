@@ -19,11 +19,14 @@ namespace PegaBandeira
         private float widthScreen;
         private float heightScreen;
 
+        private bool pegouBandeira;
+        private bool pegouPowerUp;
 
         public float GetX { get { return this.posLocalX; } }
         public float GetY { get { return this.posLocalY; } }
         public float GetTam { get { return this.widthJogador; } }
-
+        public bool PegouBand { get { return this.pegouBandeira; } set { this.pegouBandeira = value; } }
+        public bool PegouPowerUp { get { return this.pegouPowerUp; } set { this.pegouPowerUp = value; } }
 
         /// <summary>
         /// Metodo construtor. Cria o objeto com seu respectivo tamanho.
@@ -91,5 +94,31 @@ namespace PegaBandeira
             this.posLocalX = this.posUniverX * this.widthScreen;
             this.posLocalY = this.posUniverY * this.heightScreen;
         }
+
+
+        /// <summary>
+        /// Verifica se o player esta dentro da area recebida. (Area de jogo do player local).
+        /// </summary>
+        /// <param name="area"></param>
+        /// <returns></returns>
+        public bool Dentro(PosRect area)
+        {
+            if (this.posLocalX + this.widthJogador > area.x &&
+              this.posLocalX > area.x &&
+              this.posLocalX + this.widthJogador < area.largura &&
+              this.posLocalX < area.largura &&
+              this.posLocalY + this.heightJogador > area.y &&
+              this.posLocalY > area.y &&
+              this.posLocalY + this.heightJogador < area.altura &&
+              this.posLocalY < area.altura)
+            {
+                return true;
+            }
+            else
+                return false;
+        }
+
+
     }
+
 }
