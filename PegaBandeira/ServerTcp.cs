@@ -107,7 +107,8 @@ namespace PegaBandeira
             catch (Exception e)
             {
                 Console.WriteLine("Conexão com o outro jogador perdida. ERRO: " + e.ToString());
-                this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
+                this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.EmPartida = false; });
+                this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezenove(); });
             }
         }
 
@@ -137,6 +138,7 @@ namespace PegaBandeira
                         this.RemotePlayer = true;
                         if (this.RemotePlayer && this.LocalPlayer)
                         {   //player no lado esquerdo.
+                            //this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.EmPartida = true; });
                             this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(0); });
                         }
                         break;
@@ -171,14 +173,13 @@ namespace PegaBandeira
 
                     case 18:
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezoito(dados); });
-
                         break;
 
                     case 19:
 
-                        this.EncerraConexaoTcp();
-                        this.Msg19 = true;
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
+                        //this.EncerraConexaoTcp();
+                        //this.Msg19 = true;
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezenove(); });
 
 
                         break;

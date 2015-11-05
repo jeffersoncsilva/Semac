@@ -37,6 +37,8 @@
             this.lbl_Resultado = new System.Windows.Forms.Label();
             this.tm_Bala = new System.Windows.Forms.Timer(this.components);
             this.tm_Congelamento = new System.Windows.Forms.Timer(this.components);
+            this.lbl_FinDeJogo = new System.Windows.Forms.Label();
+            this.btn_RetornaMenuInicial = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lbl_NomeJog
@@ -96,11 +98,33 @@
             this.tm_Congelamento.Interval = 2000;
             this.tm_Congelamento.Tick += new System.EventHandler(this.tm_Congelamento_Tick);
             // 
+            // lbl_FinDeJogo
+            // 
+            this.lbl_FinDeJogo.Font = new System.Drawing.Font("Microsoft Sans Serif", 18.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lbl_FinDeJogo.Location = new System.Drawing.Point(56, 120);
+            this.lbl_FinDeJogo.Name = "lbl_FinDeJogo";
+            this.lbl_FinDeJogo.Size = new System.Drawing.Size(611, 261);
+            this.lbl_FinDeJogo.TabIndex = 5;
+            this.lbl_FinDeJogo.Text = "label1";
+            // 
+            // btn_RetornaMenuInicial
+            // 
+            this.btn_RetornaMenuInicial.Font = new System.Drawing.Font("Microsoft Sans Serif", 28.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_RetornaMenuInicial.Location = new System.Drawing.Point(298, 312);
+            this.btn_RetornaMenuInicial.Name = "btn_RetornaMenuInicial";
+            this.btn_RetornaMenuInicial.Size = new System.Drawing.Size(183, 69);
+            this.btn_RetornaMenuInicial.TabIndex = 6;
+            this.btn_RetornaMenuInicial.Text = "Voltar";
+            this.btn_RetornaMenuInicial.UseVisualStyleBackColor = true;
+            this.btn_RetornaMenuInicial.Click += new System.EventHandler(this.btn_RetornaMenuInicial_Click);
+            // 
             // CampoBatalha
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(708, 346);
+            this.ClientSize = new System.Drawing.Size(733, 480);
+            this.Controls.Add(this.btn_RetornaMenuInicial);
+            this.Controls.Add(this.lbl_FinDeJogo);
             this.Controls.Add(this.lbl_Resultado);
             this.Controls.Add(this.lbl_Inativo);
             this.Controls.Add(this.lbl_Placar);
@@ -127,5 +151,7 @@
         private System.Windows.Forms.Label lbl_Resultado;
         private System.Windows.Forms.Timer tm_Bala;
         private System.Windows.Forms.Timer tm_Congelamento;
+        private System.Windows.Forms.Label lbl_FinDeJogo;
+        private System.Windows.Forms.Button btn_RetornaMenuInicial;
     }
 }

@@ -25,10 +25,12 @@ namespace PegaBandeira
         CampoBatalha cBat = null;
 
         private bool connect;
-        private bool euDesisto;
+        //private bool euDesisto;
         private bool foiConvidado;
 
-    
+        private bool emPartida;
+        public bool EmPartida { get { return this.emPartida; } set { this.emPartida = value; } }
+
         public MenuInicial()
         {
             InitializeComponent();
@@ -37,6 +39,7 @@ namespace PegaBandeira
             this.connect = false;
             this.foiConvidado = false;
         }
+
 
         /// <summary>
         /// Inicia o envio de broadcas na rede para verificar os jogadores que estão online. Ativa a escuta de braodcast da rede.
@@ -59,40 +62,11 @@ namespace PegaBandeira
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btn_IniPartida_Click(object sender, EventArgs e)
-        {
-            string msg = "10005";
-            //+--------  SERVIDOR  +--------
-            if (serverTcp != null)
-            {
-                serverTcp.LocalPlayer = true;
-                if (serverTcp.RemotePlayer && serverTcp.LocalPlayer)
-                {
-                    serverTcp.EnviaMsg(msg);
-                    this.player = 0;
-                    CarregaCampoBatalha(player);
-                }
-                else
-                {
-                    serverTcp.EnviaMsg(msg);
-                }
-            }
-            //+--------  CLIENTE  +--------
-            else if (clientTcp != null)
-            {
-                clientTcp.LocalPlayer = true;
-                if (clientTcp.RemotePlayer && clientTcp.LocalPlayer)
-                {
-                    clientTcp.EnviaMsg(msg);
-                    this.player = 1;
-                    CarregaCampoBatalha(player);
-                }
-                else
-                {
-                    clientTcp.EnviaMsg(msg);
-                }
-            }
+        {            
+            PlayerLocalPronto();
             btn_IniPartida.Visible = false;
             lbl_Espera.Visible = true;
+            //emPartida = true;
         }
 
 
@@ -205,8 +179,7 @@ namespace PegaBandeira
             lbl_Convidou.Text = string.Format("Convidou: {0} para jogar. Esperando pela resposta dojogador.", nome);
         }
 
-
-
+        
         /// <summary>
         /// Mostra as opções de aceitar ou negar o convite de jogo recebido por um jogador.
         /// </summary>
@@ -272,18 +245,29 @@ namespace PegaBandeira
         /// <param name="tipo">Se o jogador e um cliente ou o servidor.</param>
         public void CarregaCampoBatalha(int tipo)
         {
-            cBat = new CampoBatalha(this, tipo);
-            cBat.Show();
-            this.Hide();
+            if (!emPartida)
+            {
+                cBat = new CampoBatalha(this, tipo);
+                cBat.Show();
+                cBat.DefineNomeJogador(txb_Nome.Text);//ganbiarra pra mostrar o nome do jogador na tela.
+                this.Hide();
+                emPartida = true;
+            }
+            else
+            {
+                cBat.ComecaRodada();
+                cBat.Show();
+                Console.WriteLine("Carrega campo batalha.");
+            }
         }
 
 
         /// <summary>
         /// Quando a a desistencia do jogador da partida.
         /// </summary>
-        public void Desisto()
+        public void FimDeJogo()
         {//quando o jogador desiste de jogar. Quando ele desiste, envio uma msg de desistencia e fecha a conexao.
-            this.euDesisto = true;
+            //this.euDesisto = true;
 
             string msg = "19005";
             if (this.serverTcp != null && !this.serverTcp.Msg19)
@@ -306,38 +290,7 @@ namespace PegaBandeira
 
             }
 
-            Padrao();
-        }
-
-
-        /// <summary>
-        /// O outro jogador encerra a conexão. Quando a perda de conexão com o outro jogador.
-        /// </summary>
-        public void ConexaoEncerrada()
-        {//quando o outro jogador encerra a conexão
-
-            if (this.euDesisto)
-                return;
-
-            if (this.cBat != null)
-            {
-                this.cBat.Close();
-                this.cBat = null;
-            }
-
-            MessageBox.Show("O outro jogador desistiu ou a conexão foi perdida. Clique em OK para voltar ao loby.");
-            if (serverTcp != null)
-            {
-                this.serverTcp.EncerraConexaoTcp();
-                this.serverTcp = null;
-            }
-            else if (clientTcp != null)
-            {
-                this.clientTcp.EncerraConexaoTcp();
-                this.clientTcp = null;
-            }
-
-            Padrao();
+            //Padrao();
         }
 
 
@@ -353,7 +306,7 @@ namespace PegaBandeira
             gb_ConviteRecv.Visible = false;
             lbl_Espera.Visible = false;
             this.connect = false;
-            this.euDesisto = false;
+            //this.euDesisto = false;
             this.foiConvidado = false;
             //recomeça a thread e broadcast.
 
@@ -507,5 +460,84 @@ namespace PegaBandeira
         }
 
 
+        private bool TemConexao()
+        {
+            if (this.serverTcp != null)
+            {
+                return this.clientTcp.EstaConectado();
+            }
+            else if (this.clientTcp != null)
+            {
+                return this.clientTcp.EstaConectado();
+            }
+
+            //se de erro muda para true e testa de novo.
+            return false;
+        }
+
+
+        public void VoltaLocalPlayer()
+        {
+            if (this.clientTcp != null)
+            {
+                this.clientTcp.LocalPlayer = false;
+                this.clientTcp.RemotePlayer = false;
+            }
+            else if (this.serverTcp != null)
+            {
+                this.serverTcp.LocalPlayer = false;
+                this.serverTcp.RemotePlayer = false;
+                Console.WriteLine("Sou o servidor e voltel o local player para false.");
+            }
+        }
+
+
+        public void PlayerLocalPronto()
+        {
+            string msg = "10005";
+            //+--------+  SERVIDOR  +--------+
+            if (serverTcp != null)
+            {
+                serverTcp.LocalPlayer = true;
+                if (serverTcp.RemotePlayer && serverTcp.LocalPlayer)
+                {
+                    serverTcp.EnviaMsg(msg);
+                    this.player = 0;
+                    CarregaCampoBatalha(player);
+                    
+                }
+                else
+                    serverTcp.EnviaMsg(msg);
+                Console.WriteLine("R: " + serverTcp.RemotePlayer);
+                Console.WriteLine("L: " + serverTcp.LocalPlayer);
+            }
+            //+--------+  CLIENTE  +--------+
+            else if (clientTcp != null)
+            {
+                clientTcp.LocalPlayer = true;
+                if (clientTcp.RemotePlayer && clientTcp.LocalPlayer)
+                {
+                    clientTcp.EnviaMsg(msg);
+                    this.player = 1;
+                    CarregaCampoBatalha(player);
+                }
+                else
+                    clientTcp.EnviaMsg(msg);
+                Console.WriteLine("R: " + clientTcp.RemotePlayer);
+                Console.WriteLine("L: " + clientTcp.LocalPlayer);
+            }
+        }
+
+
+        public void TrataMsgDezenove()
+        {
+            if (!TemConexao() && !emPartida)
+            {
+                //mostra msg de conexao perdida.
+                MessageBox.Show("Conexão perdia. Provavelmente o jogador desistiu. Continue para ver resultados.");
+            }
+            this.cBat.VerificaVencedor();
+            VoltaLocalPlayer();
+        }
     }
 }

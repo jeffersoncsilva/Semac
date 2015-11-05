@@ -107,7 +107,8 @@ namespace PegaBandeira
             catch (Exception e)
             {
                 Console.WriteLine("Conexão encerrada. ERRO: " + e.ToString());
-                this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
+                this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.EmPartida = false; });
+                this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezenove(); });
             }
         }
 
@@ -159,11 +160,10 @@ namespace PegaBandeira
                 switch (int.Parse(tipo))
                 {
                     case 10:
-
-
                         this.RemotePlayer = true;
                         if (this.RemotePlayer && this.LocalPlayer)
                         {   //player no lado direito.
+                            //this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.EmPartida = true; });
                             this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.CarregaCampoBatalha(1); });
                         }
                         break;
@@ -204,7 +204,7 @@ namespace PegaBandeira
                         //MessageBox.Show("O outro jogador desistiu do jogo.");
                         this.EncerraConexaoTcp();
                         this.Msg19 = true;
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoEncerrada(); });
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezenove(); });
                         break;
                 }
             }

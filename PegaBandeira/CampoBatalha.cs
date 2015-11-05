@@ -15,9 +15,13 @@ namespace PegaBandeira
     {
         private int vidasOutroPlayer = 3;
         private bool outroJogadorCongelado = false;
-        private int rodada;
+        private int rodada = 0;
         private int minhasVitorias = 0;
         private int minhasDerrotas = 0;
+
+        private bool rodadaAcabou;
+        
+        private bool acabouApartida = false;//representa quando acabou a partida para poder finalizar as trheads corretamente com segurança.
 
         //constantes para definir o tamanho da tela
         public const int LARGURA = 800;
@@ -90,14 +94,13 @@ namespace PegaBandeira
 
 
         private void InicializaVariaveis(int qPlayer)
-        {
-            rodada = 1;
+        {            
             elementosJogo = new List<ElementoJogo>();   //cria a lista com todos os elementos do jogo.
             this.podeAtirar = true;                     //define que o jogador pode atirar.
             this.areaPlay = new AreaPlayers(this.pb.Size.Width, this.pb.Size.Height);   //cria a rea de jogo do player.
             //refere-se a HUD do jogo.
             this.hud = new Interface(this.pb.Size.Width, this.pb.Size.Height);      //cria a hud do jogo.
-            Label[] lab = new Label[] { this.lbl_NomeJog, this.lbl_Placar, this.lbl_TempoRestante, this.lbl_Inativo };//pega as labels da hud do jogo que ta no form.
+            Label[] lab = new Label[] { this.lbl_NomeJog, this.lbl_Placar, this.lbl_TempoRestante, this.lbl_Inativo, this.lbl_FinDeJogo };//pega as labels da hud do jogo que ta no form.
             this.hud.ConfgLabels(lab);  //define as posições e tamanhos das labels que tem no jogo.
 
             this.qualPlayer = qPlayer;
@@ -143,6 +146,19 @@ namespace PegaBandeira
 
             //atualiza a posição para o outro jogador
             this.player.ForcaEnvioPos();
+
+            //configura o botao que aparece no final da partida para voltar para a tela inicial de jogo.
+            ConfiguraBotaoRetornoMenu();
+        }
+
+
+        //configura o botao de retorno para o menu inicial.
+        private void ConfiguraBotaoRetornoMenu()
+        {
+            int y = (int)AreaPlayers.CalcPercet(80, pb.Size.Height);
+            int x = (int)(pb.Size.Width / 2) - (btn_RetornaMenuInicial.Size.Width / 2);
+            btn_RetornaMenuInicial.Location = new Point(x, y);
+            btn_RetornaMenuInicial.Visible = false;
         }
 
 
@@ -188,14 +204,18 @@ namespace PegaBandeira
 
         private void CampoBatalha_FormClosing(object sender, FormClosingEventArgs e)
         {
-            desenha.Abort();        //paro a thread de desenho.
-            frm_Inicio.Desisto();   //envio a msg de desistencia para o jogador.
-            frm_Inicio.Show();      // mostro o formulario inicial.
+            if (!acabouApartida)
+            {
+                desenha.Abort();        //paro a thread de desenho.
+                frm_Inicio.FimDeJogo();   //envio a msg de desistencia para o jogador.
+                frm_Inicio.Show();      // mostro o formulario inicial.
+            }
         }
 
 
         private void CampoBatalha_KeyPress(object sender, KeyPressEventArgs e)
         {
+            Console.WriteLine("Key press");
             if (!endPartida && !congelado)
             {
                 /*
@@ -274,6 +294,7 @@ namespace PegaBandeira
 
         private void CampoBatalha_KeyDown(object sender, KeyEventArgs e)
         {
+            Console.WriteLine("Key Down");
             if (e.KeyCode == Keys.Escape)
                 Application.Exit();
 
@@ -301,23 +322,16 @@ namespace PegaBandeira
                 else
                 {
                     this.endPartida = true;
-                    lbl_TempoRestante.Text = TIMEENDSTRING + proxPartida + " s.";
                     VerificaVencedor();
                 }
             }
             //mostra a msg de fim de jogo, e depois reinica o jogo passado o tempo.
             else
             {
-                if (proxPartida > 0)
-                {
-                    proxPartida--;
-                    lbl_TempoRestante.Text = TIMEENDSTRING + proxPartida + " s.";
-                }
-                else
-                {
-                    Restart();
-                    rodada += 1;
-                }
+                this.frm_Inicio.VoltaLocalPlayer();
+                Restart();
+                VerificaVencedor();
+                tm_UpdtTempoPartida.Stop();                
             }
         }
 
@@ -366,7 +380,7 @@ namespace PegaBandeira
 
         private void ColisaoDaBala()
         {
-            while (true)
+            while (!acabouApartida)
             {
                 lock (_lock)
                 {
@@ -408,12 +422,13 @@ namespace PegaBandeira
                 }
                 Thread.Sleep(20);
             }
+            Console.WriteLine("Saiu da thread de colisão de bala");
         }
 
 
         private void Draw()
         {
-            while (true)
+            while (!acabouApartida)
             {
                 try
                 {
@@ -444,6 +459,7 @@ namespace PegaBandeira
                 }
                 Thread.Sleep(30);
             }
+            Console.WriteLine("Fim de jogo. Saiu da trhead de desenho.");
         }
 
 
@@ -451,7 +467,6 @@ namespace PegaBandeira
         {
             this.tempoRestante = TIMEOUT;
             this.proxPartida = 5;
-            this.endPartida = false;
             lbl_TempoRestante.Text = TIMEOUTSTRING + this.tempoRestante + " s.";
             this.lbl_Resultado.Visible = false;
             this.player.PegouBand = false;
@@ -460,73 +475,102 @@ namespace PegaBandeira
             {
                 v.Reestart();
             }
-            Console.WriteLine("Reestat metodo.");
+            //atualiza o placar.
+            lbl_Placar.Text = string.Format("Placar: {0} x {1}", minhasVitorias, minhasDerrotas);
         }
 
 
-        private void VerificaVencedor()
+        private void FinDeJogo(string msg)
         {
-            /*
-             * Verifica se e a rodada que acabou foi a rodada final. Se foi a rodada final, verifica quem foi o vencedor da partida.
-             * Se não for a rodada final, verifica quem venceu a rodada atual e mostra a msg para poder recomeçar a proximaa rodada.
-            */
+            tm_UpdtTempoPartida.Stop();
+            lbl_FinDeJogo.Text = msg;
+            lbl_FinDeJogo.Visible = true;
+            this.acabouApartida = true;
+            btn_RetornaMenuInicial.Visible = true;
+            btn_RetornaMenuInicial.Text = "Voltar menu inicial.";
+            //Fecho a conexão com o outro jogador e envia a msg de fin de jogo.
+            frm_Inicio.FimDeJogo();
+        }
+
+
+        /*
+         * Verifica se e a rodada que acabou foi a rodada final. Se foi a rodada final, verifica quem foi o vencedor da partida.
+         * Se não for a rodada final, verifica quem venceu a rodada atual e mostra a msg para poder recomeçar a proximaa rodada.
+        */
+        public void VerificaVencedor()
+        {
+            
             if (rodada == 3)
             {
+                string msg;
                 //quer dizer que o jogo acabou.
                 if (minhasVitorias > minhasDerrotas)
-                {
-                    string msg = string.Format("Eu sou o vencedor da partida.");
-                    Console.WriteLine(msg);
-                }
+                    msg = string.Format("Com o placa de {0} a {1} você foi o vencedor dessa partida. \nAperte o botão para voltar ao menu inicial.", minhasVitorias, minhasDerrotas);
+                
+                else if(minhasDerrotas > minhasVitorias)        
+                    msg = string.Format("Com o placar de {0} a {1} você foi derrotado nessa partida. \nAperte o botão para voltar ao menu inicial.", minhasVitorias, minhasDerrotas);
                 else
-                {
-                    string msg = string.Format("Eu nao consegui vercer essa partida.");
-                    Console.WriteLine(msg);
-                }
+                    msg = string.Format("Com o placar de {0} a {1} foi declarado empate. Não hore vencedores nessa partida. \nAperte o botão para voltar ao menu inicial.", minhasVitorias, minhasDerrotas);
+                FinDeJogo(msg);
             }
             else
             {
+                string msg = "";
                 //se tiver satisfeito as seguintes condições, eu sou o vencedor da rodada.
                 if (this.player.PegouBand && this.player.Dentro(this.areaPlay.GetAreaPlayerLocal))
                 {
                     //eu venci a partida.
                     minhasVitorias += 1;
-                    Console.WriteLine("Venci a partidar por estar dentro da minha area de jogo.");
+                    msg = "Venci a partidar por estar dentro da minha area de jogo.";
                 }
                 else if (this.playerEnemy.PegouBand && this.playerEnemy.Dentro(this.areaPlay.GetAreaPlayerRemoto))
                 {
                     //outro jogador venceu a partida.
                     minhasDerrotas += 1;
-                    Console.WriteLine("Perdi a partida. O outro jogador esta com a bandeira dentro de sua area de jogo.");
+                    msg = "Perdi a partida. O outro jogador esta com a bandeira dentro de sua area de jogo.";
                 }
                 //nenhum dos jogadores estão dentro de suas respectivas areas. Vence o jogador que tiver com a bandeira
                 else if (this.player.PegouBand && !this.playerEnemy.PegouBand)
                 {
                     //jogador local venceu por estar com a bandeira e o outro jogador nao estar.
                     minhasVitorias += 1;
-                    Console.WriteLine("Venci a partida. Meu jogador pegou a bandeira.");
+                    msg = "Venci a partida. Meu jogador pegou a bandeira.";
                 }
                 else if (!this.player.PegouBand && this.playerEnemy.PegouBand)
                 {
                     //jogador local perdeu por nao estar com a bandeira e o outro jogador estar com a bandeira
                     minhasDerrotas += 1;
-                    Console.WriteLine("Perdi a partida. O outro jogador esta com a bandeira.");
+                    msg = "Perdi a partida. O outro jogador esta com a bandeira.";
                 }
-                    //caso persitiu o empate, o vencedor e aquele que tiver de posse do power up.
+                //caso persitiu o empate, o vencedor e aquele que tiver de posse do power up.
                 else if (this.player.PegouPowerUp && !this.playerEnemy.PegouPowerUp)
                 {
                     //meu jogador venceu por estar de posse do power up.
                     minhasVitorias += 1;
-                    Console.WriteLine("Ganhei a partida. Meu jogador esta com a bandeira e o power up.");
+                    msg = "Ganhei a partida. Meu jogador esta com a bandeira e o power up.";
                 }
                 else if (!this.player.PegouPowerUp && this.playerEnemy.PegouPowerUp)
                 {
                     //meu jogador perdeu por nao estar com o power up.
                     minhasDerrotas += 1;
-                    Console.WriteLine("Perdi a partida. O outro jogador consegui pegar a bandeira e o power up.");
+                    msg = "Perdi a partida. O outro jogador consegui pegar a bandeira e o power up.";
                 }
+                else
+                    msg = "Empate. Nenhum jogador consegui pegar a bandeira ou o power up.";
+                FinDeRodada(msg);
             }
         }
+
+
+        private void FinDeRodada(string msg)
+        {
+            lbl_FinDeJogo.Text = msg;
+            lbl_FinDeJogo.Visible = true;
+            btn_RetornaMenuInicial.Visible = true;
+            btn_RetornaMenuInicial.Text = "Começar proxima rodada.";
+            rodadaAcabou = true;
+        }
+
 
         private void MostraMsgFinal(string msg)
         {
@@ -536,6 +580,7 @@ namespace PegaBandeira
             this.lbl_Resultado.Size = new Size(150, 30);
             this.lbl_Resultado.Visible = true;
         }
+
 
         #region CRIA_OBSTACULO
         private void CriaObstaculos()
@@ -595,6 +640,7 @@ namespace PegaBandeira
             }
         }
         #endregion
+
 
         private void tm_Bala_Tick(object sender, EventArgs e)
         {
@@ -933,7 +979,7 @@ namespace PegaBandeira
             string msg = string.Format("15{0}{1}", tam.ToString("000"), aux);
             this.frm_Inicio.EnviaMsgTcp(msg);
 
-            Console.WriteLine("Colisão entre players. MGS Send: " + msg);
+            //Console.WriteLine("Colisão entre players. MGS Send: " + msg);
         }
 
 
@@ -1021,7 +1067,6 @@ namespace PegaBandeira
             congelado = true;
             tm_Congelamento.Start();
             VoltaElementosJogo();
-            Console.WriteLine("Congelado.");
         }
 
 
@@ -1064,6 +1109,36 @@ namespace PegaBandeira
         public void ConfirmaDescongelamento()
         {
             this.congelado = false;
+        }
+
+
+        //isso mostra o nome do jogador na tela de jogo. ou o nome que vier como parametro.
+        public void DefineNomeJogador(string nome)
+        {
+            lbl_NomeJog.Text = string.Format("Nome: " + nome);
+        }
+
+
+        private void btn_RetornaMenuInicial_Click(object sender, EventArgs e)
+        {
+            if (rodadaAcabou)
+            {
+                this.frm_Inicio.PlayerLocalPronto();
+                this.btn_RetornaMenuInicial.Visible = false;
+                this.lbl_FinDeJogo.Text = "Aguarde ate que o outro jogador esteja preparado.";
+            }
+            else
+            {
+                this.frm_Inicio.Show();
+                this.Close();
+            }
+        }
+
+        public void ComecaRodada()
+        {
+            tm_UpdtTempoPartida.Start();
+            this.endPartida = false;
+            this.lbl_FinDeJogo.Visible = false;
         }
 
     }

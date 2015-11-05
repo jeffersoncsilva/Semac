@@ -34,6 +34,16 @@ namespace PegaBandeira
 
         private int PortToConnect;
 
+
+        public bool EstaConectado()
+        {
+            if (this.socket != null)
+                return this.socket.Connected;
+            else
+                return false;
+        }
+
+
         //armazenão a porta e o ip para conectar com cliente (caso o jogador escolher jogar como cliente)
         //ou amazenarão o ip e porta local caso o jogador eja o servidor.
         private int localPort;         

@@ -15,7 +15,7 @@ namespace PegaBandeira
         private Label nomeJog;
         private int altura;
         private int largura;
-
+        private Label[] labels;
 
         public Interface(int larg, int alt)
         {
@@ -46,7 +46,7 @@ namespace PegaBandeira
             labs[1].Location =  new Point((int)AreaPlayers.CalcPercet(60, this.altura), (int)AreaPlayers.CalcPercet(0.5f, this.largura));
             labs[1].AutoSize = false;
             labs[1].Size = new Size(80, 20);
-            labs[1].Text = "Placar: ";
+            labs[1].Text = "Placar: 0 x 0";
             labs[1].TextAlign = ContentAlignment.MiddleCenter;
 
             //  LABEL DE TEMPO RESTANTE DA PARTIDA
@@ -62,6 +62,34 @@ namespace PegaBandeira
             labs[3].Size = new Size(120, 30);
             labs[3].Text = "INATIVO!!  Volta em: ... segundos. ";
             labs[3].TextAlign = ContentAlignment.MiddleCenter;
+            labs[3].Visible = false;
+
+            //LABEL QUE E MOSTRADA QUANDO O JOGO ACABA.
+            labs[4].AutoSize = false;
+            labs[4].Size = new Size(600, 300);
+            //int x = (int)(this.largura / 2) - (labs[4].Size.Width / 2);
+            //int y = (int)(this.altura / 2) - (labs[4].Size.Width/2);
+            //calcula primeiro o x, pega a largura total divide no meio e diminoi a metade da largura do label para poder centralizar
+            //igual para Y.
+            labs[4].Location = new Point(((int)(this.largura / 2) - (labs[4].Size.Width / 2)), ((int)(this.altura / 2) - (labs[4].Size.Height / 2)));
+            labs[4].TextAlign = ContentAlignment.MiddleCenter;
+            //labs[4].Text = "Fim de jogo. O jogador vencedor foi o (fulano). Sinto muito mas parece que voce foi o perdedor. Clique no boltão para poder voltar ao menu principal.";
+            labs[4].Visible = false;
+
+            //labs[4].Location = new Point((int));
+
+            //Armazena os labels em um vetor para manipulalos depois.
+            this.labels = labs;
+        }
+
+        /// <summary>
+        /// Ativa o label que mostra o tempo de inatividade do jogador.
+        /// </summary>
+        public void AtivaLabelInativo(bool valor)
+        {
+            //label 3 do vetor e o label que ira mostra o tempo que o jogador ficara ativo.
+            //ativa ou desativa a visibilidade do label dependendo do que for enviado.
+            this.labels[3].Visible = valor;
         }
 
 
@@ -70,6 +98,8 @@ namespace PegaBandeira
             SolidBrush pen = new SolidBrush(Color.Red);
             g.FillRectangle(new SolidBrush(Color.LightGray), hud.x, hud.y, hud.largura, hud.altura);
         }
+
+
     }
     public class PosRect
     {
