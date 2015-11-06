@@ -204,11 +204,11 @@ namespace PegaBandeira
 
         private void CampoBatalha_FormClosing(object sender, FormClosingEventArgs e)
         {
-            this.acabouApartida = true; //finaliza as threads que estiverem rodando no momento e dependend de um valor falso dessa variavel. (desenhaTela e colideBala)
-            frm_Inicio.FimDeJogo();//envio a msg de desistencia para o jogador.
-            frm_Inicio.Show();      // mostro o formulario inicial.
-            //melhor fazer isso na main thread pra nao ter problema. (eu acho)
-            this.frm_Inicio.Invoke((MethodInvoker)delegate() { this.frm_Inicio.IniciaUdp(); });
+            //this.acabouApartida = true; //finaliza as threads que estiverem rodando no momento e dependend de um valor falso dessa variavel. (desenhaTela e colideBala)
+            //frm_Inicio.FimDeJogo();//envio a msg de desistencia para o jogador.
+            //frm_Inicio.Show();      // mostro o formulario inicial.
+            ////melhor fazer isso na main thread pra nao ter problema. (eu acho)
+            //this.frm_Inicio.Invoke((MethodInvoker)delegate() { this.frm_Inicio.IniciaUdp(); });
         }
 
 
@@ -503,7 +503,7 @@ namespace PegaBandeira
             btn_RetornaMenuInicial.Text = "Voltar menu inicial.";
             //Fecho a conexão com o outro jogador e envia a msg de fin de jogo.
             frm_Inicio.FimDeJogo();
-            this.frm_Inicio.Invoke((MethodInvoker)delegate() { this.frm_Inicio.IniciaUdp(); });
+            //this.frm_Inicio.Invoke((MethodInvoker)delegate() { this.frm_Inicio.IniciaUdp(); });
             rodadaAcabou = false;
         }
 
@@ -1147,8 +1147,10 @@ namespace PegaBandeira
             else
             {
                 this.frm_Inicio.Show();
+                Close();
+                this.frm_Inicio.VoltaUdp();
                 //this.frm_Inicio.IniciaUdp();
-                this.frm_Inicio.FinalisaCampoBatalha();
+                //this.frm_Inicio.FinalisaCampoBatalha();
             }
         }
 
@@ -1161,6 +1163,7 @@ namespace PegaBandeira
             rodada += 1;
             verificouVencedor = false;
         }
+
 
     }
 }

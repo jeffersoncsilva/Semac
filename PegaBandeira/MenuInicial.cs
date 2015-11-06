@@ -127,7 +127,7 @@ namespace PegaBandeira
                 //paro a thread de escuta e envio de broadcast. e atribuo um valor null para poder recomeçar depois a 
                 //perquisa por jogadores.
                 this.serverUdp.ParaUdp();
-                this.serverUdp = null;
+                //this.serverUdp = null;
             }
         }
 
@@ -238,7 +238,7 @@ namespace PegaBandeira
             {
                 ConexoAceita();
                 this.serverUdp.ParaUdp();
-                this.serverUdp = null;
+                //this.serverUdp = null;
             }
         }
 
@@ -283,7 +283,7 @@ namespace PegaBandeira
             else
             {
                 cBat.ComecaRodada();
-                cBat.Show();
+                //cBat.Show();
                 Console.WriteLine("Carrega campo batalha.");
             }
         }
@@ -599,12 +599,11 @@ namespace PegaBandeira
         }
 
 
-        public void FinalisaCampoBatalha()
+        public void VoltaUdp()
         {
-            this.cBat.Close();
-            this.cBat = null;
-            this.serverUdp.EnviaBroadcastRede();
+            this.serverUdp.VoltaUdpBroadcast();
         }
+
 
         private void MenuInicial_FormClosed(object sender, FormClosedEventArgs e)
         {

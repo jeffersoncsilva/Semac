@@ -13,6 +13,7 @@ namespace PegaBandeira
 {
     public class ServerUdp
     {
+        ManualResetEvent reset = new ManualResetEvent(false);
         MenuInicial frm_Inicial;
         Thread escuta = null;
         Thread broadcast = null;
@@ -69,26 +70,36 @@ namespace PegaBandeira
         /// </summary>
         public void EnviaBroadcastRede()
         {
-            IPAddress broadCast = IPAddress.Parse(BROADCAST);
-            IPEndPoint ipEnd = new IPEndPoint(broadCast, 20152);
-            EndPoint end = (EndPoint)ipEnd;
-            broadcast = new Thread(() => SendBroadCast(end));
-            broadcast.Name = "Broadcast";
-            broadcast.Start();
+
+                IPAddress broadCast = IPAddress.Parse(BROADCAST);
+                IPEndPoint ipEnd = new IPEndPoint(broadCast, 20152);
+                EndPoint end = (EndPoint)ipEnd;
+                broadcast = new Thread(() => SendBroadCast(end));
+                broadcast.Name = "Broadcast";
+                broadcast.Start();
             
+           
         }
 
 
         private void SendBroadCast(EndPoint brod)
         {
-            while (!comecouJogo && MenuInicial.executando)
+            while (MenuInicial.executando)
             {
-                //Console.WriteLine("Broadcast enviado.");
-                string nome = string.Format(apelidoPlayerLocal + "|" + nomePlayerLocal);
-                int aux = nome.Length + 5;
-                string msg = string.Format("01{0}{1}", aux.ToString("000"), nome);
-                SendMsgUdp(msg, brod);
-                Thread.Sleep(1000);
+                reset.Reset();
+                Console.WriteLine("Voltou.");
+                while (!comecouJogo)
+                {
+                    //Console.WriteLine("Broadcast enviado.");
+                    string nome = string.Format(apelidoPlayerLocal + "|" + nomePlayerLocal);
+                    int aux = nome.Length + 5;
+                    string msg = string.Format("01{0}{1}", aux.ToString("000"), nome);
+                    SendMsgUdp(msg, brod);
+                    Thread.Sleep(1000);
+                }
+                reset.WaitOne();
+                comecouJogo = false;
+                Console.WriteLine("Volta o broadcast.");
             }
         }
 
@@ -321,18 +332,13 @@ namespace PegaBandeira
         public void ParaUdp()
         {
             this.comecouJogo = true;
-            //this.socket.Shutdown(SocketShutdown.Both);
-            //if (this.socket.Connected)
-            //{
-            //this.socket.Disconnect(true);
-            //}
-            //this.socket.Close();
-            //this.socket = null;
-            //this.broadcast.Abort();
-            //this.escuta.Abort();
-            //this.broadcast = null;
-            //this.escuta = null;
-            Console.WriteLine("Parou o UDP.");
+            //Console.WriteLine("Parou o UDP.");
+        }
+
+
+        public void VoltaUdpBroadcast()
+        {
+            reset.Set();
         }
 
 
@@ -361,4 +367,5 @@ namespace PegaBandeira
         public const int BufferSize = 1024;             // tamanho do buffer de leitura (recebimento)
         public byte[] buffer = new byte[BufferSize];    // buffer de leitura (recebimento)
     }
+
 }
