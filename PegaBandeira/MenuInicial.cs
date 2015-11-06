@@ -339,11 +339,11 @@ namespace PegaBandeira
         public void Padrao()
         {
             //restaura os dados importantes para os valores iniciais para poder iniciar outra partida.
-
             btn_IniPartida.Visible = false;
             gb_Convite.Enabled = true;
             gb_ConviteRecv.Visible = false;
             lbl_Espera.Visible = false;
+            ltb_JogOn.Items.Clear();
             this.connect = false;
             //this.euDesisto = false;
             this.foiConvidado = false;
@@ -602,6 +602,24 @@ namespace PegaBandeira
         public void VoltaUdp()
         {
             this.serverUdp.VoltaUdpBroadcast();
+            EncerraConexaoTcp();
+            Padrao();
+            btn_Convida.Enabled = true;
+        }
+
+
+        private void EncerraConexaoTcp()
+        {
+            if (this.serverTcp != null)
+            {
+                serverTcp.EncerraConexaoTcp();
+                serverTcp = null;
+            }
+            else if (this.clientTcp != null)
+            {
+                clientTcp.EncerraConexaoTcp();
+                clientTcp = null;
+            }
         }
 
 

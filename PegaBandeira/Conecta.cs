@@ -114,13 +114,14 @@ namespace PegaBandeira
             try
             {
                 //Console.WriteLine("Estado conexao: " + VerificaConexaoTcp());
-                if (VerificaConexaoTcp())
-                {
+                //if (VerificaConexaoTcp())
+                //{
                     this.socket.Shutdown(SocketShutdown.Both);
+                    socket.Disconnect(true);
                     this.socket.Close();
                     this.socket = null;
                     Console.WriteLine("Encerrou a conexao.");
-                }
+                //}
                 
             }
             catch (Exception e)

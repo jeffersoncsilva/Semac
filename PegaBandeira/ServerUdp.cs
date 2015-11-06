@@ -275,48 +275,51 @@ namespace PegaBandeira
         private void VerificaMsgUdp(byte[] dados, EndPoint remetente)
         {
             //Console.WriteLine("Recebendo MSG.");
-            string msgRecebida = System.Text.Encoding.ASCII.GetString(dados);
-           
-            string tipo = msgRecebida.Substring(0, 2);
-            int tam = int.Parse(msgRecebida.Substring(2, 3));
-            string str = msgRecebida.Remove(0, 5);
-            string[] nomeApelido = str.Split('|');
-            
-            if (nomeApelido[0] == this.apelidoPlayerLocal)
-                return;
-
-            switch (tipo)
+            if (!comecouJogo)
             {
-                case "01":
-                    string msgResp = string.Format(apelidoPlayerLocal + "|" + nomePlayerLocal);
-                    int tamResp = msgResp.Count() + 5;
-                    SendMsgUdp(string.Format("02" + tamResp.ToString("000") + msgResp), remetente);
-                    AddListOnline(msgRecebida, remetente);
-                    break;
+                string msgRecebida = System.Text.Encoding.ASCII.GetString(dados);
 
-                case "02":
-                    AddListOnline(msgRecebida, remetente);
-                    break;
+                string tipo = msgRecebida.Substring(0, 2);
+                int tam = int.Parse(msgRecebida.Substring(2, 3));
+                string str = msgRecebida.Remove(0, 5);
+                string[] nomeApelido = str.Split('|');
 
-                case "03":
-                    this.jogQueConvidou = remetente;
-                    this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConviteReciv(nomeApelido[0]); });
-                    break;
+                if (nomeApelido[0] == this.apelidoPlayerLocal)
+                    return;
 
-                case "04":
-                    if (nomeApelido[1].Count() > 3)
-                    {
-                        if (jogQueConvidou.AddressFamily == remetente.AddressFamily && naoAceito)
-                            return;
+                switch (tipo)
+                {
+                    case "01":
+                        string msgResp = string.Format(apelidoPlayerLocal + "|" + nomePlayerLocal);
+                        int tamResp = msgResp.Count() + 5;
+                        SendMsgUdp(string.Format("02" + tamResp.ToString("000") + msgResp), remetente);
+                        AddListOnline(msgRecebida, remetente);
+                        break;
 
-                        int p = int.Parse(nomeApelido[1]);
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConnectToServerTcp(GetIp(remetente), p); });
-                    }
-                    else
-                    {
-                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoNegada(); });
-                    }
-                    break;
+                    case "02":
+                        AddListOnline(msgRecebida, remetente);
+                        break;
+
+                    case "03":
+                        this.jogQueConvidou = remetente;
+                        this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConviteReciv(nomeApelido[0]); });
+                        break;
+
+                    case "04":
+                        if (nomeApelido[1].Count() > 3)
+                        {
+                            if (jogQueConvidou.AddressFamily == remetente.AddressFamily && naoAceito)
+                                return;
+
+                            int p = int.Parse(nomeApelido[1]);
+                            this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConnectToServerTcp(GetIp(remetente), p); });
+                        }
+                        else
+                        {
+                            this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.ConexaoNegada(); });
+                        }
+                        break;
+                }
             }
         }
 
@@ -339,6 +342,9 @@ namespace PegaBandeira
         public void VoltaUdpBroadcast()
         {
             reset.Set();
+
+            userOnline.Clear();
+            id = 0;
         }
 
 
