@@ -25,7 +25,7 @@ namespace PegaBandeira
 
         //public bool FoiConvidado { get { return this.fuiConvidado; } set { this.fuiConvidado = value; } }
 
-        public bool Msg19 { get { return this.msg19; } set { this.msg19 = value; } }
+        //public bool Msg19 { get { return this.msg19; } set { this.msg19 = value; } }
         public bool RemotePlayer { get { return this.remotePlayer; } set { this.remotePlayer = value; } }
         public bool LocalPlayer { get { return this.localPlayer; } set { this.localPlayer = value; } }
 
@@ -35,13 +35,13 @@ namespace PegaBandeira
         private int PortToConnect;
 
 
-        public bool EstaConectado()
-        {
-            if (this.socket != null)
-                return this.socket.Connected;
-            else
-                return false;
-        }
+        //public bool EstaConectado()
+        //{
+        //    if (this.socket != null)
+        //        return this.socket.Connected;
+        //    else
+        //        return false;
+        //}
 
 
         //armazenão a porta e o ip para conectar com cliente (caso o jogador escolher jogar como cliente)
@@ -90,7 +90,7 @@ namespace PegaBandeira
             }
         }
 
-        private bool VerificaConexaoTcp()
+        public bool VerificaConexaoTcp()
         {
             bool hasProblem = false;
             bool part1, part2;
@@ -110,14 +110,18 @@ namespace PegaBandeira
 
         public void EncerraConexaoTcp()
         {
+            
             try
             {
-                if (this.socket.Connected && this.socket != null)
+                //Console.WriteLine("Estado conexao: " + VerificaConexaoTcp());
+                if (VerificaConexaoTcp())
                 {
                     this.socket.Shutdown(SocketShutdown.Both);
                     this.socket.Close();
-                    this.socket = null;                  
+                    this.socket = null;
+                    Console.WriteLine("Encerrou a conexao.");
                 }
+                
             }
             catch (Exception e)
             {

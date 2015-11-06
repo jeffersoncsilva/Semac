@@ -21,6 +21,12 @@ namespace PegaBandeira
             this.alt = y;
             SetaAreas();
         }
+        /*
+         * TRETA:  a area do player local e a area do player remoto e a area do player remoto e a area do player local
+         * TA TROCADA AS AREAS. SÃO AO CONTRARIO. A DO LOCAL E O REMOTO E A DO REMOTO E DO LOCAL.
+         * E MAIS FACIL MUDA ISSO AQUI DO QUE EM OUTRO LUGAR. AI SO GERA DUVIDA AQUI E NAO EM OUTROS LOCAIS.
+         * 
+        */
         public PosRect GetAreaPlayerLocal { get { return this.playerLocal; } }
         public PosRect GetAreaPlayerRemoto { get { return this.playerRemoto; } }
 

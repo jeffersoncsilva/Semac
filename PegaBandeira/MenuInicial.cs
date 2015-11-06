@@ -49,10 +49,23 @@ namespace PegaBandeira
         private void btn_VeriJog_Click(object sender, EventArgs e)
         {
             //Dispara o boradcast na rede para encontrar os jogadores que estiverem online
+            IniciaUdp();
+        }
+
+
+
+        public void IniciaUdp()
+        {
+            serverUdp = new ServerUdp(this);
             gb_Config.Enabled = false;
             serverUdp.IniciaEscuta(txb_Nome.Text, txb_Apelido.Text);
             serverUdp.EnviaBroadcastRede();
             HabilitaBotoes();
+            ltb_JogOn.Items.Clear();
+            //ativa a porra do botao para convidar os jogadores.
+            gb_Convite.Enabled = true;
+            gb_Convite.Visible = true;
+            btn_Convida.Enabled = true;
         }
 
 
@@ -62,7 +75,7 @@ namespace PegaBandeira
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btn_IniPartida_Click(object sender, EventArgs e)
-        {            
+        {
             PlayerLocalPronto();
             btn_IniPartida.Visible = false;
             lbl_Espera.Visible = true;
@@ -77,12 +90,19 @@ namespace PegaBandeira
         /// <param name="e"></param>
         private void btn_Convida_Click(object sender, EventArgs e)
         {
-            if (ltb_JogOn.Items.Count > 0)
+            try
             {
-                serverUdp.EnviaConviteJogo(ltb_JogOn.SelectedIndex);
-                btn_Convida.Enabled = false;
-                //começo a contar o tempo de resposta
-                tm_verJogOn.Start();
+                if (ltb_JogOn.Items.Count > 0)
+                {
+                    serverUdp.EnviaConviteJogo(ltb_JogOn.SelectedIndex);
+                    btn_Convida.Enabled = false;
+                    //começo a contar o tempo de resposta
+                    tm_verJogOn.Start();
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Selceciona alguem.");
             }
         }
 
@@ -102,7 +122,10 @@ namespace PegaBandeira
                 gb_Convite.Enabled = false;
                 gb_ConviteRecv.Visible = false;
                 tm_verJogOn.Stop();
-                //paro a thread de escuta e envio de broadcast.
+                //paro a thread de escuta e envio de broadcast. e atribuo um valor null para poder recomeçar depois a 
+                //perquisa por jogadores.
+                this.serverUdp.ParaUdp();
+                this.serverUdp = null;
             }
         }
 
@@ -134,7 +157,7 @@ namespace PegaBandeira
         {
             HabilitaBotoes();
         }
-        
+
 
         /// <summary>
         /// Para verificar se o jogador pode iniciar a escuta e envio de broadcast.
@@ -179,7 +202,7 @@ namespace PegaBandeira
             lbl_Convidou.Text = string.Format("Convidou: {0} para jogar. Esperando pela resposta dojogador.", nome);
         }
 
-        
+
         /// <summary>
         /// Mostra as opções de aceitar ou negar o convite de jogo recebido por um jogador.
         /// </summary>
@@ -212,6 +235,8 @@ namespace PegaBandeira
             if (clientTcp.Conecta(ip, port))
             {
                 ConexoAceita();
+                this.serverUdp.ParaUdp();
+                this.serverUdp = null;
             }
         }
 
@@ -270,27 +295,21 @@ namespace PegaBandeira
             //this.euDesisto = true;
 
             string msg = "19005";
-            if (this.serverTcp != null && !this.serverTcp.Msg19)
+            if (this.serverTcp != null)
             {
-
-
                 this.serverTcp.EnviaMsg(msg);
                 this.serverTcp.EncerraConexaoTcp();
                 this.serverTcp = null;
-
+                //Console.WriteLine("Fechou conexao server.");
 
             }
-            else if (this.clientTcp != null && !this.clientTcp.Msg19)
+            else if (this.clientTcp != null)
             {
-
-
                 this.clientTcp.EnviaMsg(msg);
                 this.clientTcp.EncerraConexaoTcp();
                 this.clientTcp = null;
-
+                //Console.WriteLine("Fechou conexao cliente.");
             }
-
-            //Padrao();
         }
 
 
@@ -404,9 +423,9 @@ namespace PegaBandeira
         {
             string aux = "";
             //responde com a msg 16.
-            if(dados.Length == 3)
+            if (dados.Length == 3)
                 aux = string.Format("{0}|{1}|{2}", dados[0], dados[1], dados[2]);
-            else if(dados.Length == 2)
+            else if (dados.Length == 2)
                 aux = string.Format("{0}|{1}", dados[0], dados[1]);
 
             int qtd = aux.Length + 5;
@@ -417,7 +436,7 @@ namespace PegaBandeira
             this.cBat.ColisaoAutorisada(dados);
         }
 
-        
+
         public void TrataMsgDezeceis(string[] dados)
         {
             this.cBat.ColisaoAutorisada(dados);
@@ -459,20 +478,28 @@ namespace PegaBandeira
             }
         }
 
-
-        private bool TemConexao()
+        //retorna true se tiver conexão
+        //retorna false se nao tiver conexao
+        public bool TemConexao()
         {
-            if (this.serverTcp != null)
+            try
             {
-                return this.clientTcp.EstaConectado();
+                bool conection = false;
+                if (this.serverTcp != null)
+                {
+                    conection = this.clientTcp.VerificaConexaoTcp();
+                }
+                else if (this.clientTcp != null)
+                {
+                    conection = this.clientTcp.VerificaConexaoTcp();
+                }
+                //se de erro muda para true e testa de novo.
+                return conection;
             }
-            else if (this.clientTcp != null)
+            catch
             {
-                return this.clientTcp.EstaConectado();
+                return false;
             }
-
-            //se de erro muda para true e testa de novo.
-            return false;
         }
 
 
@@ -504,7 +531,7 @@ namespace PegaBandeira
                     serverTcp.EnviaMsg(msg);
                     this.player = 0;
                     CarregaCampoBatalha(player);
-                    
+
                 }
                 else
                     serverTcp.EnviaMsg(msg);
@@ -531,13 +558,18 @@ namespace PegaBandeira
 
         public void TrataMsgDezenove()
         {
-            if (!TemConexao() && !emPartida)
+            if (this.serverTcp != null || this.clientTcp != null)
             {
-                //mostra msg de conexao perdida.
-                MessageBox.Show("Conexão perdia. Provavelmente o jogador desistiu. Continue para ver resultados.");
+                if (!TemConexao())
+                {
+                    //mostra msg de conexao perdida.
+                    MessageBox.Show("Conexão perdia. Provavelmente o jogador desistiu. Continue para ver resultados.");
+                }
+                this.cBat.VerificaVencedor();
+                VoltaLocalPlayer();
             }
-            this.cBat.VerificaVencedor();
-            VoltaLocalPlayer();
         }
+
+
     }
 }

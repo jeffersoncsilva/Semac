@@ -10,7 +10,6 @@ namespace PegaBandeira
         private float velSemPowerUp;
         private float velComPowerUp;
         private float velocidadeAtual;
-
         private bool pegouBandeira;
         private bool pegouPowerUp;
         //REPRESENTA A LARGURA E ALTURA DA TELA DE JOGO.
@@ -18,15 +17,19 @@ namespace PegaBandeira
         private float alturaTela;
         private float inicioTelaY;
         public char direcaoJogador;
-
         private MenuInicial frm_MenuInicio;
         private int vidas = 3;
 
+
         public int GetVida { get { return this.vidas; } }
 
+
         public bool PegouBand { get { return this.pegouBandeira; } set { this.pegouBandeira = value; } }
+        
+        
         public bool PegouPowerUp { get { return this.pegouPowerUp; } set { this.pegouPowerUp = value; } }
        
+
         public Player(int larg, int alt, int onde, MenuInicial b)
         {
             this.larguraTela = larg;
@@ -51,11 +54,11 @@ namespace PegaBandeira
         }
 
 
-        #region CONFIGURACAO PLAYER
         private void DefineAreaDeJogo(int larg, int alt)
         {
             this.inicioTelaY = AreaPlayers.CalcPercet(10, this.alturaTela);
         }
+
 
         private void DefinePosInicial(int onde)
         {
@@ -77,13 +80,14 @@ namespace PegaBandeira
             this.yAtual = this.yInicial;
         }
 
+
         private void DefineTamPlayer()
         {
             this.tamX = AreaPlayers.CalcPercet(5f, this.alturaTela);
             this.tamY = this.tamX;
         }
 
-        #endregion
+ 
 
 
         /// <summary>
@@ -155,8 +159,6 @@ namespace PegaBandeira
             return pos + this.velocidadeAtual > larg;
         }
 
-
-        #region PLAYER_MOV
 
         public void Draw(Graphics g)
         {
@@ -256,9 +258,6 @@ namespace PegaBandeira
         }
 
 
-
-
-
         /// <summary>
         /// Para quando o jogaodr ficar inativo, ele muda a velocidade pra a velocidade normal do jogador quando ele nascer de novo.
         /// </summary>
@@ -266,8 +265,7 @@ namespace PegaBandeira
         {
             this.velocidadeAtual = this.velSemPowerUp;
         }
-        
-        #endregion
+
 
         //-------- MESAGENS REFERENTES A COMUNICAÇÃO DE REDES --------
 

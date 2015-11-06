@@ -74,6 +74,7 @@ namespace PegaBandeira
             broadcast = new Thread(() => SendBroadCast(end));
             broadcast.Name = "Broadcast";
             broadcast.Start();
+            
         }
 
 
@@ -104,7 +105,7 @@ namespace PegaBandeira
             }
             catch (Exception e)
             {
-                MessageBox.Show("Erro no inicio da escuta.");
+                MessageBox.Show("Erro no inicio da escuta. ERRO: " + e.ToString());
                 Console.WriteLine(e.ToString());
             }
         }
@@ -126,7 +127,7 @@ namespace PegaBandeira
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro na hora de recomeçar a escuta Callcabck.");
+                    //MessageBox.Show("Erro na hora de recomeçar a escuta Callcabck.");
                     Console.WriteLine(ex.ToString());
                 }
                 finally
@@ -137,7 +138,7 @@ namespace PegaBandeira
             }
             catch (Exception e)
             {
-                MessageBox.Show("Erro na escuta Callcabck.");
+                //MessageBox.Show("Erro na escuta Callcabck.");
                 Console.WriteLine(e.ToString());
             }
         }
@@ -311,6 +312,20 @@ namespace PegaBandeira
             string[] i = s.Split(':');
             return i[0];
         }
+
+
+        public void ParaUdp()
+        {
+            this.comecouJogo = true;
+            this.socket.Close();
+            this.socket = null;
+            this.broadcast.Abort();
+            this.escuta.Abort();
+            this.broadcast = null;
+            this.escuta = null;
+            Console.WriteLine("Parou o UDP.");
+        }
+
 
     }
 

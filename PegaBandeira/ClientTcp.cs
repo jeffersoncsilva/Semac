@@ -202,8 +202,8 @@ namespace PegaBandeira
 
                     case 19:
                         //MessageBox.Show("O outro jogador desistiu do jogo.");
-                        this.EncerraConexaoTcp();
-                        this.Msg19 = true;
+                        //this.EncerraConexaoTcp();
+                        //this.Msg19 = true;
                         this.frm_Inicial.Invoke((MethodInvoker)delegate() { this.frm_Inicial.TrataMsgDezenove(); });
                         break;
                 }

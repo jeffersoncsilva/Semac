@@ -20,18 +20,18 @@ namespace PegaBandeira
         private int minhasDerrotas = 0;
 
         private bool rodadaAcabou;
-        
+
         private bool acabouApartida = false;//representa quando acabou a partida para poder finalizar as trheads corretamente com segurança.
 
         //constantes para definir o tamanho da tela
         public const int LARGURA = 800;
         public const int ALTURA = 600;
 
-        public const int TIMEOUT = 20;
+        public const int TIMEOUT = 120;
         public const string TIMEOUTSTRING = "Tempo resante da partida: \n";
         public const string TIMEENDSTRING = "Acabou a partida. A proxima partida inicia em: ";
         private int tempoRestante;
-        private int proxPartida = 5;
+        //private int proxPartida = 5;
         private bool endPartida;
         private bool congelado;
         private bool podeAtirar;
@@ -94,7 +94,7 @@ namespace PegaBandeira
 
 
         private void InicializaVariaveis(int qPlayer)
-        {            
+        {
             elementosJogo = new List<ElementoJogo>();   //cria a lista com todos os elementos do jogo.
             this.podeAtirar = true;                     //define que o jogador pode atirar.
             this.areaPlay = new AreaPlayers(this.pb.Size.Width, this.pb.Size.Height);   //cria a rea de jogo do player.
@@ -173,8 +173,6 @@ namespace PegaBandeira
             //this.WindowState = FormWindowState.Normal;
             //this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             //this.Bounds = Screen.PrimaryScreen.Bounds;
-
-
         }
 
 
@@ -204,18 +202,16 @@ namespace PegaBandeira
 
         private void CampoBatalha_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!acabouApartida)
-            {
-                desenha.Abort();        //paro a thread de desenho.
-                frm_Inicio.FimDeJogo();   //envio a msg de desistencia para o jogador.
-                frm_Inicio.Show();      // mostro o formulario inicial.
-            }
+            this.acabouApartida = true; //finaliza as threads que estiverem rodando no momento e dependend de um valor falso dessa variavel. (desenhaTela e colideBala)
+            frm_Inicio.FimDeJogo();//envio a msg de desistencia para o jogador.
+            frm_Inicio.Show();      // mostro o formulario inicial.
+            //melhor fazer isso na main thread pra nao ter problema. (eu acho)
+            this.frm_Inicio.Invoke((MethodInvoker)delegate() { this.frm_Inicio.IniciaUdp(); });
         }
 
 
         private void CampoBatalha_KeyPress(object sender, KeyPressEventArgs e)
         {
-            Console.WriteLine("Key press");
             if (!endPartida && !congelado)
             {
                 /*
@@ -294,7 +290,6 @@ namespace PegaBandeira
 
         private void CampoBatalha_KeyDown(object sender, KeyEventArgs e)
         {
-            Console.WriteLine("Key Down");
             if (e.KeyCode == Keys.Escape)
                 Application.Exit();
 
@@ -331,7 +326,7 @@ namespace PegaBandeira
                 this.frm_Inicio.VoltaLocalPlayer();
                 Restart();
                 VerificaVencedor();
-                tm_UpdtTempoPartida.Stop();                
+                tm_UpdtTempoPartida.Stop();
             }
         }
 
@@ -466,7 +461,7 @@ namespace PegaBandeira
         private void Restart()
         {
             this.tempoRestante = TIMEOUT;
-            this.proxPartida = 5;
+            //this.proxPartida = 5;
             lbl_TempoRestante.Text = TIMEOUTSTRING + this.tempoRestante + " s.";
             this.lbl_Resultado.Visible = false;
             this.player.PegouBand = false;
@@ -490,6 +485,7 @@ namespace PegaBandeira
             btn_RetornaMenuInicial.Text = "Voltar menu inicial.";
             //Fecho a conexão com o outro jogador e envia a msg de fin de jogo.
             frm_Inicio.FimDeJogo();
+            this.frm_Inicio.Invoke((MethodInvoker)delegate() { this.frm_Inicio.IniciaUdp(); });
         }
 
 
@@ -499,19 +495,23 @@ namespace PegaBandeira
         */
         public void VerificaVencedor()
         {
-            
+
             if (rodada == 3)
             {
                 string msg;
                 //quer dizer que o jogo acabou.
                 if (minhasVitorias > minhasDerrotas)
                     msg = string.Format("Com o placa de {0} a {1} você foi o vencedor dessa partida. \nAperte o botão para voltar ao menu inicial.", minhasVitorias, minhasDerrotas);
-                
-                else if(minhasDerrotas > minhasVitorias)        
+
+                else if (minhasDerrotas > minhasVitorias)
                     msg = string.Format("Com o placar de {0} a {1} você foi derrotado nessa partida. \nAperte o botão para voltar ao menu inicial.", minhasVitorias, minhasDerrotas);
                 else
                     msg = string.Format("Com o placar de {0} a {1} foi declarado empate. Não hore vencedores nessa partida. \nAperte o botão para voltar ao menu inicial.", minhasVitorias, minhasDerrotas);
                 FinDeJogo(msg);
+            }
+            else if (!this.frm_Inicio.TemConexao())
+            {
+                FinDeJogo("Conexao perdida. Impossivel determinar quem venceu a partida.");
             }
             else
             {
@@ -1130,9 +1130,11 @@ namespace PegaBandeira
             else
             {
                 this.frm_Inicio.Show();
+                this.frm_Inicio.IniciaUdp();
                 this.Close();
             }
         }
+
 
         public void ComecaRodada()
         {
