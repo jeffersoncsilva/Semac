@@ -246,6 +246,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "MenuInicial";
             this.Text = "Menu Inicial";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MenuInicial_FormClosed);
             this.gb_Convite.ResumeLayout(false);
             this.gb_Config.ResumeLayout(false);
             this.gb_Config.PerformLayout();

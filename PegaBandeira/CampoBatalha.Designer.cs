@@ -109,7 +109,7 @@
             // 
             // btn_RetornaMenuInicial
             // 
-            this.btn_RetornaMenuInicial.Font = new System.Drawing.Font("Microsoft Sans Serif", 28.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btn_RetornaMenuInicial.Font = new System.Drawing.Font("Microsoft Sans Serif", 20.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btn_RetornaMenuInicial.Location = new System.Drawing.Point(298, 312);
             this.btn_RetornaMenuInicial.Name = "btn_RetornaMenuInicial";
             this.btn_RetornaMenuInicial.Size = new System.Drawing.Size(183, 69);

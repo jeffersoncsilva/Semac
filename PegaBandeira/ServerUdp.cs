@@ -59,6 +59,7 @@ namespace PegaBandeira
             this.escuta = new Thread(() => Escuta());
             this.escuta.Name = "EscutaBroadcast";
             this.escuta.Priority = ThreadPriority.Highest;
+            this.escuta.IsBackground = true;
             this.escuta.Start();
         }
 
@@ -80,7 +81,7 @@ namespace PegaBandeira
 
         private void SendBroadCast(EndPoint brod)
         {
-            while (!comecouJogo)
+            while (!comecouJogo && MenuInicial.executando)
             {
                 //Console.WriteLine("Broadcast enviado.");
                 string nome = string.Format(apelidoPlayerLocal + "|" + nomePlayerLocal);
@@ -100,6 +101,9 @@ namespace PegaBandeira
                 this.socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 this.socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
                 this.socket.Bind(localEndPoint);
+
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+    
                 EndPoint epSender = (EndPoint)localEndPoint;
                 this.socket.BeginReceiveFrom(bytesEnviados, 0, bytesEnviados.Length, SocketFlags.None, ref epSender, new AsyncCallback(EscutaCallback), epSender);
             }
@@ -317,12 +321,17 @@ namespace PegaBandeira
         public void ParaUdp()
         {
             this.comecouJogo = true;
-            this.socket.Close();
-            this.socket = null;
-            this.broadcast.Abort();
-            this.escuta.Abort();
-            this.broadcast = null;
-            this.escuta = null;
+            //this.socket.Shutdown(SocketShutdown.Both);
+            //if (this.socket.Connected)
+            //{
+            //this.socket.Disconnect(true);
+            //}
+            //this.socket.Close();
+            //this.socket = null;
+            //this.broadcast.Abort();
+            //this.escuta.Abort();
+            //this.broadcast = null;
+            //this.escuta = null;
             Console.WriteLine("Parou o UDP.");
         }
 

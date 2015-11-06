@@ -19,6 +19,8 @@ namespace PegaBandeira
     {
         private int player; //0: player 1 servidor || 1: player 2 cliente.
 
+        public static Boolean executando = true;
+
         ServerUdp serverUdp;
         ServerTcp serverTcp = null;
         ClientTcp clientTcp = null;
@@ -312,6 +314,24 @@ namespace PegaBandeira
             }
         }
 
+        /// <summary>
+        /// Avisa ao outro jogador que a rodada acabou.
+        /// </summary>
+        public void FinDeRodada()
+        {
+            string msg = "19005";
+            if (this.serverTcp != null)
+            {
+                this.serverTcp.EnviaMsg(msg);
+                //Console.WriteLine("Fechou conexao server.");
+            }
+            else if (this.clientTcp != null)
+            {
+                this.clientTcp.EnviaMsg(msg);
+                //Console.WriteLine("Fechou conexao cliente.");
+            }
+        }
+
 
         /// <summary>
         /// Restaura os valores para poder começar novamente a escutar e enviar o broadcast.
@@ -478,8 +498,8 @@ namespace PegaBandeira
             }
         }
 
-        //retorna true se tiver conexão
-        //retorna false se nao tiver conexao
+        //retorna true se nao tiver conexao.
+        //retorna false se tiver tudo OK. Se tiver CONEXÃO.
         public bool TemConexao()
         {
             try
@@ -488,16 +508,19 @@ namespace PegaBandeira
                 if (this.serverTcp != null)
                 {
                     conection = this.clientTcp.VerificaConexaoTcp();
+                    //Console.WriteLine("Testou conexao." + conection);
                 }
                 else if (this.clientTcp != null)
                 {
                     conection = this.clientTcp.VerificaConexaoTcp();
+                    //Console.WriteLine("Testou conexao." + conection);
                 }
                 //se de erro muda para true e testa de novo.
                 return conection;
             }
-            catch
+            catch(Exception e)
             {
+                //MessageBox.Show("Catch. " + e.ToString());
                 return false;
             }
         }
@@ -550,26 +573,42 @@ namespace PegaBandeira
                 }
                 else
                     clientTcp.EnviaMsg(msg);
-                Console.WriteLine("R: " + clientTcp.RemotePlayer);
-                Console.WriteLine("L: " + clientTcp.LocalPlayer);
             }
         }
 
 
         public void TrataMsgDezenove()
         {
-            if (this.serverTcp != null || this.clientTcp != null)
+            try
             {
-                if (!TemConexao())
+                if (TemConexao())
                 {
                     //mostra msg de conexao perdida.
                     MessageBox.Show("Conexão perdia. Provavelmente o jogador desistiu. Continue para ver resultados.");
                 }
                 this.cBat.VerificaVencedor();
                 VoltaLocalPlayer();
+                this.cBat.EndPart = true;
             }
+            catch (Exception e)
+            {
+                //so pra nao dar erro. 
+                MessageBox.Show("ERRO: " + e.ToString());
+            }
+            //}
         }
 
 
+        public void FinalisaCampoBatalha()
+        {
+            this.cBat.Close();
+            this.cBat = null;
+            this.serverUdp.EnviaBroadcastRede();
+        }
+
+        private void MenuInicial_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            executando = false;
+        }
     }
 }

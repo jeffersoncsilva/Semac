@@ -242,19 +242,16 @@ namespace PegaBandeira
         /// <returns></returns>
         public bool Dentro(PosRect area)
         {
-            if (this.xAtual + this.tamX > area.x &&
-              this.xAtual > area.x &&
-              this.xAtual + this.tamX < area.largura &&
-              this.xAtual < area.largura &&
-              this.yAtual + this.tamY > area.y &&
-              this.yAtual > area.y &&
-              this.yAtual + this.tamY < area.altura &&
-              this.yAtual < area.altura)
-            {
-                return true;
-            }
+            Rectangle r1 = new Rectangle((int)this.xAtual, (int)this.yAtual, (int)this.tamX, (int)this.tamY);//retangulo do player
+            Rectangle r2 = new Rectangle((int)area.x, (int)area.y, (int)area.largura, (int)area.altura);//retandulo da area
+            bool inside = false;
+
+            if (r1.X > r2.X && r1.Y > r2.Y && r1.X + r1.Width < r2.X + r2.Width && r1.Y + r1.Height < r2.Y + r2.Height)
+                inside = true;
             else
-                return false;
+                inside = false;
+
+            return inside;
         }
 
 
@@ -361,6 +358,7 @@ namespace PegaBandeira
 
             return pos;
         }
+
 
         /*
          * Converte de coordenadas do dispositivo para coordenadas normalizadas.

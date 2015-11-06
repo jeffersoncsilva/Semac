@@ -8,9 +8,6 @@ using System.Windows.Forms;
 
 namespace PegaBandeira
 {
-    /*
-    * VERSÃO: 0.2.6
-    */
     public class ServerTcp : Conecta
     {
         const int MAX_CONNECTION = 1;
