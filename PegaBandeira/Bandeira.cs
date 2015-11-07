@@ -12,7 +12,8 @@ namespace PegaBandeira
         private bool myBand;
 
         private string bandeira;
-
+        Image band;
+        Bitmap imgDraw;
         public bool GetMyBand { get { return this.myBand; } }
         public bool Pegada { get { return this.mostrarAtual; } set { this.mostrarAtual = value; } }
         public float GetPosX { get { return this.xAtual; } }
@@ -31,6 +32,9 @@ namespace PegaBandeira
             //e a bandeira do player local. ----> BANDEIRA DO O LADO EQUERDO.
             if (qualBand == 1)
             {
+                this.band = Properties.Resources.Band1;
+                band = ResizeImage.ScaleImage(band, tamX, tamX);
+
                 this.xInicial = AreaPlayers.CalcPercet(5, area.GetLargPb) - (this.tamX / 2);
                 this.yInicial = area.GetAltPb - (AreaPlayers.CalcPercet(2f, area.GetAltPb) + this.tamX);
                 
@@ -42,6 +46,10 @@ namespace PegaBandeira
                 //------> BANDEIRA DO LADO DIREITO.
             else if(qualBand == 0)
             {
+                this.band = Properties.Resources.Band2;
+                band = ResizeImage.ScaleImage(band, tamX, tamX);
+
+
                 this.xInicial = AreaPlayers.CalcPercet(95, area.GetLargPb) - (this.tamX / 2);
                 this.yInicial = AreaPlayers.CalcPercet(12, area.GetAltPb);
                 this.xAtual = this.xInicial;
@@ -55,7 +63,9 @@ namespace PegaBandeira
         {
             if (this.mostrarAtual)
             {
-                g.FillRectangle(new SolidBrush(Color.Blue), this.xAtual, this.yAtual, this.tamX, this.tamX);
+                //g.FillRectangle(new SolidBrush(Color.Blue), this.xAtual, this.yAtual, this.tamX, this.tamX);
+                g.DrawImage(this.band, this.xAtual, this.yAtual);
+                
             }
         }
 

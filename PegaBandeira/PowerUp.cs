@@ -9,13 +9,16 @@ namespace PegaBandeira
 {
     class PowerUp : ElementoJogo
     {
-
+        Image powerUp;
         public PowerUp(float larg, float alt)
         {
+            
+
             DefineTamanho(larg, alt);
             DefinePosicao(larg, alt);
             this.mostrarInicial = true;
             this.mostrarAtual = this.mostrarInicial;
+            powerUp = ResizeImage.ScaleImage(Properties.Resources.pUp, this.tamX, this.tamX);
         }
 
         private void DefineTamanho(float larg, float alt)
@@ -34,8 +37,11 @@ namespace PegaBandeira
 
         public void Draw(Graphics g)
         {
-            if(this.mostrarAtual)
-                g.FillRectangle(new SolidBrush(Color.BlueViolet), this.xAtual, this.yAtual, this.tamX, this.tamX);
+            if (this.mostrarAtual)
+            {
+                g.DrawImage(powerUp, xAtual, yAtual);
+                //g.FillRectangle(new SolidBrush(Color.BlueViolet), this.xAtual, this.yAtual, this.tamX, this.tamX);
+            }
         }
 
 

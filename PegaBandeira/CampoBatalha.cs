@@ -28,7 +28,7 @@ namespace PegaBandeira
         public const int LARGURA = 800;
         public const int ALTURA = 600;
 
-        public const int TIMEOUT = 30;
+        public const int TIMEOUT = 120;
         public const string TIMEOUTSTRING = "Tempo resante da partida: \n";
         //public const string TIMEENDSTRING = "Acabou a partida. A proxima partida inicia em: ";
         private int tempoRestante;
@@ -71,6 +71,9 @@ namespace PegaBandeira
         private List<Obstaculo> listaObs;
 
         private PowerUp powerUp;
+
+        //desenha o chao do campo de batalha.
+        Image chao;
 
         //o construtor abaixo e somente para teste. Quando testar em rede deve-se utilizar o outro. 
         public CampoBatalha()
@@ -151,8 +154,11 @@ namespace PegaBandeira
 
             //configura o botao que aparece no final da partida para voltar para a tela inicial de jogo.
             ConfiguraBotaoRetornoMenu();
-        }
 
+            //carrega a img do chao do campo de batalha e redimensiona para ocupar toda a area dejogo
+            this.chao = Properties.Resources.areaJogo;
+            this.chao = ResizeImage.ScaleImage(chao, LARGURA, ALTURA);
+        }
 
         //configura o botao de retorno para o menu inicial.
         private void ConfiguraBotaoRetornoMenu()
@@ -171,10 +177,6 @@ namespace PegaBandeira
             this.Width = LARGURA;
             this.Height = ALTURA;
             this.Text = "Pega Bandeira - SEMAC";
-
-            //this.WindowState = FormWindowState.Normal;
-            //this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            //this.Bounds = Screen.PrimaryScreen.Bounds;
         }
 
 
@@ -297,7 +299,7 @@ namespace PegaBandeira
 
             if (e.KeyCode == Keys.Space && !endPartida && podeAtirar && !PossoAtirar())
             {
-                newTiro = new Tiro(this.player.xAtual, this.player.yAtual, this.player.tamX, LARGURA, this.player.direcaoJogador, Tiro.id_Tiro);
+                newTiro = new Tiro(this.player.xAtual, this.player.yAtual, this.player.tamX, LARGURA, this.player.proxDirecao, Tiro.id_Tiro);
                 Tiro.id_Tiro += 1;
                 podeAtirar = false;
                 tm_Bala.Start();
@@ -448,11 +450,17 @@ namespace PegaBandeira
                     this.Invoke((MethodInvoker)delegate() { ResetaGraphics(); });
                     lock (_lock)
                     {
+                        //desenha o chao do campo de batalha
+                        this.g.DrawImage(this.chao, 0, 0);
+
+
                         hud.Draw(this.g);
 
-                        this.areaPlay.Draw(this.g);
+                        //this.areaPlay.Draw(this.g);
+
                         this.bands[0].Draw(this.g);
                         this.bands[1].Draw(this.g);
+
                         this.player.Draw(this.g);
                         this.playerEnemy.Draw(this.g);
 
@@ -464,13 +472,15 @@ namespace PegaBandeira
                             o.Draw(this.g);
                         foreach (var t in tirosInimigos)
                             t.Draw(this.g);
+
+                        
                     }
                 }
                 catch (Exception e)
                 {
                     //Console.WriteLine("ERRO: " + e.ToString());
                 }
-                Thread.Sleep(30);
+                Thread.Sleep(16);
             }
             Console.WriteLine("Fim de jogo. Saiu da trhead de desenho.");
         }
@@ -765,7 +775,7 @@ namespace PegaBandeira
         /// <param name="direcao"></param>
         public void DefinePosicaoPlayerRemoto(float x, float y, char direcao)
         {
-            this.playerEnemy.SetPosicao(this.player.ConvertNormalDispositivo(x, y));
+            this.playerEnemy.SetPosicao(this.player.ConvertNormalDispositivo(x, y), direcao);
             lock (_lock)
             {
                 this.playerEnemy.Draw(this.g);

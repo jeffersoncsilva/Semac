@@ -23,6 +23,7 @@ namespace PegaBandeira
         public char GetDirecao { get { return this.dir; } }
         public int GetId { get { return this._id; } }
 
+        Image tiro;
 
         /// <summary>
         /// Cria o tiro local.
@@ -37,6 +38,8 @@ namespace PegaBandeira
         {
             DefineTamTiro(tam);
             DefinePosTiro(x, y, tam);
+            tiro = ResizeImage.ScaleImage(Properties.Resources.tiro, tamX, tamX);
+
             this.velTiro = AreaPlayers.CalcPercet(0.25f, largTela);
             this._id = id;
             this.dir = direcao;
@@ -83,9 +86,13 @@ namespace PegaBandeira
 
         public void Draw(Graphics g)
         {
-            if(!colidiu)
-                g.FillEllipse(new SolidBrush(Color.Black), this.xAtual, this.yAtual, this.tamX, this.tamX);
+            if (!colidiu)
+            {
+                g.DrawImage(tiro, xAtual, yAtual);
+                //g.FillEllipse(new SolidBrush(Color.Black), this.xAtual, this.yAtual, this.tamX, this.tamX);
+            }
         }
+
 
 
         public void Vai()

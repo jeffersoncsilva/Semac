@@ -9,8 +9,6 @@ namespace PegaBandeira
 {
     class JogadorInimigo
     {
-        private float posUniverX;
-        private float posUniverY;
         private float posLocalX;
         private float posLocalY;
         private float widthJogador;
@@ -28,6 +26,19 @@ namespace PegaBandeira
         public bool PegouBand { get { return this.pegouBandeira; } set { this.pegouBandeira = value; } }
         public bool PegouPowerUp { get { return this.pegouPowerUp; } set { this.pegouPowerUp = value; } }
 
+
+        //armazena as imagens para fazer a animação.
+        private Image img_Atual;
+
+        private Image srt_Esquerda;
+        private Image srt_Direita;
+        private Image srt_Cima;
+        private Image srt_Baixo;
+
+
+
+
+
         /// <summary>
         /// Metodo construtor. Cria o objeto com seu respectivo tamanho.
         /// </summary>
@@ -40,6 +51,7 @@ namespace PegaBandeira
             this.widthScreen = wS;
             this.heightScreen = hS;
             DefinePosicaoInicial(tipo);
+            LoadImages(tipo);
         }
 
 
@@ -64,14 +76,25 @@ namespace PegaBandeira
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        public void SetPosicao(float[] newPos)
+        public void SetPosicao(float[] newPos, char dir)
         {
-            //this.posUniverX = x;
-            //this.posUniverY = y;
-            //ConvertPos();
-
             posLocalX = newPos[0];//representa x
             posLocalY = newPos[1];//representa y
+            switch (dir)
+            {
+                case 'c':
+                    img_Atual = srt_Cima;
+                    break;
+                case 'b':
+                    img_Atual = srt_Baixo;
+                    break;
+                case 'e':
+                    img_Atual = srt_Esquerda;
+                    break;
+                case 'd':
+                    img_Atual = srt_Direita;
+                    break;
+            }
         }
 
         
@@ -81,18 +104,9 @@ namespace PegaBandeira
         /// <param name="g"></param>
         public void Draw(Graphics g)
         {
+            g.DrawImage(img_Atual, posLocalX, posLocalY);
             //Console.WriteLine("PD: {0} | {1}", this.posLocalX, this.posLocalY);
-            g.FillRectangle(new SolidBrush(Color.Red), this.posLocalX, this.posLocalY, this.widthJogador, this.heightJogador);
-        }
-
-
-        /// <summary>
-        /// Converte a posição do jogador de coordenadas universais para coordenadas "normais".
-        /// </summary>
-        private void ConvertPos()
-        {
-            this.posLocalX = this.posUniverX * this.widthScreen;
-            this.posLocalY = this.posUniverY * this.heightScreen;
+            //g.FillRectangle(new SolidBrush(Color.Red), this.posLocalX, this.posLocalY, this.widthJogador, this.heightJogador);
         }
 
 
@@ -118,6 +132,28 @@ namespace PegaBandeira
                 return false;
         }
 
+        //Carrega as imagens do player.
+        private void LoadImages(int onde)
+        {
+            if (onde == 1)
+            {
+                //são as sprites do jogador de cor vermelha - sprites do jogador 0 Servidor.
+                srt_Esquerda = ResizeImage.ScaleImage(Properties.Resources.srptEsquerda, widthJogador, widthJogador);
+                srt_Direita = ResizeImage.ScaleImage(Properties.Resources.srptDireita, widthJogador, widthJogador);
+                srt_Cima = ResizeImage.ScaleImage(Properties.Resources.srptCima, widthJogador, widthJogador);
+                srt_Baixo = ResizeImage.ScaleImage(Properties.Resources.srptBaixo, widthJogador, widthJogador);
+                img_Atual = srt_Direita;
+            }
+            else
+            {
+                srt_Esquerda = ResizeImage.ScaleImage(Properties.Resources.srptEsquerda2, widthJogador, widthJogador);
+                srt_Direita = ResizeImage.ScaleImage(Properties.Resources.srptDireita2, widthJogador, widthJogador);
+                srt_Cima = ResizeImage.ScaleImage(Properties.Resources.srptCima2, widthJogador, widthJogador);
+                srt_Baixo = ResizeImage.ScaleImage(Properties.Resources.srptBaixo2, widthJogador, widthJogador);
+                img_Atual = srt_Esquerda;
+            }
+            
+        }
 
     }
 

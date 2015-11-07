@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Windows.Input;
+using System.Threading;
+
 
 namespace PegaBandeira
 {
@@ -16,10 +19,24 @@ namespace PegaBandeira
         private float larguraTela;
         private float alturaTela;
         private float inicioTelaY;
-        public char direcaoJogador;
+        public char proxDirecao;
+        private char direcaoAnterior;
         private MenuInicial frm_MenuInicio;
         private int vidas = 3;
 
+        //armazena as imagens para fazer a animação.
+        private Image img_Atual;
+
+        private Image srt_Esquerda;
+        private Image srt_Direita;
+        private Image srt_Cima;
+        private Image srt_Baixo;
+
+        //para poder rotacionar as imagens
+        //private float anguloAtual;
+        //private float proxAngulo;
+        //obj locker para nao dar ero
+        static object _locker = new object();
 
         public int GetVida { get { return this.vidas; } }
 
@@ -39,10 +56,38 @@ namespace PegaBandeira
             DefineTamPlayer();
             DefinePosInicial(onde);
             DefineVelocidades();
-
-            this.direcaoJogador = 'd';
+            LoadImages(onde);
+            this.proxDirecao = 'd';
+            this.direcaoAnterior = 'd';
         }
 
+
+        //Carrega as imagens do player.
+        private void LoadImages(int onde)
+        {
+            if (onde == 0)
+            {
+                //são as sprites do jogador de cor vermelha - sprites do jogador 0 Servidor.
+                srt_Esquerda = ResizeImage.ScaleImage(Properties.Resources.srptEsquerda, tamX, tamX);
+                srt_Direita = ResizeImage.ScaleImage(Properties.Resources.srptDireita, tamX, tamX);
+                srt_Cima = ResizeImage.ScaleImage(Properties.Resources.srptCima, tamX, tamX);
+                srt_Baixo = ResizeImage.ScaleImage(Properties.Resources.srptBaixo, tamX, tamX);
+                img_Atual = srt_Direita;
+            }
+            else
+            {
+                srt_Esquerda = ResizeImage.ScaleImage(Properties.Resources.srptEsquerda2, tamX, tamX);
+                srt_Direita = ResizeImage.ScaleImage(Properties.Resources.srptDireita2, tamX, tamX);
+                srt_Cima = ResizeImage.ScaleImage(Properties.Resources.srptCima2, tamX, tamX);
+                srt_Baixo = ResizeImage.ScaleImage(Properties.Resources.srptBaixo2, tamX, tamX);
+                img_Atual = srt_Esquerda;
+            }
+            
+        }
+
+
+
+        #region
 
         private void DefineVelocidades()
         {
@@ -87,8 +132,6 @@ namespace PegaBandeira
             this.tamY = this.tamX;
         }
 
- 
-
 
         /// <summary>
         /// Verifica a tecla que foi pressionada, verifica se esta ou nao tendo colisão com algum obj na tela.
@@ -111,48 +154,122 @@ namespace PegaBandeira
              * que havera uma colisão entre os dois jogadores, e interrompe a movimentação entre os dois jogadores.
              */
 
-
-            if (e.KeyChar == 'w' && this.yAtual - this.velocidadeAtual > inicioTelaY && !HasBlock(lstObs, 'w', this.xAtual, this.yAtual - this.velocidadeAtual)) 
+            //if (System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.Up))
+            //{
+            //    Console.WriteLine("key pressed");
+            //}
+            //if (e.KeyChar == 'w' && this.yAtual - this.velocidadeAtual > inicioTelaY && !HasBlock(lstObs, 'w', this.xAtual, this.yAtual - this.velocidadeAtual)) 
+            if(Keyboard.IsKeyDown(Key.W) && this.yAtual - this.velocidadeAtual > inicioTelaY && !HasBlock(lstObs, 'w', this.xAtual, this.yAtual - this.velocidadeAtual))
             {
                 if (ColisaoInimigo(enemy, this.xAtual, this.yAtual - this.velocidadeAtual))
                     return false;
 
-                this.direcaoJogador = 'c';
+                this.proxDirecao = 'c';
                 EnviaMsgMov(this.xAtual, this.yAtual - this.velocidadeAtual);  
             }
 
-            if (e.KeyChar == 's' && this.yAtual + this.velocidadeAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual) )
+            //if (e.KeyChar == 's' && this.yAtual + this.velocidadeAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual) )
+            if (Keyboard.IsKeyDown(Key.S) && this.yAtual + this.velocidadeAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual) )
             {
                 if (ColisaoInimigo(enemy, this.xAtual, this.yAtual + this.velocidadeAtual))
                     return false;
 
-                this.direcaoJogador = 'b';
+                this.proxDirecao = 'b';
                 EnviaMsgMov(this.xAtual, this.yAtual + this.velocidadeAtual);                
             }
 
 
-            if (e.KeyChar == 'a' && this.xAtual - this.velocidadeAtual > 0 && !HasBlock(lstObs, 'a', this.xAtual - this.velocidadeAtual, this.yAtual) )
+            if (Keyboard.IsKeyDown(Key.A) && this.xAtual - this.velocidadeAtual > 0 && !HasBlock(lstObs, 'a', this.xAtual - this.velocidadeAtual, this.yAtual) )
             {
                 if (ColisaoInimigo(enemy, this.xAtual - this.velocidadeAtual, this.yAtual))
                     return false;
 
-                this.direcaoJogador = 'e';
+                this.proxDirecao = 'e';
                 EnviaMsgMov(this.xAtual - this.velocidadeAtual, this.yAtual);                
             }
 
 
-            if (e.KeyChar == 'd' && this.xAtual + this.velocidadeAtual < this.larguraTela - this.tamX && !HasBlock(lstObs, 'd', this.xAtual + this.velocidadeAtual, this.yAtual))
+            if (Keyboard.IsKeyDown(Key.D) && this.xAtual + this.velocidadeAtual < this.larguraTela - this.tamX && !HasBlock(lstObs, 'd', this.xAtual + this.velocidadeAtual, this.yAtual))
             {
                 if (ColisaoInimigo(enemy, this.xAtual + this.velocidadeAtual, this.yAtual))
                     return false;
 
-                this.direcaoJogador = 'd';
+                this.proxDirecao = 'd';
                 EnviaMsgMov(this.xAtual + this.velocidadeAtual, this.yAtual);                
             }
 
             return true;           
         }
 
+        /// <summary>
+        /// Verifica a tecla que foi pressionada, verifica se esta ou nao tendo colisão com algum obj na tela.
+        /// </summary>
+        /// <param name="e">Resultado de um evento disparado do windows forms. </param>
+        /// <param name="lstObs">Lista de obstaculos.</param>
+        [STAThread]
+        public bool Input(List<Obstaculo> lstObs, JogadorInimigo enemy)
+        {
+            /*
+             * Verifica se está tendo colisão do player com algum obj ou se esta excedento os limites da tela antes de movimenta.
+             * 
+             * Considere o seguinte para as comparações:
+             * 1º: verifica a tecla que foi pressionada.
+             * 2º: verifica se o player ira sair dos limites da tela, e for sair, impede a movimentação. 
+             * 3º: verifica se tem algum bloco no caminho. Se tiver, impede a movimentação.
+             * 
+             * ------------- VERIFICA SE O PLAYER IRA COMLIDIR COM O OUTRO PLAYER
+             * 
+             * Se esse player se colidir com o outro player, ele retorna um valor negativo e o programa envia para o outro programa
+             * que havera uma colisão entre os dois jogadores, e interrompe a movimentação entre os dois jogadores.
+             */
+
+            //if (System.Windows.Input.Keyboard.IsKeyDown(System.Windows.Input.Key.Up))
+            //{
+            //    Console.WriteLine("key pressed");
+            //}
+            //if (e.KeyChar == 'w' && this.yAtual - this.velocidadeAtual > inicioTelaY && !HasBlock(lstObs, 'w', this.xAtual, this.yAtual - this.velocidadeAtual)) 
+            
+            if (Keyboard.IsKeyDown(Key.W) && this.yAtual - this.velocidadeAtual > inicioTelaY && !HasBlock(lstObs, 'w', this.xAtual, this.yAtual - this.velocidadeAtual))
+            {
+                if (ColisaoInimigo(enemy, this.xAtual, this.yAtual - this.velocidadeAtual))
+                    return false;
+
+                this.proxDirecao = 'c';
+                EnviaMsgMov(this.xAtual, this.yAtual - this.velocidadeAtual);
+            }
+
+            //if (e.KeyChar == 's' && this.yAtual + this.velocidadeAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual) )
+            if (Keyboard.IsKeyDown(Key.S) && this.yAtual + this.velocidadeAtual < this.alturaTela - this.tamX && !HasBlock(lstObs, 's', this.xAtual, this.yAtual + this.velocidadeAtual))
+            {
+                if (ColisaoInimigo(enemy, this.xAtual, this.yAtual + this.velocidadeAtual))
+                    return false;
+
+                this.proxDirecao = 'b';
+                EnviaMsgMov(this.xAtual, this.yAtual + this.velocidadeAtual);
+            }
+
+
+            if (Keyboard.IsKeyDown(Key.A) && this.xAtual - this.velocidadeAtual > 0 && !HasBlock(lstObs, 'a', this.xAtual - this.velocidadeAtual, this.yAtual))
+            {
+                if (ColisaoInimigo(enemy, this.xAtual - this.velocidadeAtual, this.yAtual))
+                    return false;
+
+                this.proxDirecao = 'e';
+                EnviaMsgMov(this.xAtual - this.velocidadeAtual, this.yAtual);
+            }
+
+
+            if (Keyboard.IsKeyDown(Key.D) && this.xAtual + this.velocidadeAtual < this.larguraTela - this.tamX && !HasBlock(lstObs, 'd', this.xAtual + this.velocidadeAtual, this.yAtual))
+            {
+                if (ColisaoInimigo(enemy, this.xAtual + this.velocidadeAtual, this.yAtual))
+                    return false;
+
+                this.proxDirecao = 'd';
+                EnviaMsgMov(this.xAtual + this.velocidadeAtual, this.yAtual);
+            }
+
+            return true;
+        }
 
         private bool SaiDaTela(float pos, float larg)
         {
@@ -160,11 +277,7 @@ namespace PegaBandeira
         }
 
 
-        public void Draw(Graphics g)
-        {
-            SolidBrush b = new SolidBrush(Color.Red);
-            g.FillRectangle(b, this.xAtual, this.yAtual, this.tamX, this.tamX);
-        }
+        
 
 
         public bool HasBlock(List<Obstaculo> lobs, char dir, float nX, float nY)
@@ -284,31 +397,48 @@ namespace PegaBandeira
             this.velocidadeAtual += this.velComPowerUp;
         }
 
-        
+#endregion
+
+
+        public void Draw(Graphics g)
+        {
+            Rectangle r = new Rectangle((int)xAtual, (int)yAtual, (int)img_Atual.Width, (int)img_Atual.Height);
+            g.DrawImage(img_Atual, r);
+        }
+
+
         public void Movimenta()
         {
-            switch (direcaoJogador)
+            /*
+             * Verificar se o proximo movimento do jogador esta na mesma direção
+             * que o movimento anteriro. se nao tiver, rotaciona o player e depois movimenta o jogador.
+            */
+            switch (proxDirecao)
             {
                 case 'c':
+                    img_Atual = srt_Cima;
                     this.yAtual -= this.velocidadeAtual;
                     break;
                 case 'b':
+                    img_Atual = srt_Baixo;
                     this.yAtual += this.velocidadeAtual;
                     break;
                 case 'e':
+                    img_Atual = srt_Esquerda;
                     this.xAtual -= this.velocidadeAtual;
                     break;
                 case 'd':
+                    img_Atual = srt_Direita;
                     this.xAtual += this.velocidadeAtual;
                     break;
             }
         }
 
-
+        #region
         private void EnviaMsgMov(float nPX, float nPy)
         {
             float[] posSend = ConvertDispositivoNormal(xAtual, yAtual);
-            string aux = string.Format("{0}|{1}|{2}", posSend[0], posSend[1], this.direcaoJogador);
+            string aux = string.Format("{0}|{1}|{2}", posSend[0], posSend[1], this.proxDirecao);
             int v = aux.Length + 5;
             string msg = string.Format("11{0}{1}", v.ToString("000"), aux);
             
@@ -373,6 +503,12 @@ namespace PegaBandeira
             return pos;
         }
 
+        #endregion
 
+        //Verifica se o jogador esta virado para a mesma direção.
+        private bool DirecaoCorreta(char dir)
+        {
+            return dir.Equals(direcaoAnterior);
+        }
     }
 }
