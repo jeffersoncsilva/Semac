@@ -27,6 +27,7 @@ namespace PegaBandeira
                 connectDone.Reset();
                 this.socket.BeginConnect(remoteEp, new AsyncCallback(ConnectCallback), this.socket);
                 connectDone.WaitOne();
+                Console.WriteLine("Porta usada: " + socket.LocalEndPoint.ToString());
                 IniciaEscuta();
                 return true;
             }

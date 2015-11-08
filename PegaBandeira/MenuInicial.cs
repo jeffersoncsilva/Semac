@@ -602,9 +602,10 @@ namespace PegaBandeira
         public void VoltaUdp()
         {
             this.serverUdp.VoltaUdpBroadcast();
-            EncerraConexaoTcp();
+            //EncerraConexaoTcp();
             Padrao();
             btn_Convida.Enabled = true;
+            emPartida = false;
         }
 
 

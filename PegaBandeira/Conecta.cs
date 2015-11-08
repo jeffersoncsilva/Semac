@@ -111,24 +111,24 @@ namespace PegaBandeira
         public void EncerraConexaoTcp()
         {
             
-            try
-            {
+            //try
+            //{
                 //Console.WriteLine("Estado conexao: " + VerificaConexaoTcp());
-                //if (VerificaConexaoTcp())
+                //if (!VerificaConexaoTcp())
                 //{
-                    this.socket.Shutdown(SocketShutdown.Both);
-                    socket.Disconnect(true);
+                    //this.socket.Shutdown(SocketShutdown.Both);
+                    //socket.Disconnect(true);
                     this.socket.Close();
                     this.socket = null;
                     Console.WriteLine("Encerrou a conexao.");
                 //}
                 
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show("Erro ao encerrar conexão. ERRO: " + e.ToString());
-                Console.WriteLine(e.ToString());
-            }
+            //}
+            //catch (Exception e)
+            //{
+            //    MessageBox.Show("Erro ao encerrar conexão. ERRO: " + e.ToString());
+            //    Console.WriteLine(e.ToString());
+            //}
         }
 
         protected void AddCliConected(Socket handler)
