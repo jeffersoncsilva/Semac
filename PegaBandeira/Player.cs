@@ -32,6 +32,11 @@ namespace PegaBandeira
         private Image srt_Cima;
         private Image srt_Baixo;
 
+        //variavel para saber o tempo decorrido desde o ultimo movimento
+        long timeUltMov;
+
+
+
         //para poder rotacionar as imagens
         //private float anguloAtual;
         //private float proxAngulo;
@@ -59,6 +64,7 @@ namespace PegaBandeira
             LoadImages(onde);
             this.proxDirecao = 'd';
             this.direcaoAnterior = 'd';
+            timeUltMov = DateTime.Now.Millisecond;
         }
 
 
@@ -86,14 +92,11 @@ namespace PegaBandeira
         }
 
 
-
-        #region
-
         private void DefineVelocidades()
         {
-            this.velSemPowerUp =  AreaPlayers.CalcPercet(1f, this.larguraTela);
+            this.velSemPowerUp =  AreaPlayers.CalcPercet(1f, this.larguraTela) / 60;
 
-            this.velComPowerUp = AreaPlayers.CalcPercet(1.5f, this.larguraTela);
+            this.velComPowerUp = AreaPlayers.CalcPercet(1.5f, this.larguraTela) / 60;
 
             this.velocidadeAtual = this.velSemPowerUp; //define a velocidade inicial do player.
         }
@@ -201,6 +204,7 @@ namespace PegaBandeira
             return true;           
         }
 
+
         /// <summary>
         /// Verifica a tecla que foi pressionada, verifica se esta ou nao tendo colisão com algum obj na tela.
         /// </summary>
@@ -271,13 +275,11 @@ namespace PegaBandeira
             return true;
         }
 
+
         private bool SaiDaTela(float pos, float larg)
         {
             return pos + this.velocidadeAtual > larg;
         }
-
-
-        
 
 
         public bool HasBlock(List<Obstaculo> lobs, char dir, float nX, float nY)
@@ -397,8 +399,6 @@ namespace PegaBandeira
             this.velocidadeAtual += this.velComPowerUp;
         }
 
-#endregion
-
 
         public void Draw(Graphics g)
         {
@@ -413,26 +413,41 @@ namespace PegaBandeira
              * Verificar se o proximo movimento do jogador esta na mesma direção
              * que o movimento anteriro. se nao tiver, rotaciona o player e depois movimenta o jogador.
             */
+            
             switch (proxDirecao)
             {
                 case 'c':
                     img_Atual = srt_Cima;
-                    this.yAtual -= this.velocidadeAtual;
+                    this.yAtual -= CalculaMovimento();
+                    timeUltMov = DateTime.Now.Millisecond;
                     break;
                 case 'b':
                     img_Atual = srt_Baixo;
-                    this.yAtual += this.velocidadeAtual;
+                    this.yAtual += CalculaMovimento();
+                    timeUltMov = DateTime.Now.Millisecond;
                     break;
                 case 'e':
                     img_Atual = srt_Esquerda;
-                    this.xAtual -= this.velocidadeAtual;
+                    this.xAtual -= CalculaMovimento();
+                    timeUltMov = DateTime.Now.Millisecond;
                     break;
                 case 'd':
                     img_Atual = srt_Direita;
-                    this.xAtual += this.velocidadeAtual;
+                    this.xAtual += CalculaMovimento();
+                    timeUltMov = DateTime.Now.Millisecond;
                     break;
             }
         }
+
+
+        private float CalculaMovimento()
+        {
+            long ta = DateTime.Now.Millisecond;
+            long tc = ta - timeUltMov;
+            return (tc / 1000) * velocidadeAtual;
+        }
+
+
 
         #region
         private void EnviaMsgMov(float nPX, float nPy)

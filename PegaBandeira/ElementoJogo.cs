@@ -17,6 +17,7 @@ namespace PegaBandeira
         public float yAtual;
         public bool mostrarAtual;
 
+
         public float tamX;
         public float tamY;
 

@@ -33,7 +33,7 @@ namespace PegaBandeira
             }
             catch (Exception e)
             {
-                MessageBox.Show("Erro na conexão. ERRO: " + e.ToString());
+                //MessageBox.Show("Erro na conexão. ERRO: " + e.ToString());
                 return false;
             }
         }
@@ -51,7 +51,7 @@ namespace PegaBandeira
             }
             catch (Exception e)
             {
-                MessageBox.Show("Erro na conexão. ERRO: " + e.ToString());
+               // MessageBox.Show("Erro na conexão. ERRO: " + e.ToString());
             }
         }
 
@@ -124,7 +124,7 @@ namespace PegaBandeira
             }
             catch (Exception e)
             {
-                MessageBox.Show("Erro no envido de dados. ERRO: " + e.ToString());
+                //MessageBox.Show("Erro no envido de dados. ERRO: " + e.ToString());
             }
         }
 
@@ -138,7 +138,7 @@ namespace PegaBandeira
             }
             catch (Exception e)
             {
-                MessageBox.Show("Erro no envido de dados. ERRO: " + e.ToString());
+                //MessageBox.Show("Erro no envido de dados. ERRO: " + e.ToString());
             }
         }
 

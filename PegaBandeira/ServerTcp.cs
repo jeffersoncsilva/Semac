@@ -56,7 +56,7 @@ namespace PegaBandeira
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro na hora de iniciar a escuta. ERRO: " + ex.ToString());
+                //MessageBox.Show("Erro na hora de iniciar a escuta. ERRO: " + ex.ToString());
                 Console.WriteLine(ex.ToString());
             }
 
@@ -78,7 +78,7 @@ namespace PegaBandeira
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao aceitar conexão. ERRO: " + ex.ToString());
+                //MessageBox.Show("Erro ao aceitar conexão. ERRO: " + ex.ToString());
             }
         }
 
@@ -200,7 +200,7 @@ namespace PegaBandeira
             }
             catch (Exception e)
             {
-                MessageBox.Show("Erro ao enviar dados. ERRO:" + e.ToString());
+                //MessageBox.Show("Erro ao enviar dados. ERRO:" + e.ToString());
                 Console.WriteLine(e.ToString());
             }
         }
@@ -216,7 +216,7 @@ namespace PegaBandeira
             }
             catch (Exception e)
             {
-                MessageBox.Show("Erro na função ServTcpSendCallback. Erro ao enviar msg. ERRO: " + e.ToString());
+                //MessageBox.Show("Erro na função ServTcpSendCallback. Erro ao enviar msg. ERRO: " + e.ToString());
                 Console.WriteLine(e.ToString());
             }
         }
