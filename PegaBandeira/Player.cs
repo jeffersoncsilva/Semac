@@ -13,6 +13,7 @@ namespace PegaBandeira
         private float velSemPowerUp;
         private float velComPowerUp;
         private float velocidadeAtual;
+        private int percent;
         private bool pegouBandeira;
         private bool pegouPowerUp;
         //REPRESENTA A LARGURA E ALTURA DA TELA DE JOGO.
@@ -35,6 +36,21 @@ namespace PegaBandeira
         //variavel para saber o tempo decorrido desde o ultimo movimento
         long timeUltMov;
 
+        Thread updat;
+        readonly object reset = new object();
+
+        private void CalculaMovi()
+        {
+            while (true)
+            {
+                lock (reset)
+                {
+                    this.velocidadeAtual = (float)(larguraTela/percent)/32;
+                }
+                Console.WriteLine(velocidadeAtual);
+                Thread.Sleep(32);
+            }
+        }
 
 
         //para poder rotacionar as imagens
@@ -64,6 +80,9 @@ namespace PegaBandeira
             LoadImages(onde);
             this.proxDirecao = 'd';
             this.direcaoAnterior = 'd';
+            percent = 10;
+            this.updat = new Thread(() => CalculaMovi());
+            updat.Start();
             timeUltMov = DateTime.Now.Millisecond;
         }
 
@@ -94,11 +113,12 @@ namespace PegaBandeira
 
         private void DefineVelocidades()
         {
-            this.velSemPowerUp =  AreaPlayers.CalcPercet(1f, this.larguraTela) / 60;
+            this.velSemPowerUp =  AreaPlayers.CalcPercet(1f, this.larguraTela);
 
-            this.velComPowerUp = AreaPlayers.CalcPercet(1.5f, this.larguraTela) / 60;
+            this.velComPowerUp = AreaPlayers.CalcPercet(1.5f, this.larguraTela);
 
             this.velocidadeAtual = this.velSemPowerUp; //define a velocidade inicial do player.
+            Console.WriteLine("VelAtu: " + velocidadeAtual);
         }
 
 
@@ -397,6 +417,7 @@ namespace PegaBandeira
         public void MudaVelPwUp()
         {
             this.velocidadeAtual += this.velComPowerUp;
+            percent = 5;           
         }
 
 
@@ -418,38 +439,25 @@ namespace PegaBandeira
             {
                 case 'c':
                     img_Atual = srt_Cima;
-                    this.yAtual -= CalculaMovimento();
-                    timeUltMov = DateTime.Now.Millisecond;
+                    this.yAtual -= velocidadeAtual;
                     break;
                 case 'b':
                     img_Atual = srt_Baixo;
-                    this.yAtual += CalculaMovimento();
-                    timeUltMov = DateTime.Now.Millisecond;
+                    this.yAtual += velocidadeAtual;
                     break;
                 case 'e':
                     img_Atual = srt_Esquerda;
-                    this.xAtual -= CalculaMovimento();
-                    timeUltMov = DateTime.Now.Millisecond;
+                    this.xAtual -= velocidadeAtual;
                     break;
                 case 'd':
                     img_Atual = srt_Direita;
-                    this.xAtual += CalculaMovimento();
-                    timeUltMov = DateTime.Now.Millisecond;
+                    this.xAtual += velocidadeAtual;
                     break;
             }
+            
         }
 
 
-        private float CalculaMovimento()
-        {
-            long ta = DateTime.Now.Millisecond;
-            long tc = ta - timeUltMov;
-            return (tc / 1000) * velocidadeAtual;
-        }
-
-
-
-        #region
         private void EnviaMsgMov(float nPX, float nPy)
         {
             float[] posSend = ConvertDispositivoNormal(xAtual, yAtual);
@@ -518,12 +526,12 @@ namespace PegaBandeira
             return pos;
         }
 
-        #endregion
 
         //Verifica se o jogador esta virado para a mesma direção.
         private bool DirecaoCorreta(char dir)
         {
             return dir.Equals(direcaoAnterior);
         }
+
     }
 }

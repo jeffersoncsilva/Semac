@@ -133,7 +133,6 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Name = "CampoBatalha";
             this.Text = "CampoBatalha";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.CampoBatalha_FormClosing);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CampoBatalha_KeyDown);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.CampoBatalha_KeyPress);
             this.ResumeLayout(false);

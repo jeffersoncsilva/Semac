@@ -25,8 +25,8 @@ namespace PegaBandeira
         private bool acabouApartida = false;//representa quando acabou a partida para poder finalizar as trheads corretamente com segurança.
 
         //constantes para definir o tamanho da tela
-        public const int LARGURA = 800;
-        public const int ALTURA = 600;
+        public const int LARGURA = 1200;
+        public const int ALTURA = 900;
 
         public const int TIMEOUT = 120;
         public const string TIMEOUTSTRING = "Tempo resante da partida: \n";
@@ -201,16 +201,6 @@ namespace PegaBandeira
         {
             this.pb.Refresh();
             this.g.Clear(Color.White);
-        }
-
-
-        private void CampoBatalha_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            //this.acabouApartida = true; //finaliza as threads que estiverem rodando no momento e dependend de um valor falso dessa variavel. (desenhaTela e colideBala)
-            //frm_Inicio.FimDeJogo();//envio a msg de desistencia para o jogador.
-            //frm_Inicio.Show();      // mostro o formulario inicial.
-            ////melhor fazer isso na main thread pra nao ter problema. (eu acho)
-            //this.frm_Inicio.Invoke((MethodInvoker)delegate() { this.frm_Inicio.IniciaUdp(); });
         }
 
 
@@ -1159,8 +1149,6 @@ namespace PegaBandeira
                 this.frm_Inicio.Show();
                 Close();
                 this.frm_Inicio.VoltaUdp();
-                //this.frm_Inicio.IniciaUdp();
-                //this.frm_Inicio.FinalisaCampoBatalha();
             }
         }
 
