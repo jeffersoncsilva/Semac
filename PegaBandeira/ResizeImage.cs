@@ -8,6 +8,16 @@ using System.Threading.Tasks;
 
 namespace PegaBandeira
 {
+    /*
+ * Trabalho desenvolvido na integração das disciplinas
+ * Programação Concorrente 
+ * Oficina de Jogos Multiplayer 
+ * Redes de Computadores
+ * 
+ * Alunos:
+ * Jefferson C. Silva
+ * Vinicios Coelho
+ */
     class ResizeImage
     {
         static public Image ScaleImage(Image image, float maxWidth, float maxHeight)

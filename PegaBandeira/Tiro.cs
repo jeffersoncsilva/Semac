@@ -8,6 +8,16 @@ using System.Drawing;
 
 namespace PegaBandeira
 {
+    /*
+ * Trabalho desenvolvido na integração das disciplinas
+ * Programação Concorrente 
+ * Oficina de Jogos Multiplayer 
+ * Redes de Computadores
+ * 
+ * Alunos:
+ * Jefferson C. Silva
+ * Vinicios Coelho
+ */
     class Tiro : ElementoJogo
     {
         public static int id_Tiro = 1;
@@ -61,6 +71,7 @@ namespace PegaBandeira
             this._id = id;
             DefineTamTiro(tam);
             this.velTiro = AreaPlayers.CalcPercet(0.25f, largTela);
+            tiro = ResizeImage.ScaleImage(Properties.Resources.tiro, tamX, tamX);
         }
 
 
@@ -106,7 +117,7 @@ namespace PegaBandeira
         {
             while (!colidiu)
             {
-                if(this.dir == 'd')
+                if (this.dir == 'd')
                     this.xAtual += this.velTiro;
 
                 if (this.dir == 'e')
@@ -116,9 +127,9 @@ namespace PegaBandeira
                     this.yAtual += this.velTiro;
 
                 if (this.dir == 'c')
-                    this.yAtual -= this.velTiro;                 
+                    this.yAtual -= this.velTiro;
                 Thread.Sleep(15);
-                if(!colidiu)
+                if (!colidiu)
                     colidiu = SaiuTela();
             }
         }

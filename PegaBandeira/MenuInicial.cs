@@ -15,6 +15,16 @@ using System.Timers;
 
 namespace PegaBandeira
 {
+    /*
+ * Trabalho desenvolvido na integração das disciplinas
+ * Programação Concorrente 
+ * Oficina de Jogos Multiplayer 
+ * Redes de Computadores
+ * 
+ * Alunos:
+ * Jefferson C. Silva
+ * Vinicios Coelho
+ */
     public partial class MenuInicial : Form
     {
         private int player; //0: player 1 servidor || 1: player 2 cliente.

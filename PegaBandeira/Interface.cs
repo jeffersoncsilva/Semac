@@ -8,6 +8,16 @@ using System.Windows.Forms;
 
 namespace PegaBandeira
 {
+    /*
+ * Trabalho desenvolvido na integração das disciplinas
+ * Programação Concorrente 
+ * Oficina de Jogos Multiplayer 
+ * Redes de Computadores
+ * 
+ * Alunos:
+ * Jefferson C. Silva
+ * Vinicios Coelho
+ */
     class Interface
     {
         

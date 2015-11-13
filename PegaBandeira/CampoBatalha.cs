@@ -13,6 +13,17 @@ namespace PegaBandeira
 {
     public partial class CampoBatalha : Form
     {
+        /*
+         * Trabalho desenvolvido na integração das disciplinas
+         * Programação Concorrente 
+         * Oficina de Jogos Multiplayer 
+         * Redes de Computadores
+         * 
+         * Alunos:
+         * Jefferson C. Silva
+         * Vinicios Coelho
+         */
+
         private int vidasOutroPlayer = 3;
         private bool outroJogadorCongelado = false;
         private int rodada = 3;

@@ -11,6 +11,16 @@ using System.Windows.Forms;
 
 namespace PegaBandeira
 {
+    /*
+ * Trabalho desenvolvido na integração das disciplinas
+ * Programação Concorrente 
+ * Oficina de Jogos Multiplayer 
+ * Redes de Computadores
+ * 
+ * Alunos:
+ * Jefferson C. Silva
+ * Vinicios Coelho
+ */
     public class ServerUdp
     {
         ManualResetEvent reset = new ManualResetEvent(false);
@@ -104,14 +114,29 @@ namespace PegaBandeira
         }
 
 
+        private string PegaIP()
+        {
+            if (!System.Net.NetworkInformation.NetworkInterface.GetIsNetworkAvailable())
+            {
+                return null;
+            }
+
+            IPHostEntry host = Dns.GetHostEntry(Dns.GetHostName());
+            return host.AddressList.First(ip => ip.AddressFamily == AddressFamily.InterNetwork).ToString();
+        }
+
+
         private void Escuta()
         {
             try
             {
-                localEndPoint = new IPEndPoint(IPAddress.Any, 20152);
+                IPAddress ip = IPAddress.Parse(PegaIP());
+                localEndPoint = new IPEndPoint(ip, 20152);
                 this.socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 this.socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Broadcast, 1);
                 this.socket.Bind(localEndPoint);
+
+                Console.WriteLine("LOCAL: " + localEndPoint.ToString());
 
                 socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
     
@@ -278,6 +303,9 @@ namespace PegaBandeira
             if (!comecouJogo)
             {
                 string msgRecebida = System.Text.Encoding.ASCII.GetString(dados);
+
+
+                Console.WriteLine(msgRecebida);
 
                 string tipo = msgRecebida.Substring(0, 2);
                 int tam = int.Parse(msgRecebida.Substring(2, 3));
